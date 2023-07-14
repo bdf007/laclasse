@@ -1,0 +1,52 @@
+.App {
+  text-align: center;
+  min-height: 100vh;
+}
+#root {
+  min-height: 100vh;
+}
+* {
+  box-sizing: border-box;
+}
+
+body {
+  position: relative;
+  background-color: darkgray;
+}
+main {
+  margin-bottom: 220px;
+}
+.footer-bs {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  bottom: 0;
+  height: 10rem;
+  color: white;
+}
+.home {
+  padding-top: 2rem;
+  padding-bottom: 10rem;
+  max-width: 100vw;
+  margin-right: 0;
+  padding-left: 0;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.description {
+  font-size: 1.8rem;
+  white-space: pre-line;
+}
+
+.techno {
+  background-color: darkgray;
+}
+
+@media screen and (max-width: 768px) {
+  .description {
+    font-size: 1.5rem;
+    white-space: pre-line;
+  }
+}
