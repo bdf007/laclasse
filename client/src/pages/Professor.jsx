@@ -3,7 +3,7 @@ import { UserContext } from "../context/UserContext";
 import axios from "axios";
 import { getUser } from "../api/user";
 import { toast } from "react-toastify";
-const Admin = () => {
+const Professor = () => {
   const { user, setUser } = useContext(UserContext);
   // axios call to get all the users
   const [users, setUsers] = useState([]);
@@ -40,7 +40,7 @@ const Admin = () => {
     </div>
   ) : (
     <>
-      {user.role === "admin" && (
+      {user.role === "professor" && (
         <div
           className="container text-center home"
           style={{ marginTop: "12rem" }}
@@ -48,7 +48,9 @@ const Admin = () => {
           <div className="alert alert-primary p-5">
             <h1>
               {" "}
-              <span className="text-success">{user.role}'s</span> Admin
+              <span className="text-success">
+                {user.firstname}'s
+              </span> Professor {user.role}
             </h1>
             <div className="text-center">
               {/* list all user */}
@@ -76,4 +78,4 @@ const Admin = () => {
   );
 };
 
-export default Admin;
+export default Professor;

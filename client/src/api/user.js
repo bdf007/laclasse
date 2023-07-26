@@ -56,14 +56,17 @@ export const logout = async () => {
   }
 };
 
+// get user info
 export const getUser = async () => {
   try {
     const res = await fetch(`${process.env.REACT_APP_API_URL}/api/user`, {
       method: "GET",
       credentials: "include",
     });
+    const data = await res.json();
 
-    return await res.json();
+    const { firstname, role } = data;
+    return { firstname, role };
   } catch (error) {
     throw new Error("Please login to continue.");
   }

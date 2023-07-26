@@ -1,7 +1,6 @@
 const User = require("../models/userlogin");
 
 exports.userRegisterValidator = (req, res, next) => {
-  console.log(req.body);
   // firstname is not null
   req.check("firstname", "Firstname is required").notEmpty();
   // lastname is not null
@@ -37,7 +36,6 @@ exports.userRegisterValidator = (req, res, next) => {
 exports.userById = async (req, res, next) => {
   try {
     const user = await User.findById(req._id).exec();
-
     if (!user) {
       return res.status(404).json({
         error: "User not found",

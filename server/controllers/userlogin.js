@@ -71,9 +71,10 @@ exports.logout = (req, res) => {
 };
 
 exports.getLoggedInUser = (req, res) => {
-  const { firstname } = req.user;
+  const { firstname, role } = req.user;
   return res.status(200).json({
     firstname,
+    role,
     message: "User is still logged in",
   });
 };
@@ -92,7 +93,6 @@ exports.getLoggedInUser = (req, res) => {
 exports.getUsers = async (req, res) => {
   try {
     const users = await User.find({});
-    console.log(users);
     return res.status(200).json(users);
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
