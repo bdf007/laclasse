@@ -98,3 +98,31 @@ exports.getUsers = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+
+// delete a user by id
+exports.deleteUserById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    // Check if the aboutId exists
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        error: "ID does not exist",
+      });
+    }
+    // if aboutId exists, delete the about
+    const deleteUser = await User.findByIdAndRemove(id);
+    res.json({ message: "user deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
+
+// get user info
+exports.userById = async (req, res, next, id) => {
+  try {
+  } catch (error) {}
+};

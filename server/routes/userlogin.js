@@ -8,6 +8,7 @@ const {
   logout,
   getLoggedInUser,
   getUsers,
+  deleteUserById,
 } = require("../controllers/userlogin");
 // import middlewares
 const { userRegisterValidator, userById } = require("../middlewares/userlogin");
@@ -16,6 +17,8 @@ const { verifyToken } = require("../middlewares/auth");
 router.post("/register", userRegisterValidator, register);
 router.post("/login", login);
 router.get("/logout", logout);
+// delete a user by id
+router.delete("/user/:id", deleteUserById);
 
 // get all the users
 router.get("/users", getUsers);

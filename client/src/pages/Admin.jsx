@@ -6,13 +6,13 @@ import { toast } from "react-toastify";
 const Admin = () => {
   const { user, setUser } = useContext(UserContext);
   // axios call to get all the users
-  const [users, setUsers] = useState([]);
+  const [listOfUser, setLisOfUser] = useState([]);
 
   useEffect(() => {
     axios
       .get(`${process.env.REACT_APP_API_URL}/api/users`)
       .then((res) => {
-        setUsers(res.data);
+        setLisOfUser(res.data);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -32,6 +32,15 @@ const Admin = () => {
 
     fetchData();
   }, [setUser, user]);
+
+  // delete function for user
+  const deleteUser = (id) => {
+    axios.delete(`${process.env.REACT_APP_API_URL}/api/user/${id}`).then(() => {
+      toast.success("User deleted");
+      setLisOfUser((prevList) => prevList.filter((val) => val._id !== id));
+    });
+  };
+
   return !user ? (
     <div className="container text-center home" style={{ marginTop: "12rem" }}>
       <div className="alert alert-primary p-5">
@@ -54,7 +63,7 @@ const Admin = () => {
               {/* list all user */}
               <h1 className="text-center">Liste des utilisateurs</h1>
               <div className="row">
-                {users.map((user) => (
+                {listOfUser.map((user) => (
                   <div className="col-md-4" key={user._id}>
                     <div className="card m-2">
                       <div className="card-body">
@@ -63,6 +72,13 @@ const Admin = () => {
 
                         <p className="card-text">{user.email}</p>
                         <p className="card-text">{user.role}</p>
+                        {/* add a button for delete user */}
+                        <button
+                          className="btn btn-danger"
+                          onClick={() => deleteUser(user._id)}
+                        >
+                          Delete
+                        </button>
                       </div>
                     </div>
                   </div>

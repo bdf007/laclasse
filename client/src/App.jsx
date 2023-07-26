@@ -25,6 +25,7 @@ import Footer from "./component/footer";
 
 // API functions
 import { getUser } from "./api/user";
+import Student from "./pages/Student";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -60,10 +61,16 @@ function App() {
 
                 <Route path="*" element={<Navigate to="/" />} />
               </>
-            ) : (
-              // if user is professor
+            ) : // if user is professor
+            user.role === "professor" ? (
               <>
                 <Route exact path="/" element={<Professor />} />
+                <Route path="*" element={<Navigate to="/" />} />
+              </>
+            ) : (
+              // if user is student
+              <>
+                <Route exact path="/" element={<Student />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </>
             )}
