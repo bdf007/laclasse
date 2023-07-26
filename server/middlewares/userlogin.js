@@ -1,8 +1,11 @@
 const User = require("../models/userlogin");
 
 exports.userRegisterValidator = (req, res, next) => {
-  // username is not null
-  req.check("username", "Username is required").notEmpty();
+  console.log(req.body);
+  // firstname is not null
+  req.check("firstname", "Firstname is required").notEmpty();
+  // lastname is not null
+  req.check("lastname", "Lastname is required").notEmpty();
   // email is not null, valid and normalized
   req.check("email", "Email must be between 3 to 32 characters").notEmpty();
   req.check("email", "Invalid email").isEmail();

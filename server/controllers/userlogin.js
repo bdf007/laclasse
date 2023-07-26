@@ -4,14 +4,14 @@ require("dotenv").config();
 
 exports.register = async (req, res) => {
   // check if user already exists
-  const usernameExists = await User.findOne({ username: req.body.username });
+  // const usernameExists = await User.findOne({ username: req.body.username });
   const emailExists = await User.findOne({ email: req.body.email });
 
-  if (usernameExists) {
-    return res.status(403).json({
-      error: "Username is already taken",
-    });
-  }
+  // if (usernameExists) {
+  //   return res.status(403).json({
+  //     error: "Username is already taken",
+  //   });
+  // }
   if (emailExists) {
     return res.status(403).json({
       error: "Email is already taken",
@@ -50,10 +50,11 @@ exports.login = async (req, res) => {
 
     res.cookie("jwt", token, { expire: new Date() + 9999, httpOnly: true });
 
-    const { username } = user;
+    const { firstname, lastname } = user;
     return res.json({
       message: "Login success",
-      username,
+      firstname,
+      lastname,
     });
   } catch (error) {
     // Handle any potential errors
@@ -70,9 +71,30 @@ exports.logout = (req, res) => {
 };
 
 exports.getLoggedInUser = (req, res) => {
-  const { username } = req.user;
+  const { firstname } = req.user;
   return res.status(200).json({
-    username,
+    firstname,
     message: "User is still logged in",
   });
+};
+
+// exports.getUsers = async (req, res) => {
+//   try {
+//     const users = await User.find({}).select("username email createdAt");
+//     console.log(users);
+//     return res.status(200).json(users);
+//   } catch (error) {
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
+// get all the users with all the fields
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.find({});
+    console.log(users);
+    return res.status(200).json(users);
+  } catch (error) {
+    return res.status(500).json({ error: "Internal server error" });
+  }
 };

@@ -12,6 +12,8 @@ import {
   InputLabel,
   Button,
   FormHelperText,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -24,10 +26,12 @@ import { register } from "../api/user";
 const Signup = () => {
   const navigate = useNavigate();
   // form states
-  const [username, setUsername] = useState("");
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("user");
   const [showPassword, setShowPassword] = useState(false);
 
   // password validation
@@ -40,7 +44,13 @@ const Signup = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const res = await register({ username, email, password });
+      const res = await register({
+        firstname,
+        lastname,
+        email,
+        password,
+        role,
+      });
       if (res.error) toast.error(res.error);
       else {
         toast.success(res.message);
@@ -65,9 +75,19 @@ const Signup = () => {
             size="small"
             variant="outlined"
             className="form-control mb-3"
-            label="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            label="Firstname"
+            value={firstname}
+            onChange={(e) => setFirstname(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <TextField
+            size="small"
+            variant="outlined"
+            className="form-control mb-3"
+            label="Lastname"
+            value={lastname}
+            onChange={(e) => setLastname(e.target.value)}
           />
         </div>
         <div className="form-group">
@@ -191,6 +211,26 @@ const Signup = () => {
             </FormHelperText>
           )}
         </div>
+        {/* role option between user, professor and admin */}
+        <div className="form-group">
+          <FormControl
+            variant="outlined"
+            size="small"
+            className="form-control mb-3"
+          >
+            <InputLabel htmlFor="outlined-adornment-password">Role</InputLabel>
+            <Select
+              label="Role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+            >
+              <MenuItem value="user">User</MenuItem>
+              <MenuItem value="professor">Professor</MenuItem>
+              <MenuItem value="admin">Admin</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+
         <div className="text-center mt-4">
           <Button
             className="mb-4"
@@ -200,7 +240,9 @@ const Signup = () => {
               !email ||
               !password ||
               !confirmpassword ||
-              !username ||
+              !firstname ||
+              !lastname ||
+              !role ||
               password !== confirmpassword ||
               !hasSixChar ||
               !hasLowerChar ||

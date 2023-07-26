@@ -27,7 +27,7 @@ const NavBarre = () => {
     <nav className="navbar navbar-expand-lg navbar-dark bg-black">
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">
-          Christophe Midelet
+          LA Classe
         </Link>
         <button
           className="navbar-toggler"
@@ -45,69 +45,18 @@ const NavBarre = () => {
             {!user ? (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/About">
-                    A propos
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/Education">
-                    Education
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/Experience">
-                    Expérience
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/Project">
-                    Projet
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/Contact">
-                    Contact
-                  </Link>
-                </li>
-
-                {/* <li className="nav-item">
                   <Link className="nav-link" to="/signup">
                     Sign Up
                   </Link>
-                </li> */}
-                {/* <li className="nav-item">
+                </li>
+                <li className="nav-item">
                   <Link className="nav-link" to="/login">
                     Login
                   </Link>
-                </li> */}
+                </li>
               </>
             ) : (
               <>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/About">
-                    About
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/Education">
-                    Education
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/Experience">
-                    Experience
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/Project">
-                    Project
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/Contact">
-                    Contact
-                  </Link>
-                </li>
                 <li className="nav-item">
                   <span
                     className="nav-link"
