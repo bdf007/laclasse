@@ -10,6 +10,8 @@ const expressValidator = require("express-validator");
 
 // get the user routes for connection
 const userRoutes = require("./routes/userlogin");
+// get the class routes for connection
+const classRoutes = require("./routes/class");
 
 // middleware
 app.use(json({ limit: "10mb" }));
@@ -31,6 +33,8 @@ app.use(express.static(path.join(__dirname, "..", "client", "build")));
 // routes
 // use the user routes for connection
 app.use("/api/", userRoutes);
+// use the class routes for connection
+app.use("/api/", classRoutes);
 
 // Serve the React app
 app.get("/*", (req, res) => {

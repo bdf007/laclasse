@@ -10,7 +10,7 @@ const Home = () => {
         <Helmet>
           <meta
             name="description"
-            content="Bienvenue sur mon portfolio - Christophe Midelet"
+            content="La Classe de français de stéphanie Labbé"
           />
           <meta
             name="keyword"

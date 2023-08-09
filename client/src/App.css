@@ -11,10 +11,14 @@
 
 body {
   position: relative;
-  background-color: darkgray;
+  background-color: #f8fae6;
 }
 main {
   margin-bottom: 220px;
+}
+
+.navbar {
+  background-color: #a497f7;
 }
 .footer-bs {
   position: absolute;
@@ -22,7 +26,7 @@ main {
   left: 0;
   bottom: 0;
   height: 10rem;
-  color: white;
+  border: 1px solid black;
 }
 .home {
   padding-top: 2rem;

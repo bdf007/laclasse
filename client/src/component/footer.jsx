@@ -4,7 +4,7 @@ import "../App.css";
 
 const Footer = () => {
   return (
-    <footer className="footer-bs bg-primary ">
+    <footer className="footer-bs">
       <div className="row pe-0 ps-0 me-0 ms-0">
         <div className="footer-brand ">
           <ul className="ms-auto list-inline d-flex justify-content-around">

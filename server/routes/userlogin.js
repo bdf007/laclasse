@@ -9,6 +9,7 @@ const {
   getLoggedInUser,
   getUsers,
   deleteUserById,
+  addClassToUser,
 } = require("../controllers/userlogin");
 // import middlewares
 const { userRegisterValidator, userById } = require("../middlewares/userlogin");
@@ -25,5 +26,8 @@ router.get("/users", getUsers);
 
 // get logged in user
 router.get("/user", verifyToken, userById, getLoggedInUser);
+
+// add class to user
+router.post("/user/assign-class", addClassToUser);
 
 module.exports = router;

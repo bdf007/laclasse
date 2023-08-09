@@ -36,6 +36,12 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin", "professor"],
       default: "user",
     },
+    // add a class by the id of the class
+    classes: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Class",
+    },
+
     salt: String,
   },
   { timestamps: true }

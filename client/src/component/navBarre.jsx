@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { UserContext } from "../context/UserContext";
+import logo from "../assets/logo.png";
 
 // API functions
 import { logout, getUser } from "../api/user";
@@ -41,10 +42,10 @@ const NavBarre = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-black">
+    <nav className="navbar navbar-expand-lg ">
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">
-          LA Classe
+          <img src={logo} alt="logo" width="100px" height="100px" />
         </Link>
         <button
           className="navbar-toggler"

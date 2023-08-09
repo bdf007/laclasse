@@ -1,4 +1,6 @@
 const User = require("../models/userlogin");
+const Class = require("../models/class");
+
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
@@ -125,4 +127,27 @@ exports.deleteUserById = async (req, res) => {
 exports.userById = async (req, res, next, id) => {
   try {
   } catch (error) {}
+};
+
+exports.addClassToUser = async (req, res) => {
+  try {
+    const { userId, classId } = req.body;
+
+    // Find the user and class documents
+    const user = await User.findById(userId);
+    const classInfo = await Class.findById(classId);
+
+    if (!user || !classInfo) {
+      return res.status(400).json({ message: "User or class not found" });
+    }
+
+    // Update the user's classes field with the assigned class ID
+    user.classes = classId;
+    await user.save();
+
+    res.status(200).json({ message: "Class assigned to user successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error assigning class to user" });
+  }
 };

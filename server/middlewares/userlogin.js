@@ -48,3 +48,33 @@ exports.userById = async (req, res, next) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+
+exports.addClassToUser = async (req, res) => {
+  const { userId, classId } = req.params;
+
+  try {
+    // find the user and the class based on the provided ids
+    const user = await User.findById(userId);
+    const classToAdd = await Class.findById(classId);
+
+    // check if the user and the class exist
+    if (!user || !classToAdd) {
+      return res.status(404).json({
+        error: "User or class does not exist",
+      });
+    }
+
+    // add the class to the user array
+    user.classes.push(classToAdd);
+
+    // save the updated user
+    await user.save();
+
+    res.json({ message: "Class added successfully", user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
