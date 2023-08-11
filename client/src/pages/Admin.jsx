@@ -13,26 +13,47 @@ const Admin = () => {
 
   useEffect(() => {
     // Fetch users and classes
-    axios.get(`${process.env.REACT_APP_API_URL}/api/users`).then((res) => {
-      setListOfUser(res.data);
-      console.log(res.data);
-      // get the name of the class according to the id for each user and add it to the list of user
-      listOfUser.forEach((element) => {
-        console.log(element.classes);
-        if (element.classes) {
-          console.log(element.classes);
-          axios
-            .get(
-              `${process.env.REACT_APP_API_URL}/api/class/${element.classes}`
-            )
-            .then((res) => {
-              console.log(res);
-              element.classes = res.data.name;
-            });
-          return element;
-        }
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/api/users`)
+      .then((res) => {
+        setListOfUser(res.data);
+        fetchAndSetClassNames(res.data);
+      })
+      .catch((error) => {
+        console.error(error);
+        toast(error);
       });
-    });
+
+    // Fetch class names and update the user list
+    const fetchAndSetClassNames = async (users) => {
+      try {
+        const updatedUsers = await Promise.all(
+          users.map(async (user) => {
+            if (user.classes) {
+              try {
+                const classResponse = await axios.get(
+                  `${process.env.REACT_APP_API_URL}/api/class/${user.classes}`
+                );
+                console.log(
+                  `Assigning class ${classResponse.data.name} to user ${user.firstname}`
+                );
+                user.classeName = classResponse.data.name;
+                console.log(`User after assignment:`, user);
+                return user;
+              } catch (err) {
+                toast(err);
+                return user;
+              }
+            }
+            return user;
+          })
+        );
+        setListOfUser(updatedUsers);
+      } catch (error) {
+        console.error(error);
+        toast(error);
+      }
+    };
 
     axios.get(`${process.env.REACT_APP_API_URL}/api/classes`).then((res) => {
       setListOfClass(res.data);
@@ -42,6 +63,7 @@ const Admin = () => {
     const fetchData = async () => {
       try {
         const res = await getUser();
+        console.log("admin");
         if (res.error) toast(res.error);
         else setUser(res);
       } catch (err) {
@@ -50,7 +72,7 @@ const Admin = () => {
     };
 
     fetchData();
-  }, [setUser]);
+  }, [setListOfUser]);
 
   // get the info of the user logged in
   useEffect(() => {
@@ -66,7 +88,7 @@ const Admin = () => {
     };
 
     fetchData();
-  }, [setUser, user]);
+  }, [setUser]);
 
   // delete function for user
   const deleteUser = (id) => {
@@ -134,10 +156,10 @@ const Admin = () => {
 
                         <p className="card-text">{user.email}</p>
                         <p className="card-text">{user.role}</p>
-                        {!user.class ? (
+                        {!user.classes ? (
                           <p className="card-text">No class assigned</p>
                         ) : (
-                          <p className="card-text">{user.class.name}</p>
+                          <p className="card-text">{user.classeName}</p>
                         )}
                         {/* add a drop down menu of classes and update the user with the class selected */}
                         <select

@@ -22,6 +22,7 @@ const Professor = () => {
     const fetchData = async () => {
       try {
         const res = await getUser();
+        console.log("professor");
 
         if (res.error) toast(res.error);
         else setUser(res); // Set the entire 'res' object, which includes 'firstname' and 'role'
@@ -31,7 +32,7 @@ const Professor = () => {
     };
 
     fetchData();
-  }, [setUser, user]);
+  }, [setUser]);
   return !user ? (
     <div className="container text-center home" style={{ marginTop: "12rem" }}>
       <div className="alert alert-primary p-5">

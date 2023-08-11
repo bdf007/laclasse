@@ -1,4 +1,5 @@
 const Class = require("../models/class");
+const mongoose = require("mongoose");
 
 exports.createClass = async (req, res) => {
   const newClass = new Class(req.body);
@@ -62,16 +63,19 @@ exports.updateClassById = async (req, res) => {
 };
 
 // get class by id
-exports.classById = async (req, res, id) => {
-  console.log("hello", id);
+exports.classById = async (req, res) => {
   try {
-    const classInfo = await Class.findById(id);
+    const id = req.params.id;
+    // convert the id to a mongoose object id
+    const _id = new mongoose.Types.ObjectId(id);
+    const classInfo = await Class.findOne(_id);
+    console.log("classInfo " + classInfo);
     if (!classInfo) {
       return res.status(404).json({
         error: "Class not found",
       });
     }
-    req.classInfo = classInfo;
+    res.status(200).json(classInfo);
   } catch (error) {
     console.error(error);
     res.status(500).json({

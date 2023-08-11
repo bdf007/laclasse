@@ -17,7 +17,7 @@ const NavBarre = () => {
     const fetchData = async () => {
       try {
         const res = await getUser();
-
+        console.log("navbarre");
         if (res.error) toast(res.error);
         else setUser(res); // Set the entire 'res' object, which includes 'firstname' and 'role'
       } catch (err) {
@@ -26,7 +26,7 @@ const NavBarre = () => {
     };
 
     fetchData();
-  }, [setUser, user]);
+  }, [setUser]);
 
   const handleLogout = async (e) => {
     e.preventDefault();

@@ -63,6 +63,7 @@ export const getUser = async () => {
       method: "GET",
       credentials: "include",
     });
+    console.log("user.js");
     const data = await res.json();
 
     const { firstname, role } = data;

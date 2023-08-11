@@ -20,7 +20,7 @@ const Student = () => {
     };
 
     fetchData();
-  }, [setUser, user]);
+  }, [setUser]);
 
   return (
     <div>

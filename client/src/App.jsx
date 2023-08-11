@@ -33,6 +33,7 @@ function App() {
   useEffect(() => {
     const unsubscribe = getUser()
       .then((res) => {
+        console.log("app");
         if (res.error) toast(res.error);
         else setUser(res.firstname, res.role);
       })
