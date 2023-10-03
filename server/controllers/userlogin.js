@@ -104,6 +104,8 @@ exports.getLoggedInUser = async (req, res) => {
     return res.json({
       message: "User is still logged in",
       firstname,
+      lastname,
+      email,
       role,
     });
   }

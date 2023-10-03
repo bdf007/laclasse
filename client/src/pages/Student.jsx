@@ -29,14 +29,18 @@ const Student = () => {
         prénom : {user.firstname} <br /> nom : {user.lastname}
         <br />
         email : {user.email}
-        <br />
-        role: {user.role}
       </p>
-      <h2> le nom de ma classe : {user.classes}</h2>
-      <p>
-        A propos de ma classe : <br />
-        {user.aboutClass}
-      </p>
+      {!user.classes ? (
+        <p>Vous n'avez pas encore de classe</p>
+      ) : (
+        <>
+          <p>Vous êtes dans la classe {user.classes}</p>
+          <p>
+            A propos de ma classe : <br />
+            {user.aboutClass}
+          </p>
+        </>
+      )}
     </div>
   );
 };
