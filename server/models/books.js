@@ -20,7 +20,7 @@ const bookSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    image: {
+    imageData: {
       type: String,
       trim: true,
     },
