@@ -1,5 +1,6 @@
-# portfolio
+# la classe de français
 
 # todo
-mettre en forme la partie home 
+ajouter bibliothèque de livres
+mettre en forme accueil pour chaque role
 
