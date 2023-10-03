@@ -34,8 +34,12 @@ const Login = () => {
       if (res.error) toast.error(res.error);
       else {
         toast.success(res.message);
-        // set user in context
-        setUser(res.username);
+        // Set user in context with firstname and role properties
+        setUser({
+          firstname: res.firstname,
+          role: res.role,
+          classes: res.classes,
+        });
         // redirect to home page
         navigate("/");
       }

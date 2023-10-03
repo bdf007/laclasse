@@ -10,6 +10,8 @@ const {
   getUsers,
   deleteUserById,
   addClassToUser,
+  removeClassToUser,
+  // updateProfile,
 } = require("../controllers/userlogin");
 // import middlewares
 const { userRegisterValidator, userById } = require("../middlewares/userlogin");
@@ -29,5 +31,11 @@ router.get("/user", verifyToken, userById, getLoggedInUser);
 
 // add class to user
 router.post("/user/assign-class", addClassToUser);
+
+// remmove class from user
+router.post("/user/remove-class", removeClassToUser);
+
+// update profile
+// router.post("/update-profile", getLoggedInUser, updateProfile);
 
 module.exports = router;

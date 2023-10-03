@@ -29,11 +29,9 @@ import Student from "./pages/Student";
 
 function App() {
   const [user, setUser] = useState(null);
-
   useEffect(() => {
     const unsubscribe = getUser()
       .then((res) => {
-        console.log("app");
         if (res.error) toast(res.error);
         else setUser(res.firstname, res.role);
       })
@@ -60,19 +58,19 @@ function App() {
               <>
                 <Route exact path="/" element={<Admin />} />
 
-                <Route path="*" element={<Navigate to="/" />} />
+                <Route path="*" element={<Navigate to="/admin" />} />
               </>
             ) : // if user is professor
             user.role === "professor" ? (
               <>
                 <Route exact path="/" element={<Professor />} />
-                <Route path="*" element={<Navigate to="/" />} />
+                <Route path="*" element={<Navigate to="/professor" />} />
               </>
             ) : (
               // if user is student
               <>
                 <Route exact path="/" element={<Student />} />
-                <Route path="*" element={<Navigate to="/" />} />
+                <Route path="*" element={<Navigate to="/student" />} />
               </>
             )}
           </Routes>

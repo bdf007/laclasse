@@ -7,6 +7,10 @@ const classSchema = new mongoose.Schema({
     trim: true,
     lowercase: true,
   },
+  about: {
+    type: String,
+    trim: true,
+  },
 });
 
 module.exports = mongoose.model("Class", classSchema);

@@ -16,7 +16,7 @@ const Admin = () => {
     axios
       .get(`${process.env.REACT_APP_API_URL}/api/users`)
       .then((res) => {
-        setListOfUser(res.data);
+        // setListOfUser(res.data);
         fetchAndSetClassNames(res.data);
       })
       .catch((error) => {
@@ -34,11 +34,8 @@ const Admin = () => {
                 const classResponse = await axios.get(
                   `${process.env.REACT_APP_API_URL}/api/class/${user.classes}`
                 );
-                console.log(
-                  `Assigning class ${classResponse.data.name} to user ${user.firstname}`
-                );
+
                 user.classeName = classResponse.data.name;
-                console.log(`User after assignment:`, user);
                 return user;
               } catch (err) {
                 toast(err);
@@ -63,7 +60,6 @@ const Admin = () => {
     const fetchData = async () => {
       try {
         const res = await getUser();
-        console.log("admin");
         if (res.error) toast(res.error);
         else setUser(res);
       } catch (err) {
@@ -120,8 +116,39 @@ const Admin = () => {
       .then(() => {
         toast.success("Class assigned to user");
         setSelectedClass(""); // Clear selected class
+        window.location.reload();
       })
       .catch((err) => console.log(err));
+  };
+
+  const removeClassFromUser = (userId) => {
+    // Remove class from user
+    axios
+      .post(`${process.env.REACT_APP_API_URL}/api/user/remove-class`, {
+        userId: userId,
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          toast.success("Class removed from user");
+          setSelectedClass(""); // Clear selected class
+          window.location.reload();
+        } else {
+          const errorMessage =
+            response.data && response.data.error
+              ? response.data.error
+              : "An unknown error occurred while removing class from user";
+          toast.error(errorMessage);
+          console.error(response); // Log the response for debugging
+        }
+      })
+      .catch((err) => {
+        const errorMessage =
+          err.response && err.response.data && err.response.data.error
+            ? err.response.data.error
+            : "An unknown error occurred while removing class from user";
+        toast.error(errorMessage);
+        console.error(err); // Log the error for debugging
+      });
   };
 
   return !user ? (
@@ -174,12 +201,23 @@ const Admin = () => {
                               {classe.name}
                             </option>
                           ))}
+                          <option value="none">None</option>
                         </select>
                         <button
                           className="btn btn-primary"
-                          onClick={() => assignClassToUser(user._id)}
+                          onClick={() => {
+                            if (selectedClass === "none") {
+                              // Handle the case where "null" is selected
+                              removeClassFromUser(user._id); // Set selectedClass to null
+                            } else {
+                              assignClassToUser(user._id); // Assign the selected class to the user
+                            }
+                          }}
                         >
-                          Assign Class
+                          {selectedClass === "none"
+                            ? "Clear Class"
+                            : "Assign Class"}{" "}
+                          {/* Change button text based on selection */}
                         </button>
                         {/* add a button for delete user */}
                         <button

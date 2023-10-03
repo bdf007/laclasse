@@ -36,7 +36,7 @@ export const login = async ({ email, password } = {}) => {
       },
       body: JSON.stringify(user),
     });
-
+    console.log("res: ", res);
     return await res.json();
   } catch (error) {
     throw new Error(`Cant login at this time. ${error}`);
@@ -63,11 +63,43 @@ export const getUser = async () => {
       method: "GET",
       credentials: "include",
     });
-    console.log("user.js");
     const data = await res.json();
+    const { _id, firstname, lastname, email, role, classes, aboutClass } = data;
+    console.log("data: ", data);
+    return { _id, firstname, lastname, email, role, classes, aboutClass };
+  } catch (error) {
+    throw new Error("Please login to continue.");
+  }
+};
 
-    const { firstname, role } = data;
-    return { firstname, role };
+export const updateUser = async ({
+  _id,
+  firstname,
+  lastname,
+  email,
+  password,
+}) => {
+  const user = {
+    _id,
+    firstname,
+    lastname,
+    email,
+    password,
+  };
+  try {
+    const res = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/update-profile`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json", // Specify content type
+        },
+        body: JSON.stringify(user), // Send as JSON
+      }
+    );
+    return await res.json();
   } catch (error) {
     throw new Error("Please login to continue.");
   }

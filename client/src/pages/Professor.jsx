@@ -8,21 +8,53 @@ const Professor = () => {
   // axios call to get all the users
   const [users, setUsers] = useState([]);
 
-  useEffect(() => {
+  const getUsers = () => {
     axios
       .get(`${process.env.REACT_APP_API_URL}/api/users`)
       .then((res) => {
-        setUsers(res.data);
+        // setUsers(res.data);
+        fetchAndSetClassNames(res.data);
       })
       .catch((err) => console.log(err));
-  }, []);
+  };
+
+  // Fetch class names and update the user list
+  const fetchAndSetClassNames = async (users) => {
+    try {
+      const updatedUsers = await Promise.all(
+        users.map(async (user) => {
+          if (user.classes) {
+            try {
+              const classResponse = await axios.get(
+                `${process.env.REACT_APP_API_URL}/api/class/${user.classes}`
+              );
+
+              user.classeName = classResponse.data.name;
+              return user;
+            } catch (err) {
+              toast(err);
+              return user;
+            }
+          }
+          return user;
+        })
+      );
+      setUsers(updatedUsers);
+    } catch (error) {
+      console.error(error);
+      toast(error);
+    }
+  };
+
+  useEffect(() => {
+    getUsers();
+  }, [setUsers]);
 
   // get the info of the user logged in
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await getUser();
-        console.log("professor");
 
         if (res.error) toast(res.error);
         else setUser(res); // Set the entire 'res' object, which includes 'firstname' and 'role'
@@ -66,6 +98,7 @@ const Professor = () => {
 
                         <p className="card-text">{user.email}</p>
                         <p className="card-text">{user.role}</p>
+                        <p className="card-text">{user.classeName}</p>
                       </div>
                     </div>
                   </div>

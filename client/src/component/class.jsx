@@ -6,6 +6,7 @@ function Class() {
   const [newClassName, setNewClassName] = useState(""); // New class name input state
   const [editingClassId, setEditingClassId] = useState(""); // State to track the class being edited
   const [updatedClassName, setUpdatedClassName] = useState(""); // New class name for update
+  const [updatedClassAbout, setUpdatedClassAbout] = useState(""); // New class about for update
 
   useEffect(() => {
     fetchClasses();
@@ -33,25 +34,29 @@ function Class() {
       });
   };
 
-  const startEditing = (classId, className) => {
+  const startEditing = (classId, className, classAbout) => {
     setEditingClassId(classId);
     setUpdatedClassName(className);
+    setUpdatedClassAbout(classAbout);
   };
 
   const cancelEditing = () => {
     setEditingClassId("");
     setUpdatedClassName("");
+    setUpdatedClassAbout("");
   };
 
   const updateClass = (classId) => {
     axios
       .put(`${process.env.REACT_APP_API_URL}/api/class/${classId}`, {
         name: updatedClassName,
+        about: updatedClassAbout,
       })
       .then(() => {
         fetchClasses(); // Refresh the class list
         setEditingClassId("");
         setUpdatedClassName("");
+        setUpdatedClassAbout("");
       })
       .catch((error) => {
         console.error(error);
@@ -96,6 +101,11 @@ function Class() {
                         value={updatedClassName}
                         onChange={(e) => setUpdatedClassName(e.target.value)}
                       />
+                      <input
+                        type="text"
+                        value={updatedClassAbout}
+                        onChange={(e) => setUpdatedClassAbout(e.target.value)}
+                      />
                       <button onClick={() => updateClass(classe._id)}>
                         Save
                       </button>
@@ -104,8 +114,11 @@ function Class() {
                   ) : (
                     <>
                       <h5 className="card-title">{classe.name}</h5>
+                      <p className="card-text">{classe.about}</p>
                       <button
-                        onClick={() => startEditing(classe._id, classe.name)}
+                        onClick={() =>
+                          startEditing(classe._id, classe.name, classe.about)
+                        }
                       >
                         Edit
                       </button>

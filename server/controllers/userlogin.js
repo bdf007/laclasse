@@ -52,12 +52,26 @@ exports.login = async (req, res) => {
 
     res.cookie("jwt", token, { expire: new Date() + 9999, httpOnly: true });
 
-    const { firstname, lastname } = user;
-    return res.json({
-      message: "Login success",
-      firstname,
-      lastname,
-    });
+    const { firstname, lastname, role, classes } = user;
+    // if the classis not null, get the info of the class and add it to the user
+    if (classes) {
+      const classInfo = await Class.findById(classes);
+      console.log(classInfo);
+      return res.json({
+        message: "Login success",
+        firstname,
+        lastname,
+        role,
+        classes: classInfo.name,
+      });
+    } else {
+      return res.json({
+        message: "Login success",
+        firstname,
+        lastname,
+        role,
+      });
+    }
   } catch (error) {
     // Handle any potential errors
     return res.status(500).json({ error: "Internal server error" });
@@ -72,13 +86,27 @@ exports.logout = (req, res) => {
   });
 };
 
-exports.getLoggedInUser = (req, res) => {
-  const { firstname, role } = req.user;
-  return res.status(200).json({
-    firstname,
-    role,
-    message: "User is still logged in",
-  });
+exports.getLoggedInUser = async (req, res) => {
+  const { firstname, lastname, email, role, classes } = req.user;
+  // if the classis not null, get the info of the class and add it to the user
+  if (classes) {
+    const classInfo = await Class.findById(classes);
+    return res.status(200).json({
+      message: "User is still logged in",
+      firstname,
+      lastname,
+      email,
+      role,
+      classes: classInfo.name,
+      aboutClass: classInfo.about,
+    });
+  } else {
+    return res.json({
+      message: "User is still logged in",
+      firstname,
+      role,
+    });
+  }
 };
 
 // exports.getUsers = async (req, res) => {
@@ -95,6 +123,16 @@ exports.getLoggedInUser = (req, res) => {
 exports.getUsers = async (req, res) => {
   try {
     const users = await User.find({});
+    // replace the id of the class with the name of the class and dont show the id of the class
+    for (let i = 0; i < users.length; i++) {
+      if (!users[i].classes) continue;
+      const classInfo = await Class.findById(users[i].classes);
+      console.log("classInfo: ", classInfo.name);
+      users[i].classes = classInfo.name;
+      console.log("users[i].classes: ", users[i].classes);
+    }
+
+    console.log("users from getusers: ", users);
     return res.status(200).json(users);
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
@@ -151,3 +189,49 @@ exports.addClassToUser = async (req, res) => {
     res.status(500).json({ message: "Error assigning class to user" });
   }
 };
+
+exports.removeClassToUser = async (req, res) => {
+  console.log("remove class to user");
+  try {
+    const { userId } = req.body;
+
+    // Find the user and class documents
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(400).json({ message: "User or class not found" });
+    }
+
+    // Update the user's classes field with the assigned class ID
+    user.classes = null;
+    await user.save();
+
+    res.status(200).json({ message: "Class removed from user successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error removing class from user" });
+  }
+};
+
+// exports.updateProfile = async (req, res) => {
+//   try {
+//     const { firstname, lastname, email, password } = req.body;
+//     const user = await User.findById(req._id);
+
+//     if (!user) {
+//       return res.status(400).json({ message: "User not found" });
+//     }
+
+//     user.firstname = firstname;
+//     user.lastname = lastname;
+//     user.email = email;
+//     user.password = password;
+
+//     await user.save();
+
+//     res.status(200).json({ message: "Profile updated successfully" });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ message: "Error updating profile" });
+//   }
+// };

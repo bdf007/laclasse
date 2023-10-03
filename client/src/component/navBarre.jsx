@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -11,13 +11,22 @@ import { logout, getUser } from "../api/user";
 const NavBarre = () => {
   const navigate = useNavigate();
   const { user, setUser } = useContext(UserContext);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  // Check if user is logged in
+  useEffect(() => {
+    if (user) {
+      setLoggedIn(true);
+    } else {
+      setLoggedIn(false);
+    }
+  }, [user]);
 
   // get the info of the user logged in
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await getUser();
-        console.log("navbarre");
         if (res.error) toast(res.error);
         else setUser(res); // Set the entire 'res' object, which includes 'firstname' and 'role'
       } catch (err) {
@@ -25,8 +34,11 @@ const NavBarre = () => {
       }
     };
 
-    fetchData();
-  }, [setUser]);
+    // Fetch user data only when logged in
+    if (loggedIn) {
+      fetchData();
+    }
+  }, [setUser, loggedIn]);
 
   const handleLogout = async (e) => {
     e.preventDefault();
@@ -39,6 +51,21 @@ const NavBarre = () => {
         navigate("/login");
       })
       .catch((err) => console.log(err));
+  };
+
+  const handleAdmin = async (e) => {
+    e.preventDefault();
+    navigate("/admin");
+  };
+
+  const handleProfessor = async (e) => {
+    e.preventDefault();
+    navigate("/professor");
+  };
+
+  const handleStudent = async (e) => {
+    e.preventDefault();
+    navigate("/student");
   };
 
   return (
@@ -72,15 +99,6 @@ const NavBarre = () => {
                     Login
                   </Link>
                 </li>
-                <li className="nav-item">
-                  <span
-                    className="nav-link"
-                    style={{ cursor: "pointer" }}
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </span>
-                </li>
               </>
             ) : (
               <>
@@ -89,9 +107,20 @@ const NavBarre = () => {
                     <span
                       className="nav-link"
                       style={{ cursor: "pointer" }}
-                      onClick={handleLogout}
+                      onClick={handleAdmin}
                     >
                       Admin
+                    </span>
+                  </li>
+                )}
+                {user.role === "professor" && (
+                  <li className="nav-item">
+                    <span
+                      className="nav-link"
+                      style={{ cursor: "pointer" }}
+                      onClick={handleProfessor}
+                    >
+                      Professor
                     </span>
                   </li>
                 )}
@@ -100,7 +129,7 @@ const NavBarre = () => {
                     <span
                       className="nav-link"
                       style={{ cursor: "pointer" }}
-                      onClick={handleLogout}
+                      onClick={handleStudent}
                     >
                       Student
                     </span>
