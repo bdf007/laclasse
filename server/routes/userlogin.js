@@ -9,6 +9,7 @@ const {
   getLoggedInUser,
   getUsers,
   deleteUserById,
+  changeRoleById,
   addClassToUser,
   removeClassToUser,
   // updateProfile,
@@ -28,6 +29,9 @@ router.get("/users", getUsers);
 
 // get logged in user
 router.get("/user", verifyToken, userById, getLoggedInUser);
+
+// change role by id
+router.put("/user/:id/change-role", changeRoleById);
 
 // add class to user
 router.post("/user/assign-class", addClassToUser);

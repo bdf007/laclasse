@@ -48,7 +48,7 @@ const Professor = () => {
 
   useEffect(() => {
     getUsers();
-  }, [setUsers]);
+  }, [setUsers, setUser]);
 
   // get the info of the user logged in
   useEffect(() => {

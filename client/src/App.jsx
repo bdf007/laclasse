@@ -19,6 +19,7 @@ import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
+import Bibliotheque from "./pages/Bibliotheque";
 import Professor from "./pages/Professor";
 
 import Footer from "./component/footer";
@@ -54,16 +55,17 @@ function App() {
                 <Route path="*" element={<Navigate to="/" />} />
               </>
             ) : // check if user is admin
-            user.role === "admin" ? (
+            user.role === "admin" || user.role === "superadmin" ? (
               <>
                 <Route exact path="/" element={<Admin />} />
-
+                <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route path="*" element={<Navigate to="/admin" />} />
               </>
             ) : // if user is professor
             user.role === "professor" ? (
               <>
                 <Route exact path="/" element={<Professor />} />
+                <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route path="*" element={<Navigate to="/professor" />} />
               </>
             ) : (
@@ -71,6 +73,7 @@ function App() {
               <>
                 <Route exact path="/" element={<Student />} />
                 <Route path="*" element={<Navigate to="/student" />} />
+                <Route exact path="/bibliotheque" element={<Bibliotheque />} />
               </>
             )}
           </Routes>

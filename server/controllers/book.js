@@ -37,7 +37,6 @@ exports.deleteBookById = async (req, res) => {
     });
   }
 };
-
 exports.updateBookById = async (req, res) => {
   try {
     const id = req.params.id;
@@ -48,8 +47,12 @@ exports.updateBookById = async (req, res) => {
       });
     }
     // if the book exists, update it
-    const updateBook = await Book.findByIdAndUpdate(id, req.body, {
+    const updatedBook = await Book.findByIdAndUpdate(id, req.body, {
       new: true,
+    });
+    res.status(200).json({
+      message: "Book updated successfully",
+      updatedBook: updatedBook,
     });
   } catch (error) {
     console.error(error);

@@ -56,7 +56,6 @@ exports.login = async (req, res) => {
     // if the classis not null, get the info of the class and add it to the user
     if (classes) {
       const classInfo = await Class.findById(classes);
-      console.log(classInfo);
       return res.json({
         message: "Login success",
         firstname,
@@ -114,7 +113,6 @@ exports.getLoggedInUser = async (req, res) => {
 // exports.getUsers = async (req, res) => {
 //   try {
 //     const users = await User.find({}).select("username email createdAt");
-//     console.log(users);
 //     return res.status(200).json(users);
 //   } catch (error) {
 //     return res.status(500).json({ error: "Internal server error" });
@@ -129,12 +127,9 @@ exports.getUsers = async (req, res) => {
     for (let i = 0; i < users.length; i++) {
       if (!users[i].classes) continue;
       const classInfo = await Class.findById(users[i].classes);
-      console.log("classInfo: ", classInfo.name);
       users[i].classes = classInfo.name;
-      console.log("users[i].classes: ", users[i].classes);
     }
 
-    console.log("users from getusers: ", users);
     return res.status(200).json(users);
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
@@ -169,6 +164,30 @@ exports.userById = async (req, res, next, id) => {
   } catch (error) {}
 };
 
+exports.changeRoleById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { role } = req.body;
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        error: "ID does not exist",
+      });
+    }
+    // if the user exists, update it
+    user.role = role;
+    await user.save();
+    res.status(200).json({
+      message: "User role updated successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error updating user role",
+    });
+  }
+};
+
 exports.addClassToUser = async (req, res) => {
   try {
     const { userId, classId } = req.body;
@@ -193,7 +212,6 @@ exports.addClassToUser = async (req, res) => {
 };
 
 exports.removeClassToUser = async (req, res) => {
-  console.log("remove class to user");
   try {
     const { userId } = req.body;
 

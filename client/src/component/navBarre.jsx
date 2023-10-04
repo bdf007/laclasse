@@ -53,20 +53,25 @@ const NavBarre = () => {
       .catch((err) => console.log(err));
   };
 
-  const handleAdmin = async (e) => {
-    e.preventDefault();
-    navigate("/admin");
-  };
+  // const handleAdmin = async (e) => {
+  //   e.preventDefault();
+  //   navigate("/admin");
+  // };
 
-  const handleProfessor = async (e) => {
-    e.preventDefault();
-    navigate("/professor");
-  };
+  // const handlebibliotheque = async (e) => {
+  //   e.preventDefault();
+  //   navigate("/bibliotheque");
+  // };
 
-  const handleStudent = async (e) => {
-    e.preventDefault();
-    navigate("/student");
-  };
+  // const handleProfessor = async (e) => {
+  //   e.preventDefault();
+  //   navigate("/professor");
+  // };
+
+  // const handleStudent = async (e) => {
+  //   e.preventDefault();
+  //   navigate("/student");
+  // };
 
   return (
     <nav className="navbar navbar-expand-lg ">
@@ -102,38 +107,47 @@ const NavBarre = () => {
               </>
             ) : (
               <>
-                {user.role === "admin" && (
-                  <li className="nav-item">
-                    <span
-                      className="nav-link"
-                      style={{ cursor: "pointer" }}
-                      onClick={handleAdmin}
-                    >
-                      Admin
-                    </span>
-                  </li>
+                {(user.role === "admin" || user.role === "superadmin") && (
+                  <>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/">
+                        Admin
+                      </Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/bibliotheque">
+                        Bibliothéque
+                      </Link>
+                    </li>
+                  </>
                 )}
                 {user.role === "professor" && (
-                  <li className="nav-item">
-                    <span
-                      className="nav-link"
-                      style={{ cursor: "pointer" }}
-                      onClick={handleProfessor}
-                    >
-                      Professor
-                    </span>
-                  </li>
+                  <>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/">
+                        Professor
+                      </Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/bibliotheque">
+                        Bibliothéque
+                      </Link>
+                    </li>
+                  </>
                 )}
                 {user.role === "user" && (
-                  <li className="nav-item">
-                    <span
-                      className="nav-link"
-                      style={{ cursor: "pointer" }}
-                      onClick={handleStudent}
-                    >
-                      Student
-                    </span>
-                  </li>
+                  <>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/">
+                        Student
+                      </Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/bibliotheque">
+                        Bibliothéque
+                      </Link>
+                    </li>
+                  </>
                 )}
                 <li className="nav-item">
                   <span

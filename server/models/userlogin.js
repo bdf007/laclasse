@@ -33,7 +33,14 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["user", "admin", "professor"],
+      enum: [
+        "user",
+        "student",
+        "admin",
+        "professor",
+        "superadmin",
+        "oldstudent",
+      ],
       default: "user",
     },
     // add a class by the id of the class

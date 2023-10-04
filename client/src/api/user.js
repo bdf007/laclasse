@@ -36,7 +36,6 @@ export const login = async ({ email, password } = {}) => {
       },
       body: JSON.stringify(user),
     });
-    console.log("res: ", res);
     return await res.json();
   } catch (error) {
     throw new Error(`Cant login at this time. ${error}`);
@@ -65,7 +64,6 @@ export const getUser = async () => {
     });
     const data = await res.json();
     const { _id, firstname, lastname, email, role, classes, aboutClass } = data;
-    console.log("data: ", data);
     return { _id, firstname, lastname, email, role, classes, aboutClass };
   } catch (error) {
     throw new Error("Please login to continue.");

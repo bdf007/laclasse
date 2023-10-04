@@ -69,7 +69,6 @@ exports.classById = async (req, res) => {
     // convert the id to a mongoose object id
     const _id = new mongoose.Types.ObjectId(id);
     const classInfo = await Class.findOne(_id);
-    console.log("classInfo " + classInfo);
     if (!classInfo) {
       return res.status(404).json({
         error: "Class not found",
