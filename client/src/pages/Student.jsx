@@ -23,24 +23,32 @@ const Student = () => {
   }, [setUser]);
 
   return (
-    <div>
-      <h1>Student</h1>
-      <p>
-        prénom : {user.firstname} <br /> nom : {user.lastname}
-        <br />
-        email : {user.email}
-      </p>
-      {!user.classes ? (
-        <p>Vous n'avez pas encore de classe</p>
-      ) : (
-        <>
-          <p>Vous êtes dans la classe {user.classes}</p>
+    <div className="container text-center">
+      <h1>welcome {user.firstname}</h1>
+      <div className="row">
+        <div className="col-md-6">
+          <h2>Mes infos</h2>
           <p>
-            A propos de ma classe : <br />
-            {user.aboutClass}
+            prénom : {user.firstname} <br /> nom : {user.lastname}
+            <br />
+            email : {user.email}
           </p>
-        </>
-      )}
+        </div>
+        <div className="col-md-6">
+          {!user.classes ? (
+            <p>Vous n'avez pas encore de classe</p>
+          ) : (
+            <>
+              <p>Vous êtes dans la classe {user.classes}</p>
+              <p>
+                A propos de ma classe : <br />
+                {user.aboutClass}
+              </p>
+              <p>Mon prochain cours : {user.nextClass}</p>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

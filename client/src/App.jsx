@@ -70,11 +70,17 @@ function App() {
               </>
             ) : (
               // if user is student
-              <>
-                <Route exact path="/" element={<Student />} />
-                <Route path="*" element={<Navigate to="/student" />} />
-                <Route exact path="/bibliotheque" element={<Bibliotheque />} />
-              </>
+              user.role === "student" && (
+                <>
+                  <Route exact path="/" element={<Student />} />
+                  <Route path="*" element={<Navigate to="/student" />} />
+                  <Route
+                    exact
+                    path="/bibliotheque"
+                    element={<Bibliotheque />}
+                  />
+                </>
+              )
             )}
           </Routes>
         </UserContext.Provider>

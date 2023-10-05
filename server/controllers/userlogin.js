@@ -98,6 +98,7 @@ exports.getLoggedInUser = async (req, res) => {
       role,
       classes: classInfo.name,
       aboutClass: classInfo.about,
+      nextClass: classInfo.nextCourse,
     });
   } else {
     return res.json({

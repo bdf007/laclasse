@@ -179,7 +179,7 @@ const Admin = () => {
   };
 
   return !user ? (
-    <div className="container text-center home" style={{ marginTop: "12rem" }}>
+    <div className="container text-center home" style={{ marginTop: "4rem" }}>
       <div className="alert alert-primary p-5">
         <h1>Not autorized</h1>
       </div>
@@ -189,7 +189,7 @@ const Admin = () => {
       {(user.role === "admin" || user.role === "superadmin") && (
         <div
           className="container text-center home"
-          style={{ marginTop: "12rem" }}
+          style={{ marginTop: "1rem", paddingBottom: "20rem" }}
         >
           <div className="alert alert-primary p-5">
             <h1>
@@ -225,7 +225,9 @@ const Admin = () => {
                           <p className="card-text">{user.email}</p>
                           <p className="card-text">{user.role}</p>
                           {!user.classes ? (
-                            <p className="card-text">No class assigned</p>
+                            <p className="card-text text-danger">
+                              No class assigned
+                            </p>
                           ) : (
                             <p className="card-text">{user.classeName}</p>
                           )}
@@ -334,7 +336,11 @@ const Admin = () => {
                           <td>{user.email}</td>
                           <td>{user.role}</td>
                           {!user.classes ? (
-                            <td>No class assigned</td>
+                            <td>
+                              <span className="text-danger">
+                                No class assigned
+                              </span>
+                            </td>
                           ) : (
                             <td>{user.classeName}</td>
                           )}

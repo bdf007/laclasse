@@ -63,8 +63,26 @@ export const getUser = async () => {
       credentials: "include",
     });
     const data = await res.json();
-    const { _id, firstname, lastname, email, role, classes, aboutClass } = data;
-    return { _id, firstname, lastname, email, role, classes, aboutClass };
+    const {
+      _id,
+      firstname,
+      lastname,
+      email,
+      role,
+      classes,
+      aboutClass,
+      nextClass,
+    } = data;
+    return {
+      _id,
+      firstname,
+      lastname,
+      email,
+      role,
+      classes,
+      aboutClass,
+      nextClass,
+    };
   } catch (error) {
     throw new Error("Please login to continue.");
   }

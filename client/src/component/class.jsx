@@ -11,6 +11,7 @@ function Class() {
   const [editingClassId, setEditingClassId] = useState(""); // State to track the class being edited
   const [updatedClassName, setUpdatedClassName] = useState(""); // New class name for update
   const [updatedClassAbout, setUpdatedClassAbout] = useState(""); // New class about for update
+  const [updatedClassNextCourse, setUpdatedClassNextCourse] = useState(""); // New class nextCourse for update
   const [viewMode, setViewMode] = useState("table");
 
   useEffect(() => {
@@ -39,10 +40,11 @@ function Class() {
       });
   };
 
-  const startEditing = (classId, className, classAbout) => {
+  const startEditing = (classId, className, classAbout, nextCourse) => {
     setEditingClassId(classId);
     setUpdatedClassName(className);
     setUpdatedClassAbout(classAbout);
+    setUpdatedClassNextCourse(nextCourse);
   };
 
   const cancelEditing = () => {
@@ -56,12 +58,14 @@ function Class() {
       .put(`${process.env.REACT_APP_API_URL}/api/class/${classId}`, {
         name: updatedClassName,
         about: updatedClassAbout,
+        nextCourse: updatedClassNextCourse,
       })
       .then(() => {
         fetchClasses(); // Refresh the class list
         setEditingClassId("");
         setUpdatedClassName("");
         setUpdatedClassAbout("");
+        setUpdatedClassNextCourse("");
       })
       .catch((error) => {
         console.error(error);
@@ -86,7 +90,6 @@ function Class() {
 
   return (
     <div className="text-center">
-      <h1>Class</h1>
       <button
         className="btn btn-primary"
         onClick={toggleViewMode}
@@ -101,15 +104,7 @@ function Class() {
       {viewMode === "cards" ? (
         <div className="row">
           {/* Add class form */}
-          <div>
-            <input
-              type="text"
-              placeholder="New Class Name"
-              value={newClassName}
-              onChange={(e) => setNewClassName(e.target.value)}
-            />
-            <button onClick={createClass}>Create Class</button>
-          </div>
+
           {/* List all classes */}
           <h1 className="text-center">Liste des classes</h1>
           <div className="row">
@@ -120,20 +115,38 @@ function Class() {
                     <div className="card-body">
                       {editingClassId === classe._id ? (
                         <div>
+                          <label For="name">changer le nom :</label>
                           <input
                             type="text"
+                            name="name"
                             value={updatedClassName}
                             onChange={(e) =>
                               setUpdatedClassName(e.target.value)
                             }
                           />
+                          <br />
+                          <label For="about">changer le about :</label>
                           <input
                             type="text"
+                            name="about"
                             value={updatedClassAbout}
                             onChange={(e) =>
                               setUpdatedClassAbout(e.target.value)
                             }
                           />
+                          <br />
+                          <label For="nextCourse">
+                            changer le prochain cours :
+                          </label>
+                          <input
+                            type="text"
+                            name="nextCourse"
+                            value={updatedClassNextCourse}
+                            onChange={(e) =>
+                              setUpdatedClassNextCourse(e.target.value)
+                            }
+                          />
+                          <br />
                           <button onClick={() => updateClass(classe._id)}>
                             Save
                           </button>
@@ -141,14 +154,32 @@ function Class() {
                         </div>
                       ) : (
                         <>
-                          <h5 className="card-title">{classe.name}</h5>
-                          <p className="card-text">{classe.about}</p>
+                          <h5 className="card-title">
+                            nom de la classe : {classe.name}
+                          </h5>
+                          <p className="card-text">
+                            A propos : <br />
+                            {!classe.about ? (
+                              <span className="text-danger">No about</span>
+                            ) : (
+                              classe.about
+                            )}
+                          </p>
+                          <p className="card-text">
+                            prochain cours :{" "}
+                            {!classe.nextCourse ? (
+                              <span className="text-danger">No nextCourse</span>
+                            ) : (
+                              classe.nextCourse
+                            )}
+                          </p>
                           <button
                             onClick={() =>
                               startEditing(
                                 classe._id,
                                 classe.name,
-                                classe.about
+                                classe.about,
+                                classe.nextCourse
                               )
                             }
                           >
@@ -166,6 +197,20 @@ function Class() {
             ) : (
               <p>Loading classes...</p>
             )}
+            <div className="col-md-4">
+              <div className="card m-2">
+                <div className="card-body">
+                  <h5 className="card-title">Add New Class</h5>
+                  <input
+                    type="text"
+                    placeholder="New Class Name"
+                    value={newClassName}
+                    onChange={(e) => setNewClassName(e.target.value)}
+                  />
+                  <button onClick={createClass}>Create Class</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       ) : (
@@ -174,6 +219,7 @@ function Class() {
             <tr>
               <th scope="col">Class Name</th>
               <th scope="col">Class About</th>
+              <th scope="col">Class Next Course</th>
               <th scope="col">Actions</th>
             </tr>
           </thead>
@@ -199,8 +245,25 @@ function Class() {
                         value={updatedClassAbout}
                         onChange={(e) => setUpdatedClassAbout(e.target.value)}
                       />
+                    ) : !classe.about ? (
+                      <span className="text-danger">No about</span>
                     ) : (
                       classe.about
+                    )}
+                  </td>
+                  <td>
+                    {editingClassId === classe._id ? (
+                      <input
+                        type="text"
+                        value={updatedClassNextCourse}
+                        onChange={(e) =>
+                          setUpdatedClassNextCourse(e.target.value)
+                        }
+                      />
+                    ) : !classe.nextCourse ? (
+                      <span className="text-danger">No nextCourse</span>
+                    ) : (
+                      classe.nextCourse
                     )}
                   </td>
                   <td>
@@ -215,7 +278,12 @@ function Class() {
                       <div>
                         <button
                           onClick={() =>
-                            startEditing(classe._id, classe.name, classe.about)
+                            startEditing(
+                              classe._id,
+                              classe.name,
+                              classe.about,
+                              classe.nextCourse
+                            )
                           }
                         >
                           Edit
@@ -242,6 +310,7 @@ function Class() {
                   onChange={(e) => setNewClassName(e.target.value)}
                 />
               </td>
+              <td></td>
               <td></td>
               <td>
                 <button onClick={createClass}>Create Class</button>

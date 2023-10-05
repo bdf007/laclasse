@@ -11,6 +11,10 @@ const classSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  nextCourse: {
+    type: String,
+    trim: true,
+  },
 });
 
 module.exports = mongoose.model("Class", classSchema);
