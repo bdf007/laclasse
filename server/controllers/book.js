@@ -38,6 +38,7 @@ exports.deleteBookById = async (req, res) => {
   }
 };
 exports.updateBookById = async (req, res) => {
+  console.log("updateBookById");
   try {
     const id = req.params.id;
     const bookToUpdate = await Book.findById(id);
