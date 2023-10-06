@@ -21,11 +21,9 @@ const Bibliotheque = () => {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/books`
       );
-      console.log("response", response.data);
 
       // Create an array of promises to fetch user data for all books
       const fetchUserPromises = response.data.map(async (book) => {
-        console.log("emp", book.emprunteur);
         if (book.emprunteur) {
           const user = listOfUsers.find((user) => user._id === book.emprunteur);
           if (user) {
@@ -47,6 +45,7 @@ const Bibliotheque = () => {
       setListOfBooks(updatedBooks);
     } catch (error) {
       console.log(error);
+      toast.error("Erreur lors de la récupération des livres");
     }
   };
 
@@ -59,6 +58,7 @@ const Bibliotheque = () => {
       setListOfUsers(response.data);
     } catch (error) {
       console.log(error);
+      toast.error("Erreur lors de la récupération des utilisateurs");
     }
   };
   const assignUserToBook = async (bookId) => {
@@ -73,7 +73,6 @@ const Bibliotheque = () => {
         emprunteurValue = null;
         book.statut = "disponible";
       }
-      console.log("selectedUser", emprunteurValue);
       const response = await axios
         .put(`${process.env.REACT_APP_API_URL}/api/book/${bookId}`, {
           emprunteur: emprunteurValue,

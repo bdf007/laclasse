@@ -149,6 +149,20 @@ const NavBarre = () => {
                     </li>
                   </>
                 )}
+                {user.role === "user" && (
+                  <>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/">
+                        User
+                      </Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/bibliotheque">
+                        Bibliothéque
+                      </Link>
+                    </li>
+                  </>
+                )}
                 <li className="nav-item">
                   <span
                     className="nav-link"

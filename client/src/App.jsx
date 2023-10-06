@@ -21,12 +21,13 @@ import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import Bibliotheque from "./pages/Bibliotheque";
 import Professor from "./pages/Professor";
+import Student from "./pages/Student";
+import User from "./pages/User";
 
 import Footer from "./component/footer";
 
 // API functions
 import { getUser } from "./api/user";
-import Student from "./pages/Student";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -60,6 +61,13 @@ function App() {
                 <Route exact path="/" element={<Admin />} />
                 <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route path="*" element={<Navigate to="/admin" />} />
+              </>
+            ) : // if user is user
+            user.role === "user" ? (
+              <>
+                <Route exact path="/" element={<User />} />
+                <Route exact path="/bibliotheque" element={<Bibliotheque />} />
+                <Route path="*" element={<Navigate to="/" />} />
               </>
             ) : // if user is professor
             user.role === "professor" ? (

@@ -15,7 +15,7 @@ const Admin = () => {
   // get the list of the classes
   const [listOfClass, setListOfClass] = useState([]);
   const [selectedClass, setSelectedClass] = useState("");
-  const [selectedRole, setSelectedRole] = useState("");
+  const [selectedRole, setSelectedRole] = useState("user");
   const [viewMode, setViewMode] = useState("cards");
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const Admin = () => {
                   `${process.env.REACT_APP_API_URL}/api/class/${user.classes}`
                 );
 
-                user.classeName = classResponse.data.name;
+                user.className = classResponse.data.name;
                 return user;
               } catch (err) {
                 toast(err);
@@ -52,6 +52,18 @@ const Admin = () => {
             return user;
           })
         );
+        // sort updatedUsers by class name
+        updatedUsers.sort((a, b) => {
+          if (a.className && b.className) {
+            return a.className.localeCompare(b.className);
+          } else if (a.className) {
+            return -1; // Place users without b.className at the end
+          } else if (b.className) {
+            return 1; // Place users without a.className at the end
+          }
+          return 0;
+        });
+
         setListOfUser(updatedUsers);
       } catch (error) {
         console.error(error);
@@ -194,7 +206,7 @@ const Admin = () => {
           <div className="alert alert-primary p-5">
             <h1>
               {" "}
-              <span className="text-success">{user.role}'s</span> Admin
+              <span className="text-success">{user.firstname}'s</span> Admin
             </h1>
             <Class />
             <div className="text-center">
@@ -223,54 +235,69 @@ const Admin = () => {
                           <h5 className="card-title">{user.lastname}</h5>
 
                           <p className="card-text">{user.email}</p>
-                          <p className="card-text">{user.role}</p>
-                          {!user.classes ? (
-                            <p className="card-text text-danger">
-                              No class assigned
-                            </p>
+                          {user.role === "user" ? (
+                            <p className="card-text text-danger">{user.role}</p>
                           ) : (
-                            <p className="card-text">{user.classeName}</p>
+                            <p className="card-text">{user.role}</p>
+                          )}
+                          {!user.classes ? (
+                            <>
+                              {user.role === "oldstudent" ? (
+                                <p> no need</p>
+                              ) : (
+                                <p className="card-text text-danger">
+                                  No class assigned
+                                </p>
+                              )}
+                            </>
+                          ) : (
+                            <p className="card-text">{user.className}</p>
                           )}
                           {/* add a drop down menu of classes and update the user with the class selected */}
-
-                          <ul className="list-inline">
-                            <li className="list-inline-item">
-                              <select
-                                className="form-select"
-                                aria-label="Default select example"
-                                value={selectedClass}
-                                onChange={(e) =>
-                                  setSelectedClass(e.target.value)
-                                }
-                              >
-                                <option value="">Choose a class</option>
-                                {listOfClass.map((classe) => (
-                                  <option value={classe._id} key={classe._id}>
-                                    {classe.name}
-                                  </option>
-                                ))}
-                                <option value="none">None</option>
-                              </select>
-                            </li>
-                            <li className="list-inline-item">
-                              <button
-                                className="btn btn-primary"
-                                onClick={() => {
-                                  if (selectedClass === "none") {
-                                    // Handle the case where "null" is selected
-                                    removeClassFromUser(user._id); // Set selectedClass to null
-                                  } else {
-                                    assignClassToUser(user._id); // Assign the selected class to the user
+                          {user.role === "oldstudent" ? (
+                            <ul>
+                              <li>Old Student</li>
+                            </ul>
+                          ) : (
+                            <ul className="list-inline">
+                              <li className="list-inline-item">
+                                <select
+                                  className="form-select"
+                                  aria-label="Default select example"
+                                  value={selectedClass}
+                                  onChange={(e) =>
+                                    setSelectedClass(e.target.value)
                                   }
-                                }}
-                              >
-                                {selectedClass === "none"
-                                  ? "Clear Class"
-                                  : "Assign Class"}{" "}
-                                {/* Change button text based on selection */}
-                              </button>
-                            </li>
-                          </ul>
+                                >
+                                  <option value="">Choose a class</option>
+                                  {listOfClass.map((classe) => (
+                                    <option value={classe._id} key={classe._id}>
+                                      {classe.name}
+                                    </option>
+                                  ))}
+                                  <option value="none">None</option>
+                                </select>
+                              </li>
+                              <li className="list-inline-item">
+                                <button
+                                  className="btn btn-primary"
+                                  onClick={() => {
+                                    if (selectedClass === "none") {
+                                      // Handle the case where "null" is selected
+                                      removeClassFromUser(user._id); // Set selectedClass to null
+                                    } else {
+                                      assignClassToUser(user._id); // Assign the selected class to the user
+                                    }
+                                  }}
+                                >
+                                  {selectedClass === "none"
+                                    ? "Clear Class"
+                                    : "Assign Class"}{" "}
+                                  {/* Change button text based on selection */}
+                                </button>
+                              </li>
+                            </ul>
+                          )}
                           {/* add a drop down menu of roles and update the user with the role selected */}
                           <ul className="list-inline">
                             <li className="list-inline-item">
@@ -334,56 +361,75 @@ const Admin = () => {
                           <td>{user.firstname}</td>
                           <td>{user.lastname}</td>
                           <td>{user.email}</td>
-                          <td>{user.role}</td>
-                          {!user.classes ? (
+                          {user.role === "user" ? (
                             <td>
-                              <span className="text-danger">
-                                No class assigned
+                              <span className="bg-danger text-white">
+                                {user.role}
                               </span>
                             </td>
                           ) : (
-                            <td>{user.classeName}</td>
+                            <td>{user.role}</td>
                           )}
-                          <td>
-                            <ul className="list-inline">
-                              <li class="list-inline-item">
-                                <select
-                                  className="form-select"
-                                  aria-label="Default select example"
-                                  value={selectedClass}
-                                  onChange={(e) =>
-                                    setSelectedClass(e.target.value)
-                                  }
-                                >
-                                  <option value="">Choose a class</option>
-                                  {listOfClass.map((classe) => (
-                                    <option value={classe._id} key={classe._id}>
-                                      {classe.name}
-                                    </option>
-                                  ))}
-                                  <option value="none">None</option>
-                                </select>
-                              </li>
-                              <li class="list-inline-item">
-                                <button
-                                  className="btn btn-primary"
-                                  onClick={() => {
-                                    if (selectedClass === "none") {
-                                      // Handle the case where "null" is selected
-                                      removeClassFromUser(user._id); // Set selectedClass to null
-                                    } else {
-                                      assignClassToUser(user._id); // Assign the selected class to the user
+                          {!user.classes ? (
+                            <td>
+                              {user.role === "oldstudent" ? (
+                                <span>No need</span>
+                              ) : (
+                                <span className="bg-danger text-white">
+                                  No class assigned
+                                </span>
+                              )}
+                            </td>
+                          ) : (
+                            <td>{user.className}</td>
+                          )}
+                          {user.role === "oldstudent" ? (
+                            <td>old Student</td>
+                          ) : (
+                            <td>
+                              <ul className="list-inline">
+                                <li class="list-inline-item">
+                                  <select
+                                    className="form-select"
+                                    aria-label="Default select example"
+                                    value={selectedClass}
+                                    onChange={(e) =>
+                                      setSelectedClass(e.target.value)
                                     }
-                                  }}
-                                >
-                                  {selectedClass === "none"
-                                    ? "Clear Class"
-                                    : "Assign Class"}{" "}
-                                  {/* Change button text based on selection */}
-                                </button>
-                              </li>
-                            </ul>
-                          </td>
+                                  >
+                                    <option value="">Choose a class</option>
+                                    {listOfClass.map((classe) => (
+                                      <option
+                                        value={classe._id}
+                                        key={classe._id}
+                                      >
+                                        {classe.name}
+                                      </option>
+                                    ))}
+                                    <option value="none">None</option>
+                                  </select>
+                                </li>
+                                <li class="list-inline-item">
+                                  <button
+                                    className="btn btn-primary"
+                                    onClick={() => {
+                                      if (selectedClass === "none") {
+                                        // Handle the case where "null" is selected
+                                        removeClassFromUser(user._id); // Set selectedClass to null
+                                      } else {
+                                        assignClassToUser(user._id); // Assign the selected class to the user
+                                      }
+                                    }}
+                                  >
+                                    {selectedClass === "none"
+                                      ? "Clear Class"
+                                      : "Assign Class"}{" "}
+                                    {/* Change button text based on selection */}
+                                  </button>
+                                </li>
+                              </ul>
+                            </td>
+                          )}
                           <td>
                             <ul className="list-inline">
                               <li className="list-inline-item">

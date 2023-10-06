@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 //design
 import FormatListBulletedOutlinedIcon from "@mui/icons-material/FormatListBulletedOutlined";
@@ -72,7 +73,22 @@ function Class() {
       });
   };
 
-  const deleteClass = (classId) => {
+  const deleteClass = async (classId) => {
+    // check if the class as no students
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_URL}/api/users`
+    );
+    const users = response.data;
+
+    const studentsInClass = users.some((user) => user.classes === classId);
+
+    if (studentsInClass) {
+      toast.error("There are students in this class. Deletion aborted.");
+      return;
+    }
+
+    // delete the class
+
     axios
       .delete(`${process.env.REACT_APP_API_URL}/api/class/${classId}`)
       .then(() => {
@@ -160,7 +176,9 @@ function Class() {
                           <p className="card-text">
                             A propos : <br />
                             {!classe.about ? (
-                              <span className="text-danger">No about</span>
+                              <span className="bg-danger text-white">
+                                No about
+                              </span>
                             ) : (
                               classe.about
                             )}
@@ -168,7 +186,9 @@ function Class() {
                           <p className="card-text">
                             prochain cours :{" "}
                             {!classe.nextCourse ? (
-                              <span className="text-danger">No nextCourse</span>
+                              <span className="bg-danger text-white">
+                                No nextCourse
+                              </span>
                             ) : (
                               classe.nextCourse
                             )}
@@ -246,7 +266,7 @@ function Class() {
                         onChange={(e) => setUpdatedClassAbout(e.target.value)}
                       />
                     ) : !classe.about ? (
-                      <span className="text-danger">No about</span>
+                      <span className="bg-danger text-white">No about</span>
                     ) : (
                       classe.about
                     )}
@@ -261,7 +281,9 @@ function Class() {
                         }
                       />
                     ) : !classe.nextCourse ? (
-                      <span className="text-danger">No nextCourse</span>
+                      <span className="bg-danger text-white">
+                        No nextCourse
+                      </span>
                     ) : (
                       classe.nextCourse
                     )}
