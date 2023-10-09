@@ -33,17 +33,17 @@ const Home = () => {
           <div className="row">
             <div className="col-md-6" style={{ borderLeft: "1px solid black" }}>
               <div style={{ marginTop: "5rem", paddingTop: "5rem" }}>
-                <img src={acceuil} alt="acceuil" />
+                <img className="img-fluid" src={acceuil} alt="acceuil" />
               </div>
             </div>
-            <div className="col-md-6 ">
+            <div className="col-md-6 pe-none">
               <div className="table-responsive">
                 <table>
                   <tbody>
                     <tr>
                       <td>
                         <img
-                          className="img-thumbnail"
+                          className="img-thumbnail "
                           src={photoacceuil1}
                           alt=""
                         />

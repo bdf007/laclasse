@@ -3,7 +3,6 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { UserContext } from "../context/UserContext";
 import { Button } from "@mui/material";
-// import CommentUploader from "../component/comment";
 
 const Contact = () => {
   const [firstname, setFirstname] = useState("");
@@ -113,14 +112,14 @@ const Contact = () => {
   return (
     <div className="home">
       <div
-        className=" row d-flex justify-content-around"
+        className="row d-flex justify-content-center align-items-center"
         style={{ paddingBottom: "10rem", marginBottom: "8rem" }}
       >
-        <div className="container mt-5 mb-5 col-10 col-sm-8 col-md-6 col-lg-5 g-2">
+        <div className="container mt-5 mb-5 col-10 col-sm-8 col-md-6 col-lg-5">
           <h1 className="text-danger">Contactez moi</h1>
           {!user ? (
             <form onSubmit={handleUpload}>
-              <div className="form-group">
+              <div className="form-group ">
                 <label htmlFor="firstname">Prénom*</label>
                 <input
                   value={firstname}
@@ -223,7 +222,7 @@ const Contact = () => {
                     className="form-control mb-3"
                     placeholder="Prénom"
                     label="Prénom*"
-                    // onChange={handleFirstnameChange}
+                    onChange={handleFirstnameChange}
                   />
                 </div>
                 <div className="form-group">
@@ -235,7 +234,7 @@ const Contact = () => {
                     className="form-control mb-3"
                     placeholder="Nom"
                     label="Nom*"
-                    // onChange={handleLastnameChange}
+                    onChange={handleLastnameChange}
                   />
                 </div>
                 <div className="form-group">
@@ -247,7 +246,7 @@ const Contact = () => {
                     className="form-control mb-3"
                     placeholder="Email"
                     label="Email*"
-                    // onChange={handleEmailChange}
+                    onChange={handleEmailChange}
                   />
                 </div>
                 <div className="form-group">
@@ -267,7 +266,7 @@ const Contact = () => {
                   <Button
                     variant="contained"
                     color="primary"
-                    // disabled={!firstname || !lastname || !email || !message}
+                    disabled={!firstname || !lastname || !email || !message}
                     onClick={handleUpload}
                   >
                     Envoyer
@@ -276,9 +275,6 @@ const Contact = () => {
               </form>
             )
           )}
-        </div>
-        <div className="container mt-5 mb-5 col-10 col-sm-8 col-md-6 col-lg-5">
-          {/* <CommentUploader /> */}
         </div>
       </div>
     </div>

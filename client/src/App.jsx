@@ -97,8 +97,8 @@ function App() {
               )
             )}
           </Routes>
+          <Footer />
         </UserContext.Provider>
-        <Footer />
       </Router>
     </div>
   );

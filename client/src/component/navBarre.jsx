@@ -92,6 +92,11 @@ const NavBarre = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
+            <li className="nav-item">
+              <Link className="nav-link" to="/bibliotheque">
+                Bibliothéque
+              </Link>
+            </li>
             {!user ? (
               <>
                 <li className="nav-item">
@@ -124,11 +129,6 @@ const NavBarre = () => {
                         Gestion des Contact
                       </Link>
                     </li>
-                    <li className="nav-item">
-                      <Link className="nav-link" to="/bibliotheque">
-                        Gestion de la Bibliothéque
-                      </Link>
-                    </li>
                   </>
                 )}
                 {user.role === "professor" && (
@@ -143,28 +143,18 @@ const NavBarre = () => {
                         Contact
                       </Link>
                     </li>
-                    <li className="nav-item">
-                      <Link className="nav-link" to="/bibliotheque">
-                        Bibliothéque
-                      </Link>
-                    </li>
                   </>
                 )}
                 {user.role === "student" && (
                   <>
                     <li className="nav-item">
                       <Link className="nav-link" to="/">
-                        Student
+                        Mes infos
                       </Link>
                     </li>
                     <li className="nav-item">
                       <Link className="nav-link" to="/contact">
                         Contact mon professeur
-                      </Link>
-                    </li>
-                    <li className="nav-item">
-                      <Link className="nav-link" to="/bibliotheque">
-                        Bibliothéque
                       </Link>
                     </li>
                   </>
@@ -173,7 +163,7 @@ const NavBarre = () => {
                   <>
                     <li className="nav-item">
                       <Link className="nav-link" to="/">
-                        User
+                        Mes infos
                       </Link>
                     </li>
                     <li className="nav-item">
