@@ -14,6 +14,8 @@ const userRoutes = require("./routes/userlogin");
 const classRoutes = require("./routes/class");
 // get the book routes for connection
 const bookRoutes = require("./routes/book");
+// get the contact routes for connection
+const contactRoutes = require("./routes/contact");
 
 // middleware
 app.use(json({ limit: "10mb" }));
@@ -39,6 +41,8 @@ app.use("/api/", userRoutes);
 app.use("/api/", classRoutes);
 // use the book routes for connection
 app.use("/api/", bookRoutes);
+// use the contact routes for connection
+app.use("/api/", contactRoutes);
 
 // Serve the React app
 app.get("/*", (req, res) => {

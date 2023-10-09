@@ -18,6 +18,7 @@ import NavBarre from "./component/navBarre";
 import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
 import Bibliotheque from "./pages/Bibliotheque";
 import Professor from "./pages/Professor";
@@ -52,13 +53,15 @@ function App() {
               <>
                 <Route exact path="/" element={<Home />} />
                 <Route exact path="/signup" element={<Signup />} />
-                <Route exact path="/login" element={<Login />} />{" "}
+                <Route exact path="/login" element={<Login />} />
+                <Route exact path="/contact" element={<Contact />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </>
             ) : // check if user is admin
             user.role === "admin" || user.role === "superadmin" ? (
               <>
                 <Route exact path="/" element={<Admin />} />
+                <Route exact path="/contact" element={<Contact />} />
                 <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route path="*" element={<Navigate to="/admin" />} />
               </>
@@ -66,6 +69,7 @@ function App() {
             user.role === "user" ? (
               <>
                 <Route exact path="/" element={<User />} />
+                <Route exact path="/contact" element={<Contact />} />
                 <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </>
@@ -73,6 +77,7 @@ function App() {
             user.role === "professor" ? (
               <>
                 <Route exact path="/" element={<Professor />} />
+                <Route exact path="/contact" element={<Contact />} />
                 <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route path="*" element={<Navigate to="/professor" />} />
               </>
@@ -81,6 +86,7 @@ function App() {
               user.role === "student" && (
                 <>
                   <Route exact path="/" element={<Student />} />
+                  <Route exact path="/contact" element={<Contact />} />
                   <Route path="*" element={<Navigate to="/student" />} />
                   <Route
                     exact

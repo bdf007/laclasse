@@ -50,7 +50,10 @@ const Login = () => {
 
   return (
     <div className="home">
-      <div className="container mt-5 col-10 col-sm-8 col-md-6 col-lg-5">
+      <div
+        className="container mt-5 col-10 col-sm-8 col-md-6 col-lg-5"
+        style={{ paddingBottom: "5rem", marginBottom: "5rem" }}
+      >
         <div className="text-center mb-5 alert alert-primary">
           <label htmlFor="" className="h2">
             Login
