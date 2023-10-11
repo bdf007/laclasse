@@ -111,12 +111,12 @@ const NavBarre = () => {
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link" to="/signup">
-                    Sign Up
+                    S'inscrire
                   </Link>
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link" to="/login">
-                    Login
+                    Connexion
                   </Link>
                 </li>
               </>
@@ -174,7 +174,7 @@ const NavBarre = () => {
                     </li>
                     <li className="nav-item">
                       <Link className="nav-link" to="/contact">
-                        Contact mon professeur
+                        Contacter mon professeur
                       </Link>
                     </li>
                   </>
@@ -209,7 +209,7 @@ const NavBarre = () => {
                     style={{ cursor: "pointer" }}
                     onClick={handleLogout}
                   >
-                    Logout
+                    Déconnexion
                   </span>
                 </li>
               </>

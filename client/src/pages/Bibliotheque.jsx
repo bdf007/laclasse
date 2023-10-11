@@ -25,6 +25,19 @@ const Bibliotheque = () => {
     localStorage.getItem("searchGenre") || ""
   );
 
+  const getListOfUsers = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/users`
+      );
+
+      setListOfUsers(response.data);
+    } catch (error) {
+      console.log(error);
+      toast.error("Erreur lors de la récupération des utilisateurs");
+    }
+  };
+
   const getListOfBooks = async () => {
     try {
       const response = await axios.get(
@@ -32,8 +45,8 @@ const Bibliotheque = () => {
       );
 
       // Create an array of promises to fetch user data for all books
-      const fetchUserPromises = response.data.map(async (book) => {
-        if (book.emprunteur) {
+      const fetchUserPromises = response.data.map((book) => {
+        if (book.statut === "emprunté") {
           const user = listOfUsers.find((user) => user._id === book.emprunteur);
           if (user) {
             book.emprunteur = `${user.firstname} ${user.lastname}`;
@@ -58,18 +71,6 @@ const Bibliotheque = () => {
     }
   };
 
-  const getListOfUsers = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/users`
-      );
-
-      setListOfUsers(response.data);
-    } catch (error) {
-      console.log(error);
-      toast.error("Erreur lors de la récupération des utilisateurs");
-    }
-  };
   const assignUserToBook = async (bookId) => {
     try {
       let emprunteurValue = selectedUser;
@@ -81,18 +82,30 @@ const Bibliotheque = () => {
       if (selectedUser === "none") {
         emprunteurValue = null;
         book.statut = "disponible";
+        await axios
+          .put(`${process.env.REACT_APP_API_URL}/api/book/${bookId}`, {
+            emprunteur: emprunteurValue,
+            statut: "disponible",
+          })
+          .then(() => {
+            toast.success("emprunteur assigné avec succès");
+            // get the response from the server and update the book in the state
+            getListOfBooks();
+            setSelectedUser("");
+          });
+      } else {
+        await axios
+          .put(`${process.env.REACT_APP_API_URL}/api/book/${bookId}`, {
+            emprunteur: emprunteurValue,
+            statut: "emprunté",
+          })
+          .then(() => {
+            toast.success("emprunteur assigné avec succès");
+            // get the response from the server and update the book in the state
+            getListOfBooks();
+            setSelectedUser("");
+          });
       }
-      await axios
-        .put(`${process.env.REACT_APP_API_URL}/api/book/${bookId}`, {
-          emprunteur: emprunteurValue,
-          statut: "emprunté",
-        })
-        .then(() => {
-          toast.success("emprunteur assigné avec succès");
-          // get the response from the server and update the book in the state
-          getListOfBooks();
-          setSelectedUser("");
-        });
     } catch (error) {
       toast.error("Erreur lors de l'assignation de l'emprunteur");
     }
@@ -256,13 +269,13 @@ const Bibliotheque = () => {
   };
 
   useEffect(() => {
-    getListOfBooks();
     if (!user) {
       return;
     } else if (user.role === "admin" || user.role === "superadmin") {
       getListOfUsers();
     }
-  }, [setListOfBooks, setListOfUsers]);
+    getListOfBooks();
+  }, [setListOfBooks, setListOfUsers, user]);
 
   return (
     <div
@@ -270,7 +283,7 @@ const Bibliotheque = () => {
       style={{ marginBottom: "12rem", paddingBottom: "10rem" }}
     >
       <div className="row">
-        <h1 className="mx-auto">La bibliothéque de Stéphanie</h1>
+        <h1 className="mx-auto text-center">La bibliothéque de Stéphanie</h1>
 
         <div className="table-responsive">
           {/* Search input fields */}
@@ -364,8 +377,8 @@ const Bibliotheque = () => {
                   <th scope="col">couverture</th>
                   {(user.role === "admin" || user.role === "superadmin") && (
                     <>
-                      <th scope="col">action</th>
                       <th scope="col">emprunteur</th>
+                      <th scope="col">action</th>
                     </>
                   )}
                 </tr>
@@ -438,6 +451,7 @@ const Bibliotheque = () => {
                             className="img-thumbnail"
                           />
                         </td>
+                        <td>{book.emprunteur}</td>
                         {(user.role === "admin" ||
                           user.role === "superadmin") && (
                           <>
@@ -475,7 +489,6 @@ const Bibliotheque = () => {
                                 assigner
                               </button>
                             </td>
-                            <td>{book.emprunteur}</td>
                           </>
                         )}
                       </tr>
@@ -490,7 +503,7 @@ const Bibliotheque = () => {
                         id="title"
                         value={title}
                         className="form-control"
-                        placeholder="title"
+                        placeholder="titre"
                         onChange={handleTitleChange}
                       />
                     </td>
@@ -500,7 +513,7 @@ const Bibliotheque = () => {
                         id="author"
                         value={author}
                         className="form-control"
-                        placeholder="author"
+                        placeholder="auteur"
                         onChange={handleAuthorChange}
                       />
                     </td>
@@ -519,7 +532,7 @@ const Bibliotheque = () => {
                         type="text"
                         id="description"
                         value={description}
-                        placeholder="description"
+                        placeholder="résumé"
                         onChange={handleDescriptionChange}
                       />
                     </td>
@@ -534,6 +547,7 @@ const Bibliotheque = () => {
                         onChange={handleFileInputChange}
                       />
                     </td>
+                    <td></td>
                     <td>
                       <button
                         type="button"

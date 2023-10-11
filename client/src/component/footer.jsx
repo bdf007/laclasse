@@ -61,7 +61,7 @@ const Footer = () => {
           <ul className="ms-auto list-inline d-flex justify-content-around">
             <li className="list-inline-item">
               <Link className="nav-link" to="/">
-                Home
+                Acceuil
               </Link>
             </li>
             {!user ? (
@@ -83,12 +83,12 @@ const Footer = () => {
                 </li>
                 <li className="list-inline-item">
                   <Link className="nav-link" to="/signup">
-                    Sign Up
+                    S'inscrire
                   </Link>
                 </li>
                 <li className="list-inline-item">
                   <Link className="nav-link" to="/login">
-                    Login
+                    Connexion
                   </Link>
                 </li>
               </>
@@ -141,7 +141,7 @@ const Footer = () => {
                     </li>
                     <li className="list-inline-item">
                       <Link className="nav-link" to="/contact">
-                        Contact mon professeur
+                        Contacter mon professeur
                       </Link>
                     </li>
                     <li className="list-inline-item">
@@ -176,7 +176,7 @@ const Footer = () => {
                     style={{ cursor: "pointer" }}
                     onClick={handleLogout}
                   >
-                    Logout
+                    Déconnexion
                   </span>
                 </li>
               </>
