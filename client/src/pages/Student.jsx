@@ -2,6 +2,11 @@ import React, { useContext, useEffect } from "react";
 import { UserContext } from "../context/UserContext";
 import { getUser } from "../api/user";
 import { toast } from "react-toastify";
+import { Worker } from "@react-pdf-viewer/core";
+import { Viewer } from "@react-pdf-viewer/core";
+
+// Import styles
+import "@react-pdf-viewer/core/lib/styles/index.css";
 
 // design
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
@@ -33,6 +38,7 @@ const Student = () => {
     return blobUrl;
   };
 
+  // const defaultLayoutPluginInstance = defaultLayoutPlugin();
   // get the info of the user logged in
   useEffect(() => {
     const fetchData = async () => {
@@ -49,60 +55,73 @@ const Student = () => {
   }, [setUser]);
 
   return (
-    <div
-      className="container text-center"
-      style={{ paddingBottom: "10rem", marginBottom: "10rem" }}
-    >
-      <h1>welcome {user.firstname}</h1>
-      <div className="row">
-        <div className="col-md-6">
-          <h2>Mes infos</h2>
-          <p>
-            prénom : {user.firstname} <br /> nom : {user.lastname}
-            <br />
-            email : {user.email}
-          </p>
-        </div>
-        <div className="col-md-6">
-          {!user.classes ? (
-            <p>Vous n'avez pas encore de classe</p>
-          ) : (
-            <>
-              <p>Vous êtes dans la classe {user.classes}</p>
-              <p>
-                A propos de ma classe : <br />
-                {user.aboutClass}
-              </p>
-              <p>Mon prochain cours : {user.nextClass}</p>
-              {!user.courseFiles ? (
-                <p>Vous n'avez pas encore de fichiers de cours</p>
-              ) : (
-                <>
-                  <p>Vous avez {user.courseFiles.length} fichiers de cours</p>
-                  <ul className="list-group list-group-flush">
-                    {user.courseFiles.map((file) => (
-                      <li
-                        key={file._id}
-                        className="list-group-item bg-transparent"
-                      >
-                        {file.courseFileTitle}
-                        <a
-                          href={loadFromBase64(file.courseFileData)}
-                          target="_blank"
-                          rel="noreferrer"
+    <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js">
+      <div
+        className="container text-center"
+        style={{ paddingBottom: "10rem", marginBottom: "10rem" }}
+      >
+        <h1>welcome {user.firstname}</h1>
+        <div className="row">
+          <div className="col-md-6">
+            <h2>Mes infos</h2>
+            <p>
+              prénom : {user.firstname} <br /> nom : {user.lastname}
+              <br />
+              email : {user.email}
+            </p>
+          </div>
+          <div className="col-md-6">
+            {!user.classes ? (
+              <p>Vous n'avez pas encore de classe</p>
+            ) : (
+              <>
+                <p>Vous êtes dans la classe {user.classes}</p>
+                <p>
+                  A propos de ma classe : <br />
+                  {user.aboutClass}
+                </p>
+                <p>Mon prochain cours : {user.nextClass}</p>
+                {!user.courseFiles ? (
+                  <p>Vous n'avez pas encore de fichiers de cours</p>
+                ) : (
+                  <>
+                    <p>Vous avez {user.courseFiles.length} fichiers de cours</p>
+                    <ul className="list-group list-group-flush">
+                      {user.courseFiles.map((file) => (
+                        <li
+                          key={file._id}
+                          className="list-group-item bg-transparent"
                         >
-                          <DownloadOutlinedIcon />
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-            </>
-          )}
+                          <h3>
+                            {file.courseFileTitle}
+                            <a
+                              href={loadFromBase64(file.courseFileData)}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              <DownloadOutlinedIcon />
+                            </a>
+                          </h3>
+                          <a
+                            href={loadFromBase64(file.courseFileData)}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <Viewer
+                              fileUrl={loadFromBase64(file.courseFileData)}
+                            />
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </Worker>
   );
 };
 
