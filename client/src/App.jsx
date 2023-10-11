@@ -1,11 +1,6 @@
 // import "./App.css";
 import React, { useState, useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { UserContext } from "./context/UserContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -25,6 +20,7 @@ import Bibliotheque from "./pages/Bibliotheque";
 import Professor from "./pages/Professor";
 import Student from "./pages/Student";
 import User from "./pages/User";
+import NotFound from "./pages/NotFound";
 
 import Footer from "./component/footer";
 
@@ -50,52 +46,52 @@ function App() {
           <ToastContainer />
           <NavBarre />
           <Routes>
+            <Route exact path="/" element={<Home />} />
             {!user ? (
               <>
-                <Route exact path="/" element={<Home />} />
                 <Route exact path="/aboutpublic" element={<AboutPublic />} />
                 <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route exact path="/signup" element={<Signup />} />
                 <Route exact path="/login" element={<Login />} />
                 <Route exact path="/contact" element={<Contact />} />
-                <Route path="*" element={<Navigate to="/" />} />
+                <Route path="*" element={<NotFound />} />
               </>
             ) : // check if user is admin
             user.role === "admin" || user.role === "superadmin" ? (
               <>
-                <Route exact path="/" element={<Admin />} />
+                <Route exact path="/Admin" element={<Admin />} />
                 <Route exact path="/contact" element={<Contact />} />
                 <Route exact path="/bibliotheque" element={<Bibliotheque />} />
-                <Route path="*" element={<Navigate to="/admin" />} />
+                <Route path="*" element={<NotFound />} />
               </>
             ) : // if user is user
             user.role === "user" ? (
               <>
-                <Route exact path="/" element={<User />} />
+                <Route exact path="/User" element={<User />} />
                 <Route exact path="/contact" element={<Contact />} />
                 <Route exact path="/bibliotheque" element={<Bibliotheque />} />
-                <Route path="*" element={<Navigate to="/" />} />
+                <Route path="*" element={<NotFound />} />
               </>
             ) : // if user is professor
             user.role === "professor" ? (
               <>
-                <Route exact path="/" element={<Professor />} />
+                <Route exact path="/Professor" element={<Professor />} />
                 <Route exact path="/contact" element={<Contact />} />
                 <Route exact path="/bibliotheque" element={<Bibliotheque />} />
-                <Route path="*" element={<Navigate to="/professor" />} />
+                <Route path="*" element={<NotFound />} />
               </>
             ) : (
               // if user is student
               user.role === "student" && (
                 <>
-                  <Route exact path="/" element={<Student />} />
+                  <Route exact path="/Student" element={<Student />} />
                   <Route exact path="/contact" element={<Contact />} />
-                  <Route path="*" element={<Navigate to="/student" />} />
                   <Route
                     exact
                     path="/bibliotheque"
                     element={<Bibliotheque />}
                   />
+                  <Route path="*" element={<NotFound />} />
                 </>
               )
             )}

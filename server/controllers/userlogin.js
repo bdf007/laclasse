@@ -1,5 +1,6 @@
 const User = require("../models/userlogin");
 const Class = require("../models/class");
+const CourseFile = require("../models/courseFile");
 
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
@@ -90,6 +91,7 @@ exports.getLoggedInUser = async (req, res) => {
   // if the classis not null, get the info of the class and add it to the user
   if (classes) {
     const classInfo = await Class.findById(classes);
+    const courseFiles = await CourseFile.find({ classId: classes._id });
     return res.status(200).json({
       message: "User is still logged in",
       firstname,
@@ -99,6 +101,7 @@ exports.getLoggedInUser = async (req, res) => {
       classes: classInfo.name,
       aboutClass: classInfo.about,
       nextClass: classInfo.nextCourse,
+      courseFiles,
     });
   } else {
     return res.json({

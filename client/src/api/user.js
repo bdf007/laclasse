@@ -64,7 +64,6 @@ export const getUser = async () => {
     });
     const data = await res.json();
     const {
-      _id,
       firstname,
       lastname,
       email,
@@ -72,9 +71,9 @@ export const getUser = async () => {
       classes,
       aboutClass,
       nextClass,
+      courseFiles,
     } = data;
     return {
-      _id,
       firstname,
       lastname,
       email,
@@ -82,6 +81,7 @@ export const getUser = async () => {
       classes,
       aboutClass,
       nextClass,
+      courseFiles,
     };
   } catch (error) {
     throw new Error("Please login to continue.");

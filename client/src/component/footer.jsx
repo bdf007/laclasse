@@ -59,13 +59,13 @@ const Footer = () => {
       <div className="row pe-0 ps-0 me-0 ms-0">
         <div className="footer-brand ">
           <ul className="ms-auto list-inline d-flex justify-content-around">
+            <li className="list-inline-item">
+              <Link className="nav-link" to="/">
+                Home
+              </Link>
+            </li>
             {!user ? (
               <>
-                <li className="list-inline-item">
-                  <Link className="nav-link" to="/">
-                    Home
-                  </Link>
-                </li>
                 <li className="list-inline-item">
                   <Link className="nav-link" to="/aboutpublic">
                     A propos
@@ -97,7 +97,7 @@ const Footer = () => {
                 {(user.role === "admin" || user.role === "superadmin") && (
                   <>
                     <li className="list-inline-item">
-                      <Link className="nav-link" to="/">
+                      <Link className="nav-link" to="/Admin">
                         Admin
                       </Link>
                     </li>
@@ -116,7 +116,7 @@ const Footer = () => {
                 {user.role === "professor" && (
                   <>
                     <li className="list-inline-item">
-                      <Link className="nav-link" to="/">
+                      <Link className="nav-link" to="/Professor">
                         Professor
                       </Link>
                     </li>
@@ -135,7 +135,7 @@ const Footer = () => {
                 {user.role === "student" && (
                   <>
                     <li className="list-inline-item">
-                      <Link className="nav-link" to="/">
+                      <Link className="nav-link" to="/Student">
                         Mes infos
                       </Link>
                     </li>
@@ -154,7 +154,7 @@ const Footer = () => {
                 {user.role === "user" && (
                   <>
                     <li className="list-inline-item">
-                      <Link className="nav-link" to="/">
+                      <Link className="nav-link" to="/User">
                         Mes infos
                       </Link>
                     </li>

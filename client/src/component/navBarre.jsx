@@ -125,7 +125,7 @@ const NavBarre = () => {
                 {(user.role === "admin" || user.role === "superadmin") && (
                   <>
                     <li className="nav-item">
-                      <Link className="nav-link" to="/">
+                      <Link className="nav-link" to="/Admin">
                         Admin
                       </Link>
                     </li>
@@ -144,7 +144,7 @@ const NavBarre = () => {
                 {user.role === "professor" && (
                   <>
                     <li className="nav-item">
-                      <Link className="nav-link" to="/">
+                      <Link className="nav-link" to="/Professor">
                         Professor
                       </Link>
                     </li>
@@ -163,7 +163,7 @@ const NavBarre = () => {
                 {user.role === "student" && (
                   <>
                     <li className="nav-item">
-                      <Link className="nav-link" to="/">
+                      <Link className="nav-link" to="/Student">
                         Mes infos
                       </Link>
                     </li>
@@ -182,7 +182,7 @@ const NavBarre = () => {
                 {user.role === "user" && (
                   <>
                     <li className="nav-item">
-                      <Link className="nav-link" to="/">
+                      <Link className="nav-link" to="/User">
                         Mes infos
                       </Link>
                     </li>

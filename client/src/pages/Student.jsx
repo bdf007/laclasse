@@ -3,15 +3,41 @@ import { UserContext } from "../context/UserContext";
 import { getUser } from "../api/user";
 import { toast } from "react-toastify";
 
+// design
+import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
+
 const Student = () => {
   const { user, setUser } = useContext(UserContext);
+
+  const loadFromBase64 = (base64) => {
+    const base64toBlob = (data) => {
+      // Cut the prefix `data:application/pdf;base64` from the raw base64
+      const base64WithoutPrefix = data.substr(
+        "data:application/pdf;base64,".length
+      );
+
+      const bytes = atob(base64WithoutPrefix);
+      let length = bytes.length;
+      let out = new Uint8Array(length);
+
+      while (length--) {
+        out[length] = bytes.charCodeAt(length);
+      }
+
+      return new Blob([out], { type: "application/pdf" });
+    };
+
+    const blob = base64toBlob(base64);
+    const blobUrl = URL.createObjectURL(blob);
+
+    return blobUrl;
+  };
 
   // get the info of the user logged in
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await getUser();
-
         if (res.error) toast(res.error);
         else setUser(res); // Set the entire 'res' object, which includes 'firstname' and 'role'
       } catch (err) {
@@ -23,7 +49,10 @@ const Student = () => {
   }, [setUser]);
 
   return (
-    <div className="container text-center">
+    <div
+      className="container text-center"
+      style={{ paddingBottom: "10rem", marginBottom: "10rem" }}
+    >
       <h1>welcome {user.firstname}</h1>
       <div className="row">
         <div className="col-md-6">
@@ -45,6 +74,30 @@ const Student = () => {
                 {user.aboutClass}
               </p>
               <p>Mon prochain cours : {user.nextClass}</p>
+              {!user.courseFiles ? (
+                <p>Vous n'avez pas encore de fichiers de cours</p>
+              ) : (
+                <>
+                  <p>Vous avez {user.courseFiles.length} fichiers de cours</p>
+                  <ul className="list-group list-group-flush">
+                    {user.courseFiles.map((file) => (
+                      <li
+                        key={file._id}
+                        className="list-group-item bg-transparent"
+                      >
+                        {file.courseFileTitle}
+                        <a
+                          href={loadFromBase64(file.courseFileData)}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <DownloadOutlinedIcon />
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </>
           )}
         </div>

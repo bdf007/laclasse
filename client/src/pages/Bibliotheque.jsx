@@ -82,7 +82,7 @@ const Bibliotheque = () => {
         emprunteurValue = null;
         book.statut = "disponible";
       }
-      const response = await axios
+      await axios
         .put(`${process.env.REACT_APP_API_URL}/api/book/${bookId}`, {
           emprunteur: emprunteurValue,
           statut: "emprunté",

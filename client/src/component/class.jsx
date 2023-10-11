@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Worker } from "@react-pdf-viewer/core";
+// import { Worker } from "@react-pdf-viewer/core";
 
 import { Viewer } from "@react-pdf-viewer/core";
 
@@ -251,265 +251,96 @@ function Class() {
   };
 
   return (
-    <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-      <div className="text-center">
-        <button
-          className="btn btn-primary"
-          onClick={toggleViewMode}
-          style={{ float: "right" }}
-        >
-          {viewMode === "cards" ? (
-            <FormatListBulletedOutlinedIcon />
-          ) : (
-            <DashboardOutlinedIcon />
-          )}
-        </button>
+    // <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+    <div className="text-center">
+      <button
+        className="btn btn-primary"
+        onClick={toggleViewMode}
+        style={{ float: "right" }}
+      >
         {viewMode === "cards" ? (
-          <div className="row">
-            {/* Add class form */}
-
-            {/* List all classes */}
-            <h1 className="text-center">Liste des classes</h1>
-            <div className="row">
-              {listOfClass.length > 0 ? (
-                listOfClass.map((classe) => (
-                  <div className="col-md-4" key={classe._id}>
-                    <div className="card m-2">
-                      <div className="card-body">
-                        {editingClassId === classe._id ? (
-                          <div>
-                            <label For="name">changer le nom :</label>
-                            <input
-                              type="text"
-                              name="name"
-                              value={updatedClassName}
-                              onChange={(e) =>
-                                setUpdatedClassName(e.target.value)
-                              }
-                            />
-                            <br />
-                            <label For="about">changer le about :</label>
-                            <textarea
-                              type="text"
-                              name="about"
-                              className="form-control"
-                              value={updatedClassAbout}
-                              onChange={(e) =>
-                                setUpdatedClassAbout(e.target.value)
-                              }
-                            />
-                            <br />
-                            <label For="nextCourse">
-                              changer le prochain cours :
-                            </label>
-                            <input
-                              type="text"
-                              name="nextCourse"
-                              value={updatedClassNextCourse}
-                              onChange={(e) =>
-                                setUpdatedClassNextCourse(e.target.value)
-                              }
-                            />
-                            <br />
-                            <button onClick={() => updateClass(classe._id)}>
-                              Save
-                            </button>
-                            <button onClick={cancelEditing}>Cancel</button>
-                          </div>
-                        ) : (
-                          <>
-                            <h5 className="card-title">
-                              nom de la classe : {classe.name}
-                            </h5>
-                            <p className="card-text">
-                              A propos : <br />
-                              {!classe.about ? (
-                                <span className="bg-danger text-white">
-                                  No about
-                                </span>
-                              ) : (
-                                classe.about
-                              )}
-                            </p>
-                            <p className="card-text">
-                              prochain cours :{" "}
-                              {!classe.nextCourse ? (
-                                <span className="bg-danger text-white">
-                                  No nextCourse
-                                </span>
-                              ) : (
-                                classe.nextCourse
-                              )}
-                            </p>
-                            <button
-                              onClick={() =>
-                                startEditing(
-                                  classe._id,
-                                  classe.name,
-                                  classe.about,
-                                  classe.nextCourse
-                                )
-                              }
-                            >
-                              Edit
-                            </button>
-                            <button onClick={() => deleteClass(classe._id)}>
-                              Delete
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p>Loading classes...</p>
-              )}
-              <div className="col-md-4">
-                <div className="card m-2">
-                  <div className="card-body">
-                    <h5 className="card-title">Add New Class</h5>
-                    <input
-                      type="text"
-                      placeholder="New Class Name"
-                      value={newClassName}
-                      onChange={(e) => setNewClassName(e.target.value)}
-                    />
-                    <button onClick={createClass}>Create Class</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <FormatListBulletedOutlinedIcon />
         ) : (
-          <table className="table table-striped">
-            <thead>
-              <tr>
-                <th scope="col">Class Name</th>
-                <th scope="col">Class About</th>
-                <th scope="col">Class Next Course</th>
-                <th scope="col">Course Files</th>
-                <th scope="col">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {listOfClass.length > 0 ? (
-                listOfClass.map((classe) => (
-                  <tr key={classe._id}>
-                    <td>
-                      {editingClassId === classe._id ? (
-                        <input
-                          type="text"
-                          value={updatedClassName}
-                          onChange={(e) => setUpdatedClassName(e.target.value)}
-                        />
-                      ) : (
-                        classe.name
-                      )}
-                    </td>
-                    <td>
-                      {editingClassId === classe._id ? (
-                        <textarea
-                          type="text"
-                          rows={20}
-                          value={updatedClassAbout}
-                          onChange={(e) => setUpdatedClassAbout(e.target.value)}
-                          onKeyDown={(e) => handleTextareaEnter(e)}
-                        />
-                      ) : !classe.about ? (
-                        <span className="bg-danger text-white">No about</span>
-                      ) : (
-                        <pre>{classe.about}</pre>
-                      )}
-                    </td>
-                    <td>
-                      {editingClassId === classe._id ? (
-                        <input
-                          type="text"
-                          value={updatedClassNextCourse}
-                          onChange={(e) =>
-                            setUpdatedClassNextCourse(e.target.value)
-                          }
-                        />
-                      ) : !classe.nextCourse ? (
-                        <span className="bg-danger text-white">
-                          No nextCourse
-                        </span>
-                      ) : (
-                        classe.nextCourse
-                      )}
-                    </td>
-                    <td>
-                      <ul>
-                        {!classe.courseFiles ? (
-                          <li>No course files</li>
-                        ) : (
-                          classe.courseFiles.map((course) => (
-                            <li key={course._id}>
-                              <a
-                                href={loadFromBase64(course.courseFileData)}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                {/* <Viewer
-                                  fileUrl={loadFromBase64(
-                                    course.courseFileData
-                                  )}
-                                /> */}
+          <DashboardOutlinedIcon />
+        )}
+      </button>
+      {viewMode === "cards" ? (
+        <div className="row">
+          {/* Add class form */}
 
-                                {course.courseFileTitle}
-                              </a>
-
-                              <button
-                                onClick={() => deleteCourseFile(course._id)}
-                                className="btn btn-danger"
-                              >
-                                Delete
-                              </button>
-                            </li>
-                          ))
-                        )}
-                        <li>
+          {/* List all classes */}
+          <h1 className="text-center">Liste des classes</h1>
+          <div className="row">
+            {listOfClass.length > 0 ? (
+              listOfClass.map((classe) => (
+                <div className="col-md-4" key={classe._id}>
+                  <div className="card m-2">
+                    <div className="card-body">
+                      {editingClassId === classe._id ? (
+                        <div>
+                          <label For="name">changer le nom :</label>
                           <input
                             type="text"
-                            id="courseFileTitle"
-                            placeholder="Course File Title"
-                            value={courseFileTitle}
-                            onChange={handleCourseTitle}
+                            name="name"
+                            value={updatedClassName}
+                            onChange={(e) =>
+                              setUpdatedClassName(e.target.value)
+                            }
                           />
+                          <br />
+                          <label For="about">changer le about :</label>
+                          <textarea
+                            type="text"
+                            name="about"
+                            className="form-control"
+                            value={updatedClassAbout}
+                            onChange={(e) =>
+                              setUpdatedClassAbout(e.target.value)
+                            }
+                          />
+                          <br />
+                          <label For="nextCourse">
+                            changer le prochain cours :
+                          </label>
                           <input
-                            type="file"
-                            id="courseFileData"
-                            accept="application/pdf"
-                            onChange={handleCourseFile}
+                            type="text"
+                            name="nextCourse"
+                            value={updatedClassNextCourse}
+                            onChange={(e) =>
+                              setUpdatedClassNextCourse(e.target.value)
+                            }
                           />
-                          <button
-                            onClick={() => handleUploadCourseFile(classe._id)}
-                            className="btn btn-primary"
-                          >
-                            Upload
-                          </button>
-                        </li>
-                      </ul>
-                    </td>
-                    <td>
-                      {editingClassId === classe._id ? (
-                        <div>
-                          <button
-                            onClick={() => updateClass(classe._id)}
-                            className="btn btn-success"
-                          >
+                          <br />
+                          <button onClick={() => updateClass(classe._id)}>
                             Save
                           </button>
-                          <button
-                            onClick={cancelEditing}
-                            className="btn btn-danger"
-                          >
-                            Cancel
-                          </button>
+                          <button onClick={cancelEditing}>Cancel</button>
                         </div>
                       ) : (
-                        <div>
+                        <>
+                          <h5 className="card-title">
+                            nom de la classe : {classe.name}
+                          </h5>
+                          <p className="card-text">
+                            A propos : <br />
+                            {!classe.about ? (
+                              <span className="bg-danger text-white">
+                                No about
+                              </span>
+                            ) : (
+                              classe.about
+                            )}
+                          </p>
+                          <p className="card-text">
+                            prochain cours :{" "}
+                            {!classe.nextCourse ? (
+                              <span className="bg-danger text-white">
+                                No nextCourse
+                              </span>
+                            ) : (
+                              classe.nextCourse
+                            )}
+                          </p>
                           <button
                             onClick={() =>
                               startEditing(
@@ -519,48 +350,216 @@ function Class() {
                                 classe.nextCourse
                               )
                             }
-                            className="btn btn-warning"
                           >
                             Edit
                           </button>
-                          <button
-                            onClick={() => deleteClass(classe._id)}
-                            className="btn btn-danger"
-                          >
+                          <button onClick={() => deleteClass(classe._id)}>
                             Delete
                           </button>
-                        </div>
+                        </>
                       )}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td>Loading classes...</td>
-                </tr>
-              )}
-              <tr>
-                <td>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p>Loading classes...</p>
+            )}
+            <div className="col-md-4">
+              <div className="card m-2">
+                <div className="card-body">
+                  <h5 className="card-title">Add New Class</h5>
                   <input
                     type="text"
                     placeholder="New Class Name"
                     value={newClassName}
                     onChange={(e) => setNewClassName(e.target.value)}
                   />
-                </td>
-                <td></td>
-                <td></td>
-                <td>
-                  <button onClick={createClass} className="btn btn-primary">
-                    Create Class
-                  </button>
-                </td>
+                  <button onClick={createClass}>Create Class</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <table className="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">Class Name</th>
+              <th scope="col">Class About</th>
+              <th scope="col">Class Next Course</th>
+              <th scope="col">Course Files</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {listOfClass.length > 0 ? (
+              listOfClass.map((classe) => (
+                <tr key={classe._id}>
+                  <td>
+                    {editingClassId === classe._id ? (
+                      <input
+                        type="text"
+                        value={updatedClassName}
+                        onChange={(e) => setUpdatedClassName(e.target.value)}
+                      />
+                    ) : (
+                      classe.name
+                    )}
+                  </td>
+                  <td>
+                    {editingClassId === classe._id ? (
+                      <textarea
+                        type="text"
+                        rows={20}
+                        value={updatedClassAbout}
+                        onChange={(e) => setUpdatedClassAbout(e.target.value)}
+                        onKeyDown={(e) => handleTextareaEnter(e)}
+                      />
+                    ) : !classe.about ? (
+                      <span className="bg-danger text-white">No about</span>
+                    ) : (
+                      <pre>{classe.about}</pre>
+                    )}
+                  </td>
+                  <td>
+                    {editingClassId === classe._id ? (
+                      <input
+                        type="text"
+                        value={updatedClassNextCourse}
+                        onChange={(e) =>
+                          setUpdatedClassNextCourse(e.target.value)
+                        }
+                      />
+                    ) : !classe.nextCourse ? (
+                      <span className="bg-danger text-white">
+                        No nextCourse
+                      </span>
+                    ) : (
+                      classe.nextCourse
+                    )}
+                  </td>
+                  <td>
+                    <ul className="list-group list-group-flush ">
+                      {!classe.courseFiles ? (
+                        <li>No course files</li>
+                      ) : (
+                        classe.courseFiles.map((course) => (
+                          <li
+                            key={course._id}
+                            className="list-group-item bg-transparent"
+                          >
+                            <div className="d-flex justify-content-between">
+                              <a
+                                href={loadFromBase64(course.courseFileData)}
+                                target="_blank"
+                                rel="noreferrer"
+                                // style={{ width: "10rem" }}
+                              >
+                                {course.courseFileTitle}
+                              </a>
+                              <button
+                                onClick={() => deleteCourseFile(course._id)}
+                                className="btn btn-danger"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </li>
+                        ))
+                      )}
+                      <li className="list-group-item d-flex justify-content-between bg-transparent">
+                        <input
+                          type="text"
+                          id="courseFileTitle"
+                          placeholder="Course File Title"
+                          value={courseFileTitle}
+                          onChange={handleCourseTitle}
+                        />
+                        <input
+                          type="file"
+                          id="courseFileData"
+                          accept="application/pdf"
+                          onChange={handleCourseFile}
+                        />
+                        <button
+                          onClick={() => handleUploadCourseFile(classe._id)}
+                          className="btn btn-primary"
+                        >
+                          Upload
+                        </button>
+                      </li>
+                    </ul>
+                  </td>
+                  <td>
+                    {editingClassId === classe._id ? (
+                      <div>
+                        <button
+                          onClick={() => updateClass(classe._id)}
+                          className="btn btn-success"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={cancelEditing}
+                          className="btn btn-danger"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        <button
+                          onClick={() =>
+                            startEditing(
+                              classe._id,
+                              classe.name,
+                              classe.about,
+                              classe.nextCourse
+                            )
+                          }
+                          className="btn btn-warning"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteClass(classe._id)}
+                          className="btn btn-danger"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td>Loading classes...</td>
               </tr>
-            </tbody>
-          </table>
-        )}
-      </div>
-    </Worker>
+            )}
+            <tr>
+              <td>
+                <input
+                  type="text"
+                  placeholder="New Class Name"
+                  value={newClassName}
+                  onChange={(e) => setNewClassName(e.target.value)}
+                />
+              </td>
+              <td></td>
+              <td></td>
+              <td>
+                <button onClick={createClass} className="btn btn-primary">
+                  Create Class
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      )}
+    </div>
+    // </Worker>
   );
 }
 
