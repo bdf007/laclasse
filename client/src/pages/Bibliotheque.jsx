@@ -344,6 +344,7 @@ const Bibliotheque = () => {
                             src={book.imageData}
                             alt={book.title}
                             className="img-thumbnail"
+                            style={{ maxWidth: "200px", maxHeight: "200px" }}
                           />
                         </td>
                       </tr>

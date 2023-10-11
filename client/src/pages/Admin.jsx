@@ -346,14 +346,16 @@ const Admin = () => {
                 <div className="table-responsive text-break">
                   <table className="table table-striped table-bordered table-hover">
                     <thead>
-                      <th scope="col">prénom</th>
-                      <th scope="col">nom</th>
-                      <th scope="col">email</th>
-                      <th scope="col">role</th>
-                      <th scope="col">classe</th>
-                      <th scope="col">change de classe</th>
-                      <th sope="col">modifie le role</th>
-                      <th scope="col">supprime</th>
+                      <tr>
+                        <th scope="col">prénom</th>
+                        <th scope="col">nom</th>
+                        <th scope="col">email</th>
+                        <th scope="col">role</th>
+                        <th scope="col">classe</th>
+                        <th scope="col">change de classe</th>
+                        <th sope="col">modifie le role</th>
+                        <th scope="col">supprime</th>
+                      </tr>
                     </thead>
                     <tbody>
                       {listOfUser.map((user) => (
@@ -388,7 +390,7 @@ const Admin = () => {
                           ) : (
                             <td>
                               <ul className="list-inline">
-                                <li class="list-inline-item">
+                                <li className="list-inline-item">
                                   <select
                                     className="form-select"
                                     aria-label="Default select example"
@@ -409,7 +411,7 @@ const Admin = () => {
                                     <option value="none">None</option>
                                   </select>
                                 </li>
-                                <li class="list-inline-item">
+                                <li className="list-inline-item">
                                   <button
                                     className="btn btn-primary"
                                     onClick={() => {

@@ -2,12 +2,16 @@ const Class = require("../models/class");
 const mongoose = require("mongoose");
 
 exports.createClass = async (req, res) => {
-  const newClass = new Class(req.body);
-  await newClass.save();
+  try {
+    const newClass = new Class(req.body);
+    await newClass.save();
 
-  res.status(200).json({
-    message: "Class created successfully",
-  });
+    res.status(200).json({
+      message: "Class created successfully",
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 exports.getClasses = async (req, res) => {
@@ -82,3 +86,55 @@ exports.classById = async (req, res) => {
     });
   }
 };
+
+// exports.addCourseFile = async (req, res) => {
+//   try {
+//     const id = req.params.id;
+//     const classToUpdate = await Class.findById(id);
+//     if (!classToUpdate) {
+//       return res.status(404).json({
+//         error: "ID does not exist",
+//       });
+//     }
+//     // if the class exists, update it
+//     const updateClass = await Class.findByIdAndUpdate(
+//       id,
+//       { $push: { courseFiles: req.body.courseFiles } },
+//       { new: true }
+//     );
+//     res.json({
+//       message: "Class updated successfully",
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       error: "Internal server error",
+//     });
+//   }
+// };
+
+// exports.removeCourseFile = async (req, res) => {
+//   try {
+//     const id = req.params.id;
+//     const classToUpdate = await Class.findById(id);
+//     if (!classToUpdate) {
+//       return res.status(404).json({
+//         error: "ID does not exist",
+//       });
+//     }
+//     // if the class exists, update it
+//     const updateClass = await Class.findByIdAndUpdate(
+//       id,
+//       { $pull: { courseFiles: req.body.courseFiles } },
+//       { new: true }
+//     );
+//     res.json({
+//       message: "Class updated successfully",
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       error: "Internal server error",
+//     });
+//   }
+// };
