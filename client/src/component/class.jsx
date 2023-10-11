@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-// import { Worker } from "@react-pdf-viewer/core";
-
-import { Viewer } from "@react-pdf-viewer/core";
 
 //design
 import FormatListBulletedOutlinedIcon from "@mui/icons-material/FormatListBulletedOutlined";
@@ -182,6 +179,7 @@ function Class() {
         );
         toast.success("Course file uploaded successfully");
         setListOfCourseFile((prev) => [...prev, response.data]);
+        console.warn(listOfCourseFile);
 
         resetFormFile();
 
@@ -251,7 +249,6 @@ function Class() {
   };
 
   return (
-    // <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
     <div className="text-center">
       <button
         className="btn btn-primary"
@@ -302,7 +299,7 @@ function Class() {
                           <label For="nextCourse">
                             changer le prochain cours :
                           </label>
-                          <input
+                          <textarea
                             type="text"
                             name="nextCourse"
                             value={updatedClassNextCourse}
@@ -311,10 +308,18 @@ function Class() {
                             }
                           />
                           <br />
-                          <button onClick={() => updateClass(classe._id)}>
-                            Save
+                          <button
+                            onClick={() => updateClass(classe._id)}
+                            className="btn btn-success"
+                          >
+                            Sauvegarder
                           </button>
-                          <button onClick={cancelEditing}>Cancel</button>
+                          <button
+                            onClick={cancelEditing}
+                            className="btn btn-danger"
+                          >
+                            Annuler les modifications
+                          </button>
                         </div>
                       ) : (
                         <>
@@ -325,23 +330,26 @@ function Class() {
                             A propos : <br />
                             {!classe.about ? (
                               <span className="bg-danger text-white">
-                                No about
+                                Pas d'à propos
                               </span>
                             ) : (
-                              classe.about
+                              <pre>{classe.about}</pre>
                             )}
                           </p>
                           <p className="card-text">
                             prochain cours :{" "}
                             {!classe.nextCourse ? (
                               <span className="bg-danger text-white">
-                                No nextCourse
+                                Pas d'informations
                               </span>
                             ) : (
-                              classe.nextCourse
+                              <pre>{classe.nextCourse}</pre>
                             )}
                           </p>
+
+                          <br />
                           <button
+                            className="btn btn-warning"
                             onClick={() =>
                               startEditing(
                                 classe._id,
@@ -351,13 +359,76 @@ function Class() {
                               )
                             }
                           >
-                            Edit
+                            Modifier la classe
                           </button>
-                          <button onClick={() => deleteClass(classe._id)}>
-                            Delete
+                          <button
+                            onClick={() => deleteClass(classe._id)}
+                            className="btn btn-danger"
+                          >
+                            Supprimer la classe
                           </button>
                         </>
                       )}
+                      <br />
+                      <div className="card-text">
+                        <p>Fichier(s) de la classe:</p>
+                        <ul className="list-group list-group-flush ">
+                          {classe.courseFiles.length === 0 ? (
+                            <li className="bg-danger text-white">
+                              Pas de fichiers de cours
+                            </li>
+                          ) : (
+                            classe.courseFiles.map((course) => (
+                              <li
+                                key={course._id}
+                                className="list-group-item bg-transparent"
+                              >
+                                <div className="d-flex justify-content-between">
+                                  <a
+                                    href={loadFromBase64(course.courseFileData)}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-start"
+                                    // style={{ width: "10rem" }}
+                                  >
+                                    {course.courseFileTitle}
+                                  </a>
+                                  <button
+                                    onClick={() => deleteCourseFile(course._id)}
+                                    className="btn btn-danger"
+                                  >
+                                    Supprimer le fichier
+                                  </button>
+                                </div>
+                              </li>
+                            ))
+                          )}
+                          <li className="list-group-item d-flex justify-content-between bg-transparent">
+                            <input
+                              type="text"
+                              id="courseFileTitle"
+                              placeholder="Nom du fichier"
+                              value={courseFileTitle}
+                              onChange={handleCourseTitle}
+                            />
+                            <input
+                              type="file"
+                              id="courseFileData"
+                              accept="application/pdf"
+                              className="btn btn-primary"
+                              onChange={handleCourseFile}
+                            />
+                          </li>
+                          <li>
+                            <button
+                              onClick={() => handleUploadCourseFile(classe._id)}
+                              className="btn btn-primary"
+                            >
+                              Ajouter un fichier
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -368,14 +439,16 @@ function Class() {
             <div className="col-md-4">
               <div className="card m-2">
                 <div className="card-body">
-                  <h5 className="card-title">Add New Class</h5>
+                  <h5 className="card-title">Ajouter une nouvelle classe</h5>
                   <input
                     type="text"
-                    placeholder="New Class Name"
+                    placeholder="Nouvelle Classe"
                     value={newClassName}
                     onChange={(e) => setNewClassName(e.target.value)}
                   />
-                  <button onClick={createClass}>Create Class</button>
+                  <button onClick={createClass}>
+                    Créer une nouvelle classe
+                  </button>
                 </div>
               </div>
             </div>
@@ -385,10 +458,10 @@ function Class() {
         <table className="table table-striped">
           <thead>
             <tr>
-              <th scope="col">Class Name</th>
-              <th scope="col">Class About</th>
-              <th scope="col">Class Next Course</th>
-              <th scope="col">Course Files</th>
+              <th scope="col">Nom de la classe</th>
+              <th scope="col">A Propos</th>
+              <th scope="col">Prochain(s) cours</th>
+              <th scope="col">fichier(s) de cours</th>
               <th scope="col">Actions</th>
             </tr>
           </thead>
@@ -417,14 +490,16 @@ function Class() {
                         onKeyDown={(e) => handleTextareaEnter(e)}
                       />
                     ) : !classe.about ? (
-                      <span className="bg-danger text-white">No about</span>
+                      <span className="bg-danger text-white">
+                        Pas d'à propos
+                      </span>
                     ) : (
                       <pre>{classe.about}</pre>
                     )}
                   </td>
                   <td>
                     {editingClassId === classe._id ? (
-                      <input
+                      <textarea
                         type="text"
                         value={updatedClassNextCourse}
                         onChange={(e) =>
@@ -433,16 +508,18 @@ function Class() {
                       />
                     ) : !classe.nextCourse ? (
                       <span className="bg-danger text-white">
-                        No nextCourse
+                        Pas d'informations
                       </span>
                     ) : (
-                      classe.nextCourse
+                      <pre>{classe.nextCourse}</pre>
                     )}
                   </td>
                   <td>
                     <ul className="list-group list-group-flush ">
-                      {!classe.courseFiles ? (
-                        <li>No course files</li>
+                      {classe.courseFiles.length === 0 ? (
+                        <li className="bg-danger text-white">
+                          Pas de fichiers de cours
+                        </li>
                       ) : (
                         classe.courseFiles.map((course) => (
                           <li
@@ -462,7 +539,7 @@ function Class() {
                                 onClick={() => deleteCourseFile(course._id)}
                                 className="btn btn-danger"
                               >
-                                Delete
+                                Supprimer le fichier
                               </button>
                             </div>
                           </li>
@@ -472,7 +549,7 @@ function Class() {
                         <input
                           type="text"
                           id="courseFileTitle"
-                          placeholder="Course File Title"
+                          placeholder="nom du fichier"
                           value={courseFileTitle}
                           onChange={handleCourseTitle}
                         />
@@ -481,12 +558,13 @@ function Class() {
                           id="courseFileData"
                           accept="application/pdf"
                           onChange={handleCourseFile}
+                          className="btn btn-primary"
                         />
                         <button
                           onClick={() => handleUploadCourseFile(classe._id)}
                           className="btn btn-primary"
                         >
-                          Upload
+                          Ajouter un fichier
                         </button>
                       </li>
                     </ul>
@@ -498,13 +576,13 @@ function Class() {
                           onClick={() => updateClass(classe._id)}
                           className="btn btn-success"
                         >
-                          Save
+                          Sauvegarder
                         </button>
                         <button
                           onClick={cancelEditing}
                           className="btn btn-danger"
                         >
-                          Cancel
+                          Annuler les modifications
                         </button>
                       </div>
                     ) : (
@@ -520,13 +598,13 @@ function Class() {
                           }
                           className="btn btn-warning"
                         >
-                          Edit
+                          Modifier la classe
                         </button>
                         <button
                           onClick={() => deleteClass(classe._id)}
                           className="btn btn-danger"
                         >
-                          Delete
+                          Supprimer la classe
                         </button>
                       </div>
                     )}
@@ -542,16 +620,17 @@ function Class() {
               <td>
                 <input
                   type="text"
-                  placeholder="New Class Name"
+                  placeholder="nouvelle classe"
                   value={newClassName}
                   onChange={(e) => setNewClassName(e.target.value)}
                 />
               </td>
               <td></td>
               <td></td>
+              <td></td>
               <td>
                 <button onClick={createClass} className="btn btn-primary">
-                  Create Class
+                  Créer une nouvelle classe
                 </button>
               </td>
             </tr>
