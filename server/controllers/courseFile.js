@@ -3,14 +3,12 @@ const CourseFile = require("../models/courseFile");
 // Create a new course file
 exports.createCourseFile = async (req, res) => {
   try {
-    console.log("req.body", req.body);
     const { courseFileTitle, courseFileData, classId } = req.body; // Destructure the specific fields you want
     const newCourseFile = new CourseFile({
       courseFileTitle,
       courseFileData,
       classId,
     });
-    console.log("newCourseFile", newCourseFile);
 
     const savedCourseFile = await newCourseFile.save();
 
