@@ -419,7 +419,7 @@ function Class() {
                       ) : !classe.about ? (
                         <span className="bg-danger text-white">No about</span>
                       ) : (
-                        classe.about
+                        <pre>{classe.about}</pre>
                       )}
                     </td>
                     <td>
@@ -459,10 +459,10 @@ function Class() {
 
                                 {course.courseFileTitle}
                               </a>
-                              <br />
 
                               <button
                                 onClick={() => deleteCourseFile(course._id)}
+                                className="btn btn-danger"
                               >
                                 Delete
                               </button>
@@ -485,6 +485,7 @@ function Class() {
                           />
                           <button
                             onClick={() => handleUploadCourseFile(classe._id)}
+                            className="btn btn-primary"
                           >
                             Upload
                           </button>
@@ -494,10 +495,18 @@ function Class() {
                     <td>
                       {editingClassId === classe._id ? (
                         <div>
-                          <button onClick={() => updateClass(classe._id)}>
+                          <button
+                            onClick={() => updateClass(classe._id)}
+                            className="btn btn-success"
+                          >
                             Save
                           </button>
-                          <button onClick={cancelEditing}>Cancel</button>
+                          <button
+                            onClick={cancelEditing}
+                            className="btn btn-danger"
+                          >
+                            Cancel
+                          </button>
                         </div>
                       ) : (
                         <div>
@@ -510,10 +519,14 @@ function Class() {
                                 classe.nextCourse
                               )
                             }
+                            className="btn btn-warning"
                           >
                             Edit
                           </button>
-                          <button onClick={() => deleteClass(classe._id)}>
+                          <button
+                            onClick={() => deleteClass(classe._id)}
+                            className="btn btn-danger"
+                          >
                             Delete
                           </button>
                         </div>
@@ -538,7 +551,9 @@ function Class() {
                 <td></td>
                 <td></td>
                 <td>
-                  <button onClick={createClass}>Create Class</button>
+                  <button onClick={createClass} className="btn btn-primary">
+                    Create Class
+                  </button>
                 </td>
               </tr>
             </tbody>

@@ -17,7 +17,6 @@ const AboutPublic = () => {
         (classe) => classe.name === "public"
       );
       setClassInfo(publicClass);
-      console.log(publicClass);
     } catch (error) {
       console.log(error);
       toast.error("Error occured while getting all classes");
