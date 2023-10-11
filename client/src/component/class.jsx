@@ -50,13 +50,11 @@ function Class() {
         `${process.env.REACT_APP_API_URL}/api/classes`
       );
       const allClasses = response.data;
-      console.log("allClasses", allClasses);
 
       for (let i = 0; i < allClasses.length; i++) {
         const courseFilesResponse = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/courseFilesByClass/${allClasses[i]._id}`
         );
-        console.log("response.data", courseFilesResponse.data);
 
         allClasses[i].courseFiles = courseFilesResponse.data;
       }
@@ -95,6 +93,7 @@ function Class() {
   };
 
   const updateClass = (classId) => {
+    handleTextareaEnter(updatedClassAbout);
     axios
       .put(`${process.env.REACT_APP_API_URL}/api/class/${classId}`, {
         name: updatedClassName,
@@ -239,6 +238,13 @@ function Class() {
     return blobUrl;
   };
 
+  const handleTextareaEnter = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault(); // Prevent the default Enter behavior
+      setUpdatedClassAbout((prevValue) => prevValue + "\n");
+    }
+  };
+
   // Toggle between cards and table view
   const toggleViewMode = () => {
     setViewMode(viewMode === "cards" ? "table" : "cards");
@@ -283,9 +289,10 @@ function Class() {
                             />
                             <br />
                             <label For="about">changer le about :</label>
-                            <input
+                            <textarea
                               type="text"
                               name="about"
+                              className="form-control"
                               value={updatedClassAbout}
                               onChange={(e) =>
                                 setUpdatedClassAbout(e.target.value)
@@ -402,10 +409,12 @@ function Class() {
                     </td>
                     <td>
                       {editingClassId === classe._id ? (
-                        <input
+                        <textarea
                           type="text"
+                          rows={20}
                           value={updatedClassAbout}
                           onChange={(e) => setUpdatedClassAbout(e.target.value)}
+                          onKeyDown={(e) => handleTextareaEnter(e)}
                         />
                       ) : !classe.about ? (
                         <span className="bg-danger text-white">No about</span>

@@ -59,39 +59,24 @@ const Footer = () => {
       <div className="row pe-0 ps-0 me-0 ms-0">
         <div className="footer-brand ">
           <ul className="ms-auto list-inline d-flex justify-content-around">
-            {/* <li className="list-inline-item">
-              <Link className="nav-link" to="/About">
-                A_propos
-              </Link>
-            </li>
-            <li className="list-inline-item">
-              <Link className="nav-link" to="/Education">
-                Education
-              </Link>
-            </li>
-            <li className="list-inline-item">
-              <Link className="nav-link" to="/Experience">
-                Expérience
-              </Link>
-            </li>
-            <li className="list-inline-item">
-              <Link className="nav-link" to="/Project">
-                Projet
-              </Link>
-            </li>
-            <li className="list-inline-item">
-              <Link className="nav-link" to="/Contact">
-                Contact
-              </Link>
-            </li> */}
             {!user ? (
               <>
+                <li className="list-inline-item">
+                  <Link className="nav-link" to="/">
+                    Home
+                  </Link>
+                </li>
+                <li className="list-inline-item">
+                  <Link className="nav-link" to="/aboutpublic">
+                    A propos
+                  </Link>
+                </li>
                 <li className="list-inline-item">
                   <Link className="nav-link" to="/contact">
                     Contact
                   </Link>
                 </li>
-                <li className="nav-item">
+                <li className="list-inline-item">
                   <Link className="nav-link" to="/bibliotheque">
                     Bibliothéque
                   </Link>

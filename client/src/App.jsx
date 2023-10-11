@@ -16,6 +16,7 @@ import "./App.css";
 // components
 import NavBarre from "./component/navBarre";
 import Home from "./pages/Home";
+import AboutPublic from "./pages/AboutPublic";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Contact from "./pages/Contact";
@@ -52,6 +53,7 @@ function App() {
             {!user ? (
               <>
                 <Route exact path="/" element={<Home />} />
+                <Route exact path="/aboutpublic" element={<AboutPublic />} />
                 <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route exact path="/signup" element={<Signup />} />
                 <Route exact path="/login" element={<Login />} />

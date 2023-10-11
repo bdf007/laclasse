@@ -95,6 +95,11 @@ const NavBarre = () => {
             {!user ? (
               <>
                 <li className="nav-item">
+                  <Link className="nav-link" to="/AboutPublic">
+                    A propos
+                  </Link>
+                </li>
+                <li className="nav-item">
                   <Link className="nav-link" to="/bibliotheque">
                     Bibliothéque
                   </Link>

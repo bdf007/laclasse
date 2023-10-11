@@ -519,7 +519,6 @@ const Bibliotheque = () => {
                         type="text"
                         id="description"
                         value={description}
-                        className="form-control"
                         placeholder="description"
                         onChange={handleDescriptionChange}
                       />
