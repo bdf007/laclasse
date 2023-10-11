@@ -92,13 +92,13 @@ const NavBarre = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
-            <li className="nav-item">
-              <Link className="nav-link" to="/bibliotheque">
-                Bibliothéque
-              </Link>
-            </li>
             {!user ? (
               <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/bibliotheque">
+                    Bibliothéque
+                  </Link>
+                </li>
                 <li className="nav-item">
                   <Link className="nav-link" to="/contact">
                     Contact
@@ -125,6 +125,11 @@ const NavBarre = () => {
                       </Link>
                     </li>
                     <li className="nav-item">
+                      <Link className="nav-link" to="/bibliotheque">
+                        Gestion de la Bibliothéque
+                      </Link>
+                    </li>
+                    <li className="nav-item">
                       <Link className="nav-link" to="/contact">
                         Gestion des Contact
                       </Link>
@@ -136,6 +141,11 @@ const NavBarre = () => {
                     <li className="nav-item">
                       <Link className="nav-link" to="/">
                         Professor
+                      </Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/bibliotheque">
+                        Bibliothéque
                       </Link>
                     </li>
                     <li className="nav-item">
@@ -153,6 +163,11 @@ const NavBarre = () => {
                       </Link>
                     </li>
                     <li className="nav-item">
+                      <Link className="nav-link" to="/bibliotheque">
+                        Bibliothéque
+                      </Link>
+                    </li>
+                    <li className="nav-item">
                       <Link className="nav-link" to="/contact">
                         Contact mon professeur
                       </Link>
@@ -164,6 +179,11 @@ const NavBarre = () => {
                     <li className="nav-item">
                       <Link className="nav-link" to="/">
                         Mes infos
+                      </Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/bibliotheque">
+                        Bibliothéque
                       </Link>
                     </li>
                     <li className="nav-item">

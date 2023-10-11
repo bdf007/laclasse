@@ -15,6 +15,15 @@ const Bibliotheque = () => {
   const [listOfBooks, setListOfBooks] = useState([]);
   const [listOfUsers, setListOfUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState("");
+  const [searchAuthor, setSearchAuthor] = useState(
+    localStorage.getItem("searchAuthor") || ""
+  );
+  const [searchTitle, setSearchTitle] = useState(
+    localStorage.getItem("searchTitle") || ""
+  );
+  const [searchGenre, setSearchGenre] = useState(
+    localStorage.getItem("searchGenre") || ""
+  );
 
   const getListOfBooks = async () => {
     try {
@@ -134,6 +143,7 @@ const Bibliotheque = () => {
         setListOfBooks((prevBooks) => [...prevBooks, response.data]);
       };
       resetForm();
+      window.location.reload();
     } catch (error) {
       toast.error("Erreur lors de l'ajout du livre");
     }
@@ -216,6 +226,9 @@ const Bibliotheque = () => {
     setGenre("");
     setDescription("");
     setSelectedFile(null);
+    setSearchAuthor("");
+    setSearchTitle("");
+    setSearchGenre("");
     // clear input file
     document.getElementById("file").value = null;
     document.getElementById("title").value = "";
@@ -224,9 +237,31 @@ const Bibliotheque = () => {
     document.getElementById("description").value = "";
   };
 
+  const handleSearchAuthor = (e) => {
+    const value = e.target.value;
+    setSearchAuthor(value);
+    localStorage.setItem("searchAuthor", value);
+  };
+
+  const handleSearchTitle = (e) => {
+    const value = e.target.value;
+    setSearchTitle(value);
+    localStorage.setItem("searchTitle", value);
+  };
+
+  const handleSearchGenre = (e) => {
+    const value = e.target.value;
+    setSearchGenre(value);
+    localStorage.setItem("searchGenre", value);
+  };
+
   useEffect(() => {
     getListOfBooks();
-    getListOfUsers();
+    if (!user) {
+      return;
+    } else if (user.role === "admin" || user.role === "superadmin") {
+      getListOfUsers();
+    }
   }, [setListOfBooks, setListOfUsers]);
 
   return (
@@ -236,152 +271,283 @@ const Bibliotheque = () => {
     >
       <div className="row">
         <h1 className="mx-auto">La bibliothéque de Stéphanie</h1>
+
         <div className="table-responsive">
-          <table className="table table-striped table-bordered table-hover">
-            <thead>
-              <tr className="">
-                <th scope="col">titre</th>
-                <th scope="col">auteur</th>
-                <th scope="col">genre</th>
-                <th scope="col">résumé</th>
-                <th scope="col">disponibilité</th>
-                <th scope="col">couverture</th>
-                {(user.role === "admin" || user.role === "superadmin") && (
-                  <>
-                    <th scope="col">action</th>
-                    <th scope="col">emprunteur</th>
-                  </>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {(!listOfBooks || listOfBooks.length === 0) && (
+          {/* Search input fields */}
+
+          {!user ? (
+            <table className="table table-striped table-bordered table-hover">
+              <thead>
                 <tr>
-                  <td colSpan="8">Aucun livre</td>
+                  <th scope="col">titre</th>
+                  <th scope="col">auteur</th>
+                  <th scope="col">genre</th>
+                  <th scope="col">résumé</th>
+                  <th scope="col">couverture</th>
                 </tr>
-              )}
-
-              {listOfBooks != null &&
-                listOfBooks.map((book) => (
-                  <tr key={book._id}>
-                    <th className="text-justify">{book.title}</th>
-                    <td className="text-justify">{book.author}</td>
-                    <td>{book.genre}</td>
-                    <td className="text-justify">{book.description}</td>
-                    <td>{book.statut}</td>
-                    <td>
-                      <img
-                        src={book.imageData}
-                        alt={book.title}
-                        className="img-thumbnail"
-                      />
-                    </td>
-                    {(user.role === "admin" || user.role === "superadmin") && (
-                      <>
-                        <td>
-                          <button
-                            type="button"
-                            className="btn btn-danger"
-                            onClick={() => deleteBookById(book._id)}
-                          >
-                            supprimer
-                          </button>
-                          <br />
-                          <br />
-                          <select
-                            className="form-select"
-                            aria-label="Default select example"
-                            value={selectedUser}
-                            onChange={(e) => setSelectedUser(e.target.value)}
-                          >
-                            <option value="">Choisir un emprunteur</option>
-                            {listOfUsers.map((user) => (
-                              <option key={user._id} value={user._id}>
-                                {user.firstname} {user.lastname}
-                              </option>
-                            ))}
-                            <option value="none">Aucun</option>
-                          </select>
-                          <button
-                            type="button"
-                            className="btn btn-primary"
-                            onClick={() => assignUserToBook(book._id)}
-                          >
-                            assigner
-                          </button>
-                        </td>
-                        <td>{book.emprunteur}</td>
-                      </>
-                    )}
-                  </tr>
-                ))}
-
-              {(user.role === "admin" || user.role === "superadmin") && (
-                <tr>
+              </thead>
+              <tbody>
+                <tr className="search-fields">
                   <td>
                     <input
                       type="text"
-                      id="title"
-                      value={title}
-                      className="form-control"
-                      placeholder="title"
-                      onChange={handleTitleChange}
+                      value={searchTitle}
+                      placeholder="recherche par titre"
+                      onChange={handleSearchTitle}
                     />
                   </td>
                   <td>
                     <input
                       type="text"
-                      id="author"
-                      value={author}
-                      className="form-control"
-                      placeholder="author"
-                      onChange={handleAuthorChange}
+                      value={searchAuthor}
+                      placeholder="recherche par auteur"
+                      onChange={handleSearchAuthor}
                     />
                   </td>
                   <td>
                     <input
                       type="text"
-                      id="genre"
-                      value={genre}
-                      className="form-control"
-                      placeholder="genre"
-                      onChange={handleGenreChange}
-                    />
-                  </td>
-                  <td>
-                    <textarea
-                      type="text"
-                      id="description"
-                      value={description}
-                      className="form-control"
-                      placeholder="description"
-                      onChange={handleDescriptionChange}
+                      value={searchGenre}
+                      placeholder="recherche par genre"
+                      onChange={handleSearchGenre}
                     />
                   </td>
                   <td></td>
+                  <td></td>
+                </tr>
+                {!listOfBooks || listOfBooks.length === 0 ? (
+                  <tr>
+                    <td colSpan="8">Aucun livre</td>
+                  </tr>
+                ) : (
+                  listOfBooks
+                    .filter(
+                      (book) =>
+                        book.author
+                          .toLowerCase()
+                          .includes(searchAuthor.toLowerCase()) &&
+                        book.title
+                          .toLowerCase()
+                          .includes(searchTitle.toLowerCase()) &&
+                        book.genre
+                          .toLowerCase()
+                          .includes(searchGenre.toLowerCase())
+                    )
+                    .map((book) => (
+                      <tr key={book._id}>
+                        <th className="text-justify">{book.title}</th>
+                        <td className="text-justify">{book.author}</td>
+                        <td>{book.genre}</td>
+                        <td className="text-justify">{book.description}</td>
+                        <td>
+                          <img
+                            src={book.imageData}
+                            alt={book.title}
+                            className="img-thumbnail"
+                          />
+                        </td>
+                      </tr>
+                    ))
+                )}
+              </tbody>
+            </table>
+          ) : (
+            <table className="table table-striped table-bordered table-hover">
+              <thead>
+                <tr className="">
+                  <th scope="col">titre</th>
+                  <th scope="col">auteur</th>
+                  <th scope="col">genre</th>
+                  <th scope="col">résumé</th>
+                  <th scope="col">disponibilité</th>
+                  <th scope="col">couverture</th>
+                  {(user.role === "admin" || user.role === "superadmin") && (
+                    <>
+                      <th scope="col">action</th>
+                      <th scope="col">emprunteur</th>
+                    </>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="search-fields">
                   <td>
                     <input
-                      type="file"
-                      id="file"
-                      accept="image/*"
-                      className="form-control"
-                      placeholder="couverture"
-                      onChange={handleFileInputChange}
+                      type="text"
+                      value={searchTitle}
+                      placeholder="recherche par titre"
+                      onChange={handleSearchTitle}
                     />
                   </td>
                   <td>
-                    <button
-                      type="button"
-                      className="btn btn-success"
-                      onClick={handleUploadBook}
-                    >
-                      Ajouter
-                    </button>
+                    <input
+                      type="text"
+                      value={searchAuthor}
+                      placeholder="recherche par auteur"
+                      onChange={handleSearchAuthor}
+                    />
                   </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={searchGenre}
+                      placeholder="recherche par genre"
+                      onChange={handleSearchGenre}
+                    />
+                  </td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  {(user.role === "admin" || user.role === "superadmin") && (
+                    <>
+                      <td></td>
+                      <td></td>
+                    </>
+                  )}
                 </tr>
-              )}
-            </tbody>
-          </table>
+                {!listOfBooks || listOfBooks.length === 0 ? (
+                  <tr>
+                    <td colSpan="8">Aucun livre</td>
+                  </tr>
+                ) : (
+                  listOfBooks
+                    .filter(
+                      (book) =>
+                        book.author
+                          .toLowerCase()
+                          .includes(searchAuthor.toLowerCase()) &&
+                        book.title
+                          .toLowerCase()
+                          .includes(searchTitle.toLowerCase()) &&
+                        book.genre
+                          .toLowerCase()
+                          .includes(searchGenre.toLowerCase())
+                    )
+                    .map((book) => (
+                      <tr key={book._id}>
+                        <th className="text-justify">{book.title}</th>
+                        <td className="text-justify">{book.author}</td>
+                        <td>{book.genre}</td>
+                        <td className="text-justify">{book.description}</td>
+                        <td>{book.statut}</td>
+                        <td>
+                          <img
+                            src={book.imageData}
+                            alt={book.title}
+                            className="img-thumbnail"
+                          />
+                        </td>
+                        {(user.role === "admin" ||
+                          user.role === "superadmin") && (
+                          <>
+                            <td>
+                              <button
+                                type="button"
+                                className="btn btn-danger"
+                                onClick={() => deleteBookById(book._id)}
+                              >
+                                supprimer
+                              </button>
+                              <br />
+                              <br />
+                              <select
+                                className="form-select"
+                                aria-label="Default select example"
+                                value={selectedUser}
+                                onChange={(e) =>
+                                  setSelectedUser(e.target.value)
+                                }
+                              >
+                                <option value="">Choisir un emprunteur</option>
+                                {listOfUsers.map((user) => (
+                                  <option key={user._id} value={user._id}>
+                                    {user.firstname} {user.lastname}
+                                  </option>
+                                ))}
+                                <option value="none">Aucun</option>
+                              </select>
+                              <button
+                                type="button"
+                                className="btn btn-primary"
+                                onClick={() => assignUserToBook(book._id)}
+                              >
+                                assigner
+                              </button>
+                            </td>
+                            <td>{book.emprunteur}</td>
+                          </>
+                        )}
+                      </tr>
+                    ))
+                )}
+
+                {(user.role === "admin" || user.role === "superadmin") && (
+                  <tr>
+                    <td>
+                      <input
+                        type="text"
+                        id="title"
+                        value={title}
+                        className="form-control"
+                        placeholder="title"
+                        onChange={handleTitleChange}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        id="author"
+                        value={author}
+                        className="form-control"
+                        placeholder="author"
+                        onChange={handleAuthorChange}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        id="genre"
+                        value={genre}
+                        className="form-control"
+                        placeholder="genre"
+                        onChange={handleGenreChange}
+                      />
+                    </td>
+                    <td>
+                      <textarea
+                        type="text"
+                        id="description"
+                        value={description}
+                        className="form-control"
+                        placeholder="description"
+                        onChange={handleDescriptionChange}
+                      />
+                    </td>
+                    <td></td>
+                    <td>
+                      <input
+                        type="file"
+                        id="file"
+                        accept="image/*"
+                        className="form-control"
+                        placeholder="couverture"
+                        onChange={handleFileInputChange}
+                      />
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className="btn btn-success"
+                        onClick={handleUploadBook}
+                      >
+                        Ajouter
+                      </button>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

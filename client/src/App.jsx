@@ -52,6 +52,7 @@ function App() {
             {!user ? (
               <>
                 <Route exact path="/" element={<Home />} />
+                <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route exact path="/signup" element={<Signup />} />
                 <Route exact path="/login" element={<Login />} />
                 <Route exact path="/contact" element={<Contact />} />

@@ -91,6 +91,11 @@ const Footer = () => {
                     Contact
                   </Link>
                 </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/bibliotheque">
+                    Bibliothéque
+                  </Link>
+                </li>
                 <li className="list-inline-item">
                   <Link className="nav-link" to="/signup">
                     Sign Up
