@@ -22,6 +22,9 @@ const Bibliotheque = () => {
   const [searchGenre, setSearchGenre] = useState(
     localStorage.getItem("searchGenre") || ""
   );
+  //get the size of the window
+  const [width, setWidth] = useState(window.innerWidth);
+  const [show, setShow] = useState(true);
 
   const getListOfUsers = async () => {
     try {
@@ -205,6 +208,26 @@ const Bibliotheque = () => {
     localStorage.setItem("searchGenre", value);
   };
 
+  // check if the size of the window is a mobile size
+  const handleResize = () => {
+    const newWidth = window.innerWidth;
+    setWidth(newWidth);
+    if (newWidth < 768) {
+      setShow(false);
+    } else {
+      setShow(true);
+    }
+  };
+  useEffect(() => {
+    handleResize(); // Call it on initial render
+    window.addEventListener("resize", handleResize); // Attach it to the resize event
+
+    // Don't forget to remove the event listener on cleanup
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   useEffect(() => {
     getListOfBooks();
     if (!user) {
@@ -233,42 +256,48 @@ const Bibliotheque = () => {
                   <th scope="col">titre</th>
                   <th scope="col">auteur</th>
                   <th scope="col">genre</th>
-                  <th scope="col">résumé</th>
+                  {show === true && <th scope="col">résumé</th>}
                   <th scope="col">couverture</th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="search-fields">
-                  <td>
-                    <input
-                      type="text"
-                      value={searchTitle}
-                      placeholder="recherche par titre"
-                      onChange={handleSearchTitle}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      value={searchAuthor}
-                      placeholder="recherche par auteur"
-                      onChange={handleSearchAuthor}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      value={searchGenre}
-                      placeholder="recherche par genre"
-                      onChange={handleSearchGenre}
-                    />
-                  </td>
-                  <td></td>
-                  <td></td>
-                </tr>
+                {show === true && (
+                  <tr className="search-fields">
+                    <td>
+                      <input
+                        type="text"
+                        value={searchTitle}
+                        placeholder="recherche par titre"
+                        onChange={handleSearchTitle}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={searchAuthor}
+                        placeholder="recherche par auteur"
+                        onChange={handleSearchAuthor}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={searchGenre}
+                        placeholder="recherche par genre"
+                        onChange={handleSearchGenre}
+                      />
+                    </td>
+                    {show === true && <td></td>}
+                    <td></td>
+                  </tr>
+                )}
                 {!listOfBooks || listOfBooks.length === 0 ? (
                   <tr>
-                    <td colSpan="8">Aucun livre</td>
+                    {show === true ? (
+                      <td colSpan="8">Aucun livre</td>
+                    ) : (
+                      <td colSpan="7">Aucun livre</td>
+                    )}
                   </tr>
                 ) : (
                   listOfBooks
@@ -289,7 +318,9 @@ const Bibliotheque = () => {
                         <th className="text-justify">{book.title}</th>
                         <td className="text-justify">{book.author}</td>
                         <td>{book.genre}</td>
-                        <td className="text-justify">{book.description}</td>
+                        {show === true && (
+                          <td className="text-justify">{book.description}</td>
+                        )}
                         <td>
                           <img
                             src={book.imageData}
@@ -310,56 +341,68 @@ const Bibliotheque = () => {
                   <th scope="col">titre</th>
                   <th scope="col">auteur</th>
                   <th scope="col">genre</th>
-                  <th scope="col">résumé</th>
-                  <th scope="col">disponibilité</th>
-                  <th scope="col">couverture</th>
-                  {(user.role === "admin" || user.role === "superadmin") && (
+                  {show === true && (
                     <>
-                      <th scope="col">emprunteur</th>
-                      <th scope="col">action</th>
+                      <th scope="col">résumé</th>
+                      <th scope="col">disponibilité</th>
                     </>
                   )}
+                  <th scope="col">couverture</th>
+                  {(user.role === "admin" || user.role === "superadmin") &&
+                    show === true && (
+                      <>
+                        <th scope="col">emprunteur</th>
+                        <th scope="col">action</th>
+                      </>
+                    )}
                 </tr>
               </thead>
               <tbody>
-                <tr className="search-fields">
-                  <td>
-                    <input
-                      type="text"
-                      value={searchTitle}
-                      placeholder="recherche par titre"
-                      onChange={handleSearchTitle}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      value={searchAuthor}
-                      placeholder="recherche par auteur"
-                      onChange={handleSearchAuthor}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      value={searchGenre}
-                      placeholder="recherche par genre"
-                      onChange={handleSearchGenre}
-                    />
-                  </td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  {(user.role === "admin" || user.role === "superadmin") && (
-                    <>
-                      <td></td>
-                      <td></td>
-                    </>
-                  )}
-                </tr>
+                {show === true && (
+                  <tr className="search-fields">
+                    <td>
+                      <input
+                        type="text"
+                        value={searchTitle}
+                        placeholder="recherche par titre"
+                        onChange={handleSearchTitle}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={searchAuthor}
+                        placeholder="recherche par auteur"
+                        onChange={handleSearchAuthor}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={searchGenre}
+                        placeholder="recherche par genre"
+                        onChange={handleSearchGenre}
+                      />
+                    </td>
+                    <td></td>
+                    {show === true && <td></td>}
+                    <td></td>
+                    {(user.role === "admin" || user.role === "superadmin") &&
+                      show === true && (
+                        <>
+                          <td></td>
+                          <td></td>
+                        </>
+                      )}
+                  </tr>
+                )}
                 {!listOfBooks || listOfBooks.length === 0 ? (
                   <tr>
-                    <td colSpan="8">Aucun livre</td>
+                    {show === true ? (
+                      <td colSpan="8">Aucun livre</td>
+                    ) : (
+                      <td colSpan="4">Aucun livre</td>
+                    )}
                   </tr>
                 ) : (
                   listOfBooks
@@ -380,8 +423,10 @@ const Bibliotheque = () => {
                         <th className="text-justify">{book.title}</th>
                         <td className="text-justify">{book.author}</td>
                         <td>{book.genre}</td>
-                        <td className="text-justify">{book.description}</td>
-                        <td>{book.statut}</td>
+                        {show === true && (
+                          <td className="text-justify">{book.description}</td>
+                        )}
+                        {show === true && <td>{book.statut}</td>}
                         <td>
                           <img
                             src={book.imageData}
@@ -389,114 +434,118 @@ const Bibliotheque = () => {
                             className="img-thumbnail"
                           />
                         </td>
-                        <td>{book.emprunteur}</td>
+                        {show === true && <td>{book.emprunteur}</td>}
                         {(user.role === "admin" ||
-                          user.role === "superadmin") && (
-                          <>
-                            <td>
-                              <button
-                                type="button"
-                                className="btn btn-danger"
-                                onClick={() => deleteBookById(book._id)}
-                              >
-                                supprimer
-                              </button>
-                              <br />
-                              <br />
-                              <select
-                                className="form-select"
-                                aria-label="Default select example"
-                                value={selectedUser}
-                                onChange={(e) =>
-                                  setSelectedUser(e.target.value)
-                                }
-                              >
-                                <option value="">Choisir un emprunteur</option>
-                                {listOfUsers.map((user) => (
-                                  <option key={user._id} value={user._id}>
-                                    {user.firstname} {user.lastname}
+                          user.role === "superadmin") &&
+                          show === true && (
+                            <>
+                              <td>
+                                <button
+                                  type="button"
+                                  className="btn btn-danger"
+                                  onClick={() => deleteBookById(book._id)}
+                                >
+                                  supprimer
+                                </button>
+                                <br />
+                                <br />
+                                <select
+                                  className="form-select"
+                                  aria-label="Default select example"
+                                  value={selectedUser}
+                                  onChange={(e) =>
+                                    setSelectedUser(e.target.value)
+                                  }
+                                >
+                                  <option value="">
+                                    Choisir un emprunteur
                                   </option>
-                                ))}
-                                <option value="none">Aucun</option>
-                              </select>
-                              <button
-                                type="button"
-                                className="btn btn-primary"
-                                onClick={() => assignUserToBook(book._id)}
-                              >
-                                assigner
-                              </button>
-                            </td>
-                          </>
-                        )}
+                                  {listOfUsers.map((user) => (
+                                    <option key={user._id} value={user._id}>
+                                      {user.firstname} {user.lastname}
+                                    </option>
+                                  ))}
+                                  <option value="none">Aucun</option>
+                                </select>
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={() => assignUserToBook(book._id)}
+                                >
+                                  assigner
+                                </button>
+                              </td>
+                            </>
+                          )}
                       </tr>
                     ))
                 )}
 
-                {(user.role === "admin" || user.role === "superadmin") && (
-                  <tr>
-                    <td>
-                      <input
-                        type="text"
-                        id="title"
-                        value={title}
-                        className="form-control"
-                        placeholder="titre"
-                        onChange={handleTitleChange}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        id="author"
-                        value={author}
-                        className="form-control"
-                        placeholder="auteur"
-                        onChange={handleAuthorChange}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        id="genre"
-                        value={genre}
-                        className="form-control"
-                        placeholder="genre"
-                        onChange={handleGenreChange}
-                      />
-                    </td>
-                    <td>
-                      <textarea
-                        type="text"
-                        id="description"
-                        value={description}
-                        placeholder="résumé"
-                        onChange={handleDescriptionChange}
-                      />
-                    </td>
-                    <td></td>
-                    <td>
-                      <input
-                        type="file"
-                        id="file"
-                        accept="image/*"
-                        className="form-control"
-                        placeholder="couverture"
-                        onChange={handleFileInputChange}
-                      />
-                    </td>
-                    <td></td>
-                    <td>
-                      <button
-                        type="button"
-                        className="btn btn-success"
-                        onClick={handleUploadBook}
-                      >
-                        Ajouter
-                      </button>
-                    </td>
-                  </tr>
-                )}
+                {(user.role === "admin" || user.role === "superadmin") &&
+                  show === true && (
+                    <tr>
+                      <td>
+                        <input
+                          type="text"
+                          id="title"
+                          value={title}
+                          className="form-control"
+                          placeholder="titre"
+                          onChange={handleTitleChange}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          id="author"
+                          value={author}
+                          className="form-control"
+                          placeholder="auteur"
+                          onChange={handleAuthorChange}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          id="genre"
+                          value={genre}
+                          className="form-control"
+                          placeholder="genre"
+                          onChange={handleGenreChange}
+                        />
+                      </td>
+                      <td>
+                        <textarea
+                          type="text"
+                          id="description"
+                          value={description}
+                          placeholder="résumé"
+                          onChange={handleDescriptionChange}
+                        />
+                      </td>
+                      <td></td>
+                      <td>
+                        <input
+                          type="file"
+                          id="file"
+                          accept="image/*"
+                          className="form-control"
+                          placeholder="couverture"
+                          onChange={handleFileInputChange}
+                        />
+                      </td>
+                      <td></td>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-success"
+                          onClick={handleUploadBook}
+                        >
+                          Ajouter
+                        </button>
+                      </td>
+                    </tr>
+                  )}
               </tbody>
             </table>
           )}
