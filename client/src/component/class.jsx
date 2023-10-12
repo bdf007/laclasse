@@ -207,10 +207,6 @@ function Class() {
         console.error(error);
       });
   };
-  // const createURL = (data) => {
-  //   const file = new Blob([data], { type: "application/pdf" });
-  //   return URL.createObjectURL(file);
-  // };
 
   const loadFromBase64 = (base64) => {
     const base64toBlob = (data) => {
@@ -275,7 +271,10 @@ function Class() {
                     <div className="card-body">
                       {editingClassId === classe._id ? (
                         <div>
-                          <label For="name">changer le nom :</label>
+                          <h5 className="card-title">
+                            nom de la classe : {classe.name}
+                          </h5>
+                          {/* <label For="name">changer le nom :</label>
                           <input
                             type="text"
                             name="name"
@@ -284,7 +283,7 @@ function Class() {
                               setUpdatedClassName(e.target.value)
                             }
                           />
-                          <br />
+                          <br /> */}
                           <label For="about">changer le about :</label>
                           <textarea
                             type="text"
@@ -461,25 +460,15 @@ function Class() {
               <th scope="col">Nom de la classe</th>
               <th scope="col">A Propos</th>
               <th scope="col">Prochain(s) cours</th>
-              <th scope="col">fichier(s) de cours</th>
               <th scope="col">Actions</th>
+              <th scope="col">fichier(s) de cours</th>
             </tr>
           </thead>
           <tbody>
             {listOfClass.length > 0 ? (
               listOfClass.map((classe) => (
                 <tr key={classe._id}>
-                  <td>
-                    {editingClassId === classe._id ? (
-                      <input
-                        type="text"
-                        value={updatedClassName}
-                        onChange={(e) => setUpdatedClassName(e.target.value)}
-                      />
-                    ) : (
-                      classe.name
-                    )}
-                  </td>
+                  <td>{classe.name}</td>
                   <td>
                     {editingClassId === classe._id ? (
                       <textarea
@@ -512,6 +501,46 @@ function Class() {
                       </span>
                     ) : (
                       <pre>{classe.nextCourse}</pre>
+                    )}
+                  </td>
+                  <td>
+                    {editingClassId === classe._id ? (
+                      <div>
+                        <button
+                          onClick={() => updateClass(classe._id)}
+                          className="btn btn-success"
+                        >
+                          Sauvegarder
+                        </button>
+                        <button
+                          onClick={cancelEditing}
+                          className="btn btn-danger"
+                        >
+                          Annuler les modifications
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        <button
+                          onClick={() =>
+                            startEditing(
+                              classe._id,
+                              classe.name,
+                              classe.about,
+                              classe.nextCourse
+                            )
+                          }
+                          className="btn btn-warning"
+                        >
+                          Modifier la classe
+                        </button>
+                        <button
+                          onClick={() => deleteClass(classe._id)}
+                          className="btn btn-danger"
+                        >
+                          Supprimer la classe
+                        </button>
+                      </div>
                     )}
                   </td>
                   <td>
@@ -569,46 +598,6 @@ function Class() {
                       </li>
                     </ul>
                   </td>
-                  <td>
-                    {editingClassId === classe._id ? (
-                      <div>
-                        <button
-                          onClick={() => updateClass(classe._id)}
-                          className="btn btn-success"
-                        >
-                          Sauvegarder
-                        </button>
-                        <button
-                          onClick={cancelEditing}
-                          className="btn btn-danger"
-                        >
-                          Annuler les modifications
-                        </button>
-                      </div>
-                    ) : (
-                      <div>
-                        <button
-                          onClick={() =>
-                            startEditing(
-                              classe._id,
-                              classe.name,
-                              classe.about,
-                              classe.nextCourse
-                            )
-                          }
-                          className="btn btn-warning"
-                        >
-                          Modifier la classe
-                        </button>
-                        <button
-                          onClick={() => deleteClass(classe._id)}
-                          className="btn btn-danger"
-                        >
-                          Supprimer la classe
-                        </button>
-                      </div>
-                    )}
-                  </td>
                 </tr>
               ))
             ) : (
@@ -627,12 +616,12 @@ function Class() {
               </td>
               <td></td>
               <td></td>
-              <td></td>
               <td>
                 <button onClick={createClass} className="btn btn-primary">
                   Créer une nouvelle classe
                 </button>
               </td>
+              <td></td>
             </tr>
           </tbody>
         </table>
