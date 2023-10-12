@@ -18,6 +18,8 @@ const bookRoutes = require("./routes/book");
 const contactRoutes = require("./routes/contact");
 // get the course file routes for connection
 const courseFileRoutes = require("./routes/courseFile");
+// get the comment routes for connection
+const commentRoutes = require("./routes/comment");
 
 // middleware
 app.use(json({ limit: "10mb" }));
@@ -47,6 +49,8 @@ app.use("/api/", bookRoutes);
 app.use("/api/", contactRoutes);
 // use the course file routes for connection
 app.use("/api/", courseFileRoutes);
+// use the comment routes for connection
+app.use("/api/", commentRoutes);
 
 // Serve the React app
 app.get("/*", (req, res) => {

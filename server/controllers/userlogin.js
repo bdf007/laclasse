@@ -53,12 +53,13 @@ exports.login = async (req, res) => {
 
     res.cookie("jwt", token, { expire: new Date() + 9999, httpOnly: true });
 
-    const { firstname, lastname, role, classes } = user;
+    const { _id, firstname, lastname, role, classes } = user;
     // if the classis not null, get the info of the class and add it to the user
     if (classes) {
       const classInfo = await Class.findById(classes);
       return res.json({
         message: "Login success",
+        _id,
         firstname,
         lastname,
         role,
@@ -87,13 +88,14 @@ exports.logout = (req, res) => {
 };
 
 exports.getLoggedInUser = async (req, res) => {
-  const { firstname, lastname, email, role, classes } = req.user;
+  const { _id, firstname, lastname, email, role, classes } = req.user;
   // if the classis not null, get the info of the class and add it to the user
   if (classes) {
     const classInfo = await Class.findById(classes);
     const courseFiles = await CourseFile.find({ classId: classes._id });
     return res.status(200).json({
       message: "User is still logged in",
+      _id,
       firstname,
       lastname,
       email,

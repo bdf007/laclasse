@@ -139,6 +139,11 @@ const NavBarre = () => {
                         Gestion des Contact
                       </Link>
                     </li>
+                    <li classname="nav-item">
+                      <Link className="nav-link" to="/chatAdmin">
+                        Gestion des messages de chat
+                      </Link>
+                    </li>
                   </>
                 )}
                 {user.role === "professor" && (
