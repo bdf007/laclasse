@@ -269,12 +269,12 @@ const Bibliotheque = () => {
   };
 
   useEffect(() => {
+    getListOfBooks();
     if (!user) {
       return;
     } else if (user.role === "admin" || user.role === "superadmin") {
       getListOfUsers();
     }
-    getListOfBooks();
   }, [setListOfBooks, setListOfUsers, user]);
 
   return (

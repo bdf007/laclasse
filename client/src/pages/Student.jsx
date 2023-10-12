@@ -10,6 +10,7 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 
 // design
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
+import CommentUploader from "../component/comment";
 
 const Student = () => {
   const { user, setUser } = useContext(UserContext);
@@ -69,6 +70,7 @@ const Student = () => {
               <br />
               email : {user.email}
             </p>
+            <CommentUploader />
           </div>
           <div className="col-md-6">
             {!user.classes ? (

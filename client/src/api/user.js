@@ -64,6 +64,7 @@ export const getUser = async () => {
     });
     const data = await res.json();
     const {
+      _id,
       firstname,
       lastname,
       email,
@@ -74,6 +75,7 @@ export const getUser = async () => {
       courseFiles,
     } = data;
     return {
+      _id,
       firstname,
       lastname,
       email,

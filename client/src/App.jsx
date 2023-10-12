@@ -16,6 +16,7 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
+import ChatAdmin from "./pages/ChatAdmin";
 import Bibliotheque from "./pages/Bibliotheque";
 import Professor from "./pages/Professor";
 import Student from "./pages/Student";
@@ -60,6 +61,7 @@ function App() {
             user.role === "admin" || user.role === "superadmin" ? (
               <>
                 <Route exact path="/Admin" element={<Admin />} />
+                <Route exact path="/chatadmin" element={<ChatAdmin />} />
                 <Route exact path="/contact" element={<Contact />} />
                 <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route path="*" element={<NotFound />} />
