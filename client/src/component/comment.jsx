@@ -2,7 +2,6 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
-import { Button } from "@mui/material";
 
 //design
 import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
@@ -16,6 +15,9 @@ const CommentUploader = () => {
   const [listOfClassNames, setListOfClassNames] = useState([]);
   const [selectedClass, setSelectedClass] = useState("");
   const [showComments, setShowComments] = useState(true);
+  const [searchClass, setSearchClass] = useState("");
+  const [searchFirstname, setSearchFirstname] = useState("");
+  const [searchEmail, setSearchEmail] = useState("");
 
   const [userId, setUserId] = useState("");
   const [comment, setComment] = useState("");
@@ -29,13 +31,13 @@ const CommentUploader = () => {
         await axios
           .get(`${process.env.REACT_APP_API_URL}/api/comment`)
           .then((res) => {
+            console.log(res.data);
             setListOfComment(res.data);
           });
       } else {
         const response = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/comment/${user.classes}`
         );
-
         setListOfComment(response.data);
       }
     } catch (error) {
@@ -54,9 +56,29 @@ const CommentUploader = () => {
     }
   };
 
+  const handleSearchClass = (e) => {
+    const value = e.target.value;
+    setSearchClass(value);
+    localStorage.setItem("searchClass", value);
+  };
+
+  const handleSearchFirstname = (e) => {
+    const value = e.target.value;
+    setSearchFirstname(value);
+    localStorage.setItem("searchFirstname", value);
+  };
+
+  const handleSearchEmail = (e) => {
+    const value = e.target.value;
+    setSearchEmail(value);
+    localStorage.setItem("searchEmail", value);
+  };
+
   useEffect(() => {
     getComment();
     getListOfClassNames();
+    // deactivate eslint warning
+    // eslint-disable-next-line
   }, [comment, setComment]);
 
   useEffect(() => {
@@ -145,48 +167,151 @@ const CommentUploader = () => {
       className="container"
       style={{ paddingBottom: "10rem", marginBottom: "10rem" }}
     >
-      <div>
-        {showComments === true && listOfComment.length === 0 && (
-          <h3>Aucun Commentaire pour le moment</h3>
-        )}
-        {showComments === true &&
-          listOfComment.map((comment) => {
-            const isCurrentUserComment = comment.user === user._id;
-            const commentClass = isCurrentUserComment
-              ? "justify-content-end text-success"
-              : "justify-content-start text-primary";
-            return (
-              <div key={comment._id}>
-                <div className="container">
-                  {user.role === "admin" ||
-                    (user.role === "superadmin" && (
-                      <span className="text-danger fs-4">
-                        {comment.classes}
-                      </span>
-                    ))}
-                  <br />
-                  {comment.Date && (
-                    <span className="text-success fs-6 ">
-                      envoyé le :{/* add the date and the time in fr*/}
-                      {new Date(comment.Date).toLocaleDateString(
-                        "fr-FR"
-                      )} à {new Date(comment.Date).toLocaleTimeString("fr-FR")}
-                    </span>
-                  )}
-                  <br />
-                  <p className={`d-flex ${commentClass}`}>
-                    <span className="fs-4 ">{comment.firstname} :</span>
+      {user.role === "admin" || user.role === "superadmin" ? (
+        <div className="table-responsive">
+          <table className="table table-striped table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>Classe</th>
+                <th>firstname</th>
+                <th>email</th>
+                <th>comment</th>
+                <th>date</th>
+                <th>action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="search-fields">
+                <td>
+                  <input
+                    type="text"
+                    placeholder="Search by class"
+                    value={searchClass}
+                    onChange={handleSearchClass}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    placeholder="Search by firstname"
+                    value={searchFirstname}
+                    onChange={handleSearchFirstname}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    placeholder="Search by email"
+                    value={searchEmail}
+                    onChange={handleSearchEmail}
+                  />
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              {listOfComment
+                .filter(
+                  (val) =>
+                    val.classes
+                      .toLowerCase()
+                      .includes(searchClass.toLowerCase()) &&
+                    val.firstname
+                      .toLowerCase()
+                      .includes(searchFirstname.toLowerCase()) &&
+                    val.email.toLowerCase().includes(searchEmail.toLowerCase())
+                )
+                .map((comment) => {
+                  // const isCurrentUserComment = comment.user === user._id;
 
-                    <span className="fs-4 ">{comment.comment}</span>
-                    {(user.role !== "admin" || user.role !== "superadmin") &&
-                      comment.user === user._id && (
-                        <HighlightOffOutlinedIcon
+                  const isAdminComment =
+                    comment.userRole === "admin" ||
+                    comment.userRole === "superadmin";
+                  const commentClassAdmin = isAdminComment
+                    ? "bg-primary text-white text-end"
+                    : "";
+                  return (
+                    <tr key={comment._id}>
+                      <td className={`${commentClassAdmin}`}>
+                        {comment.classes}
+                      </td>
+                      <td className={`${commentClassAdmin}`}>
+                        {comment.firstname}
+                      </td>
+                      <td className={`${commentClassAdmin}`}>
+                        {comment.email}
+                      </td>
+                      <td className={`${commentClassAdmin}`}>
+                        {comment.comment}
+                      </td>
+                      <td className={`${commentClassAdmin}`}>
+                        {new Date(comment.Date).toLocaleDateString("fr-FR")} à{" "}
+                        {new Date(comment.Date).toLocaleTimeString("fr-FR")}
+                      </td>
+                      <td className="text-end">
+                        <DeleteForeverRoundedIcon
                           onClick={() => deleteComment(comment._id)}
                         />
-                      )}
-                  </p>
-                </div>
-                {(user.role === "admin" || user.role === "superadmin") && (
+                      </td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div>
+          {showComments === true && listOfComment.length === 0 && (
+            <h3>Aucun Commentaire pour le moment</h3>
+          )}
+          {showComments === true &&
+            listOfComment.map((comment) => {
+              const isCurrentUserComment = comment.user === user._id;
+              const commentClass = isCurrentUserComment
+                ? "justify-content-end text-success"
+                : "justify-content-start text-primary";
+
+              const isAdminComment =
+                comment.userRole === "admin" ||
+                comment.userRole === "superadmin";
+              const commentClassAdmin = isAdminComment
+                ? "bg-danger text-white"
+                : "";
+              return (
+                <div key={comment._id}>
+                  <div className="container">
+                    {user.role === "admin" ||
+                      (user.role === "superadmin" && (
+                        <span className="text-danger fs-4">
+                          {comment.classes}
+                        </span>
+                      ))}
+                    <br />
+                    {comment.Date && (
+                      <span className="text-success fs-6 ">
+                        envoyé le :{/* add the date and the time in fr*/}
+                        {new Date(comment.Date).toLocaleDateString(
+                          "fr-FR"
+                        )} à{" "}
+                        {new Date(comment.Date).toLocaleTimeString("fr-FR")}
+                      </span>
+                    )}
+                    <br />
+                    <p
+                      className={`d-flex ${commentClass} ${commentClassAdmin}`}
+                    >
+                      <span className="fs-4">{comment.firstname} :</span>
+
+                      <span className="fs-4 ">{comment.comment}</span>
+                      {(user.role !== "admin" || user.role !== "superadmin") &&
+                        comment.user === user._id && (
+                          <HighlightOffOutlinedIcon
+                            onClick={() => deleteComment(comment._id)}
+                          />
+                        )}
+                    </p>
+                  </div>
+                  {/* {(user.role === "admin" || user.role === "superadmin") && (
                   <div className="container d-flex">
                     {comment.email ? (
                       <span className={`d-flex ${commentClass}`}>
@@ -200,36 +325,21 @@ const CommentUploader = () => {
                       onClick={() => deleteComment(comment._id)}
                     />
                   </div>
-                )}
-              </div>
-            );
-          })}
-        {(user.role !== "admin" || user.role !== "superadmin") &&
-        showComments === false ? (
-          <button
-            className="btn btn-primary"
-            onClick={() => setShowComments(true)}
-          >
-            Afficher les messages de la classe
-          </button>
-        ) : (
-          <button
-            className="btn btn-primary"
-            onClick={() => setShowComments(false)}
-          >
-            Masquer les messages de la classe
-          </button>
-        )}
-      </div>
+                )} */}
+                </div>
+              );
+            })}
+        </div>
+      )}
       {showComments === true && user && (
         <>
-          {user.role === "admin" || user.role === "superadmin" ? (
-            <h2 className="text-center">
-              Choisi la classe à laquelle tu veux répondre
-            </h2>
-          ) : (
+          {/* {user.role === "admin" || user.role === "superadmin" ? ( */}
+          <h2 className="text-center">
+            Choisi la classe à laquelle tu veux répondre
+          </h2>
+          {/* ) : (
             <h2 className="text-center">Discute avec ta classe</h2>
-          )}
+          )} */}
 
           {user.role === "admin" ||
             (user.role === "superadmin" && (
@@ -264,16 +374,34 @@ const CommentUploader = () => {
               {" "}
             </textarea>
             <p className="fs-6 text-muted">*: champs obligatoire</p>
-            <Button
-              variant="contained"
-              color="primary"
+            <button
+              className="btn btn-primary"
               onClick={handleUpload}
               disabled={!comment}
             >
               Envoyer
-            </Button>
+            </button>
+            <div>
+              <br />
+            </div>
           </div>
         </>
+      )}
+      {(user.role !== "admin" || user.role !== "superadmin") &&
+      showComments === false ? (
+        <button
+          className="btn btn-primary"
+          onClick={() => setShowComments(true)}
+        >
+          Afficher les messages de la classe
+        </button>
+      ) : (
+        <button
+          className="btn btn-primary"
+          onClick={() => setShowComments(false)}
+        >
+          Masquer les messages de la classe
+        </button>
       )}
     </div>
   );

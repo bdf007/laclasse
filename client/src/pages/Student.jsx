@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/UserContext";
 import { getUser } from "../api/user";
 import { toast } from "react-toastify";
@@ -14,6 +14,8 @@ import CommentUploader from "../component/comment";
 
 const Student = () => {
   const { user, setUser } = useContext(UserContext);
+  const [showFiles, setShowFiles] = useState({});
+  const [activeFile, setActiveFile] = useState(null);
 
   const loadFromBase64 = (base64) => {
     const base64toBlob = (data) => {
@@ -55,6 +57,22 @@ const Student = () => {
     fetchData();
   }, [setUser]);
 
+  // Function to toggle visibility of a file
+  const toggleFile = (fileId) => {
+    setShowFiles((prevShowFiles) => {
+      const updatedShowFiles = { ...prevShowFiles };
+      updatedShowFiles[fileId] = !updatedShowFiles[fileId];
+
+      if (activeFile !== null && activeFile !== fileId) {
+        updatedShowFiles[activeFile] = false; // Hide the previously active file
+      }
+
+      setActiveFile(updatedShowFiles[fileId] ? fileId : null);
+
+      return updatedShowFiles;
+    });
+  };
+
   return (
     <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js">
       <div
@@ -88,6 +106,7 @@ const Student = () => {
                 ) : (
                   <>
                     <p>Vous avez {user.courseFiles.length} fichiers de cours</p>
+
                     <ul className="list-group list-group-flush">
                       {user.courseFiles.map((file) => (
                         <li
@@ -103,16 +122,21 @@ const Student = () => {
                             >
                               <DownloadOutlinedIcon />
                             </a>
+                            <button
+                              onClick={() => toggleFile(file._id)}
+                              key={file._id}
+                              className="btn btn-primary"
+                            >
+                              {showFiles[file._id]
+                                ? "masquer le fichier"
+                                : "Afficher le fichier"}
+                            </button>
                           </h3>
-                          <a
-                            href={loadFromBase64(file.courseFileData)}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
+                          {showFiles[file._id] && file._id === activeFile && (
                             <Viewer
                               fileUrl={loadFromBase64(file.courseFileData)}
                             />
-                          </a>
+                          )}
                         </li>
                       ))}
                     </ul>
