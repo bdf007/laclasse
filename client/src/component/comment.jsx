@@ -14,7 +14,7 @@ const CommentUploader = () => {
   const [className, setClassName] = useState("");
   const [listOfClassNames, setListOfClassNames] = useState([]);
   const [selectedClass, setSelectedClass] = useState("");
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(true);
   const [searchClass, setSearchClass] = useState("");
   const [searchFirstname, setSearchFirstname] = useState("");
   const [searchEmail, setSearchEmail] = useState("");
@@ -25,6 +25,10 @@ const CommentUploader = () => {
   const { user } = useContext(UserContext);
 
   const [listOfComment, setListOfComment] = useState([]);
+
+  //get the size of the window
+  const [width, setWidth] = useState(window.innerWidth);
+  const [show, setShow] = useState(true);
   const getComment = async () => {
     try {
       if (user.role === "admin" || user.role === "superadmin") {
@@ -169,6 +173,26 @@ const CommentUploader = () => {
       });
   };
 
+  // check if the size of the window is a mobile size
+  const handleResize = () => {
+    const newWidth = window.innerWidth;
+    setWidth(newWidth);
+    if (newWidth < 768) {
+      setShow(false);
+    } else {
+      setShow(true);
+    }
+  };
+  useEffect(() => {
+    handleResize(); // Call it on initial render
+    window.addEventListener("resize", handleResize); // Attach it to the resize event
+
+    // Don't forget to remove the event listener on cleanup
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
     <div
       className="container"
@@ -181,49 +205,51 @@ const CommentUploader = () => {
               <tr>
                 <th>Classe</th>
                 <th>firstname</th>
-                <th>email</th>
+                {show === true && <th>email</th>}
                 <th>comment</th>
                 <th>date</th>
-                <th>action</th>
+                {show === true && <th>action</th>}
               </tr>
             </thead>
             <tbody>
-              <tr className="search-fields">
-                <td>
-                  <input
-                    type="text"
-                    placeholder="Search by class"
-                    value={searchClass}
-                    onChange={handleSearchClass}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    placeholder="Search by firstname"
-                    value={searchFirstname}
-                    onChange={handleSearchFirstname}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    placeholder="Search by email"
-                    value={searchEmail}
-                    onChange={handleSearchEmail}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    placeholder="Search by comment"
-                    value={searchComment}
-                    onChange={handleSearchComment}
-                  />
-                </td>
-                <td></td>
-                <td></td>
-              </tr>
+              {show === true && (
+                <tr className="search-fields">
+                  <td>
+                    <input
+                      type="text"
+                      placeholder="Search by class"
+                      value={searchClass}
+                      onChange={handleSearchClass}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      placeholder="Search by firstname"
+                      value={searchFirstname}
+                      onChange={handleSearchFirstname}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      placeholder="Search by email"
+                      value={searchEmail}
+                      onChange={handleSearchEmail}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      placeholder="Search by comment"
+                      value={searchComment}
+                      onChange={handleSearchComment}
+                    />
+                  </td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              )}
               {listOfComment
                 .filter(
                   (val) =>
@@ -257,9 +283,11 @@ const CommentUploader = () => {
                       <td className={`${commentClassAdmin}`}>
                         {comment.firstname}
                       </td>
-                      <td className={`${commentClassAdmin}`}>
-                        {comment.email}
-                      </td>
+                      {show === true && (
+                        <td className={`${commentClassAdmin}`}>
+                          {comment.email}
+                        </td>
+                      )}
                       <td className={`${commentClassAdmin}`}>
                         {comment.comment}
                       </td>
@@ -267,11 +295,13 @@ const CommentUploader = () => {
                         {new Date(comment.Date).toLocaleDateString("fr-FR")} à{" "}
                         {new Date(comment.Date).toLocaleTimeString("fr-FR")}
                       </td>
-                      <td className="text-end">
-                        <DeleteForeverRoundedIcon
-                          onClick={() => deleteComment(comment._id)}
-                        />
-                      </td>
+                      {show === true && (
+                        <td className="text-end">
+                          <DeleteForeverRoundedIcon
+                            onClick={() => deleteComment(comment._id)}
+                          />
+                        </td>
+                      )}
                     </tr>
                   );
                 })}
@@ -339,11 +369,15 @@ const CommentUploader = () => {
         <>
           <ul className="list-group list-group-flush ">
             <li className="text-center list-group-item bg-transparent">
-              <h2>Chat avec ta classe</h2>
+              {user.role === "admin" || user.role === "superadmin" ? (
+                <h2>Chat avec les utilisateurs</h2>
+              ) : (
+                <h2>Chat avec ta classe</h2>
+              )}
             </li>
             {user.role === "admin" ||
               (user.role === "superadmin" && (
-                <li className="form-group list-group-item bg-transparent">
+                <li className="form-group list-group-item bg-transparent d-flex justify-content-center">
                   <div className="d-flex justify-content-between">
                     <select
                       className="form-select"
@@ -378,7 +412,7 @@ const CommentUploader = () => {
               <p className="fs-6 text-muted">*: champs obligatoire</p>
             </li>
 
-            <li className="form-group list-group-item bg-transparent">
+            <li className="form-group list-group-item bg-transparent d-flex justify-content-center">
               <button
                 className="btn btn-primary"
                 onClick={handleUpload}
