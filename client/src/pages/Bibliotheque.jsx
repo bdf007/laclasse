@@ -3,8 +3,6 @@ import axios from "axios";
 import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
 
-// import hp1 from "../assets/hp1.jpg";
-
 const Bibliotheque = () => {
   const { user } = useContext(UserContext);
   const [title, setTitle] = useState("");
@@ -172,67 +170,6 @@ const Bibliotheque = () => {
     }
   };
 
-  // const modifyBookById = (book) => {
-  //   setBookId(book._id);
-  //   setTitle(book.title);
-  //   setAuthor(book.author);
-  //   setGenre(book.genre);
-  //   setDescription(book.description);
-  //   setSelectedFile(book.imageData);
-  //   setEditMode(true);
-  // };
-
-  // const convertFileToBase64 = (file) => {
-  //   return new Promise((resolve, reject) => {
-  //     const reader = new FileReader();
-
-  //     reader.onload = () => {
-  //       resolve(reader.result.split(",")[1]); // Get the base64 data after the comma
-  //     };
-
-  //     reader.onerror = (error) => {
-  //       reject(error);
-  //     };
-
-  //     reader.readAsDataURL(file);
-  //   });
-  // };
-
-  // const handleUpdateBook = async (bookId) => {
-  //   try {
-  //     // Send an HTTP request to update the book on the server
-  //     const response = await axios.put(
-  //       `${process.env.REACT_APP_API_URL}/api/book/${bookId}`,
-  //       {
-  //         title,
-  //         author,
-  //         genre,
-  //         description,
-  //         imageData: selectedFile
-  //           ? await convertFileToBase64(selectedFile)
-  //           : null,
-  //       }
-  //     );
-
-  //     if (response.status === 200) {
-  //       // If the server update was successful, update the book in the state
-  //       const updatedBook = response.data;
-  //       setListOfBooks((prevBooks) =>
-  //         prevBooks.map((prevBook) =>
-  //           prevBook._id === updatedBook._id ? updatedBook : prevBook
-  //         )
-  //       );
-  //       toast.success("Livre modifié avec succès");
-  //       resetForm();
-  //       setEditMode(false); // Exit edit mode
-  //     } else {
-  //       toast.error("Erreur lors de la modification du livre");
-  //     }
-  //   } catch (error) {
-  //     toast.error("Erreur lors de la modification du livre");
-  //   }
-  // };
-
   const resetForm = () => {
     setTitle("");
     setAuthor("");
@@ -275,6 +212,7 @@ const Bibliotheque = () => {
     } else if (user.role === "admin" || user.role === "superadmin") {
       getListOfUsers();
     }
+    //eslint-disable-next-line
   }, [setListOfBooks, setListOfUsers, user]);
 
   return (

@@ -1,11 +1,29 @@
 const Comment = require("../models/comments");
 const mongoose = require("mongoose");
+const User = require("../models/userlogin");
 
 exports.getComment = async (req, res) => {
   try {
-    const comment = await Comment.find({});
-    console.log(comment);
-    res.json(comment);
+    const comments = await Comment.find({});
+    // Extract user IDs from the comments
+    const userIds = comments.map((comment) => comment.user);
+
+    // Fetch user roles based on the user IDs
+    const users = await User.find({ _id: { $in: userIds } });
+
+    // Create a mapping of user IDs to their roles
+    const userRoles = users.reduce((role, user) => {
+      role[user._id] = user.role;
+      return role;
+    }, {});
+
+    // Merge user roles into comments
+    const commentsWithRoles = comments.map((comment) => ({
+      ...comment.toObject(), // Convert Mongoose document to a plain JavaScript object
+      userRole: userRoles[comment.user], // Add the user's role to the comment
+    }));
+
+    res.json(commentsWithRoles);
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -17,8 +35,27 @@ exports.getComment = async (req, res) => {
 exports.getCommentByClasses = async (req, res) => {
   try {
     const classes = req.params.classes;
-    const comment = await Comment.find({ classes: classes });
-    res.json(comment);
+    const comments = await Comment.find({ classes: classes });
+
+    // Extract user IDs from the comments
+    const userIds = comments.map((comment) => comment.user);
+
+    // Fetch user roles based on the user IDs
+    const users = await User.find({ _id: { $in: userIds } });
+
+    // Create a mapping of user IDs to their roles
+    const userRoles = users.reduce((role, user) => {
+      role[user._id] = user.role;
+      return role;
+    }, {});
+
+    // Merge user roles into comments
+    const commentsWithRoles = comments.map((comment) => ({
+      ...comment.toObject(), // Convert Mongoose document to a plain JavaScript object
+      userRole: userRoles[comment.user], // Add the user's role to the comment
+    }));
+
+    res.json(commentsWithRoles);
   } catch (error) {
     console.error(error);
     res.status(500).json({
