@@ -14,10 +14,11 @@ const CommentUploader = () => {
   const [className, setClassName] = useState("");
   const [listOfClassNames, setListOfClassNames] = useState([]);
   const [selectedClass, setSelectedClass] = useState("");
-  const [showComments, setShowComments] = useState(true);
+  const [showComments, setShowComments] = useState(false);
   const [searchClass, setSearchClass] = useState("");
   const [searchFirstname, setSearchFirstname] = useState("");
   const [searchEmail, setSearchEmail] = useState("");
+  const [searchComment, setSearchComment] = useState("");
 
   const [userId, setUserId] = useState("");
   const [comment, setComment] = useState("");
@@ -72,6 +73,12 @@ const CommentUploader = () => {
     const value = e.target.value;
     setSearchEmail(value);
     localStorage.setItem("searchEmail", value);
+  };
+
+  const handleSearchComment = (e) => {
+    const value = e.target.value;
+    setSearchComment(value);
+    localStorage.setItem("searchComment", value);
   };
 
   useEffect(() => {
@@ -206,7 +213,14 @@ const CommentUploader = () => {
                     onChange={handleSearchEmail}
                   />
                 </td>
-                <td></td>
+                <td>
+                  <input
+                    type="text"
+                    placeholder="Search by comment"
+                    value={searchComment}
+                    onChange={handleSearchComment}
+                  />
+                </td>
                 <td></td>
                 <td></td>
               </tr>
@@ -219,7 +233,12 @@ const CommentUploader = () => {
                     val.firstname
                       .toLowerCase()
                       .includes(searchFirstname.toLowerCase()) &&
-                    val.email.toLowerCase().includes(searchEmail.toLowerCase())
+                    val.email
+                      .toLowerCase()
+                      .includes(searchEmail.toLowerCase()) &&
+                    val.comment
+                      .toLowerCase()
+                      .includes(searchComment.toLowerCase())
                 )
                 .map((comment) => {
                   // const isCurrentUserComment = comment.user === user._id;
@@ -311,21 +330,6 @@ const CommentUploader = () => {
                         )}
                     </p>
                   </div>
-                  {/* {(user.role === "admin" || user.role === "superadmin") && (
-                  <div className="container d-flex">
-                    {comment.email ? (
-                      <span className={`d-flex ${commentClass}`}>
-                        {comment.email}
-                      </span>
-                    ) : (
-                      <span> No email</span>
-                    )}
-
-                    <DeleteForeverRoundedIcon
-                      onClick={() => deleteComment(comment._id)}
-                    />
-                  </div>
-                )} */}
                 </div>
               );
             })}
@@ -333,76 +337,79 @@ const CommentUploader = () => {
       )}
       {showComments === true && user && (
         <>
-          {/* {user.role === "admin" || user.role === "superadmin" ? ( */}
-          <h2 className="text-center">
-            Choisi la classe à laquelle tu veux répondre
-          </h2>
-          {/* ) : (
-            <h2 className="text-center">Discute avec ta classe</h2>
-          )} */}
+          <ul className="list-group list-group-flush ">
+            <li className="text-center list-group-item bg-transparent">
+              <h2>Chat avec ta classe</h2>
+            </li>
+            {user.role === "admin" ||
+              (user.role === "superadmin" && (
+                <li className="form-group list-group-item bg-transparent">
+                  <div className="d-flex justify-content-between">
+                    <select
+                      className="form-select"
+                      aria-label="Default select example"
+                      value={selectedClass}
+                      onChange={(e) => setSelectedClass(e.target.value)}
+                    >
+                      <option value="">Choose a class</option>
+                      {listOfClassNames.map((classe) => (
+                        <option value={classe.name} key={classe._id}>
+                          {classe.name}
+                        </option>
+                      ))}
+                      <option value="none">None</option>
+                    </select>
+                  </div>
+                </li>
+              ))}
+            <li className="form-group list-group-item bg-transparent">
+              <label htmlFor="comment">Commentaire*</label>
+              <textarea
+                value={comment}
+                id="comment"
+                size="small"
+                className="form-control mb-3"
+                placeholder="Commentaire*"
+                label="Commentaire*"
+                onChange={handleCommentChange}
+              >
+                {" "}
+              </textarea>
+              <p className="fs-6 text-muted">*: champs obligatoire</p>
+            </li>
 
-          {user.role === "admin" ||
-            (user.role === "superadmin" && (
-              <div className="form-group">
-                <select
-                  className="form-select"
-                  aria-label="Default select example"
-                  value={selectedClass}
-                  onChange={(e) => setSelectedClass(e.target.value)}
-                >
-                  <option value="">Choose a class</option>
-                  {listOfClassNames.map((classe) => (
-                    <option value={classe.name} key={classe._id}>
-                      {classe.name}
-                    </option>
-                  ))}
-                  <option value="none">None</option>
-                </select>
-              </div>
-            ))}
-          <div className="form-group">
-            <label htmlFor="comment">Commentaire*</label>
-            <textarea
-              value={comment}
-              id="comment"
-              size="small"
-              className="form-control mb-3"
-              placeholder="Commentaire*"
-              label="Commentaire*"
-              onChange={handleCommentChange}
-            >
-              {" "}
-            </textarea>
-            <p className="fs-6 text-muted">*: champs obligatoire</p>
-            <button
-              className="btn btn-primary"
-              onClick={handleUpload}
-              disabled={!comment}
-            >
-              Envoyer
-            </button>
+            <li className="form-group list-group-item bg-transparent">
+              <button
+                className="btn btn-primary"
+                onClick={handleUpload}
+                disabled={!comment}
+              >
+                Envoyer
+              </button>
+            </li>
             <div>
               <br />
             </div>
-          </div>
+          </ul>
         </>
       )}
-      {(user.role !== "admin" || user.role !== "superadmin") &&
-      showComments === false ? (
-        <button
-          className="btn btn-primary"
-          onClick={() => setShowComments(true)}
-        >
-          Afficher les messages de la classe
-        </button>
-      ) : (
-        <button
-          className="btn btn-primary"
-          onClick={() => setShowComments(false)}
-        >
-          Masquer les messages de la classe
-        </button>
-      )}
+      {user.role !== "admin" && user.role !== "superadmin" ? (
+        showComments === false ? (
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowComments(true)}
+          >
+            Afficher les messages de la classe
+          </button>
+        ) : (
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowComments(false)}
+          >
+            Masquer les messages de la classe
+          </button>
+        )
+      ) : null}
     </div>
   );
 };
