@@ -101,6 +101,11 @@ const Footer = () => {
                         Admin
                       </Link>
                     </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/AdminInfo">
+                        Gestion de mes informations
+                      </Link>
+                    </li>
                     <li className="list-inline-item">
                       <Link className="nav-link" to="/contact">
                         Gestion des Contact

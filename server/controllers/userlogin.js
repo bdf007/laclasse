@@ -7,14 +7,8 @@ require("dotenv").config();
 
 exports.register = async (req, res) => {
   // check if user already exists
-  // const usernameExists = await User.findOne({ username: req.body.username });
   const emailExists = await User.findOne({ email: req.body.email });
 
-  // if (usernameExists) {
-  //   return res.status(403).json({
-  //     error: "Username is already taken",
-  //   });
-  // }
   if (emailExists) {
     return res.status(403).json({
       error: "Email is already taken",
@@ -116,15 +110,6 @@ exports.getLoggedInUser = async (req, res) => {
     });
   }
 };
-
-// exports.getUsers = async (req, res) => {
-//   try {
-//     const users = await User.find({}).select("username email createdAt");
-//     return res.status(200).json(users);
-//   } catch (error) {
-//     return res.status(500).json({ error: "Internal server error" });
-//   }
-// };
 
 // get all the users with all the fields
 exports.getUsers = async (req, res) => {
@@ -242,23 +227,32 @@ exports.removeClassToUser = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { firstname, lastname, email, hashedPassword } = req.body;
-    const user = await User.findById(req._id);
+    const _id = req.params.id;
+
+    // Retrieve the user from the database
+    const user = await User.findById(_id);
 
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(404).json({ error: "User not found" });
     }
 
-    user.firstname = firstname;
-    user.lastname = lastname;
-    user.email = email;
-    user.hashedPassword = hashedPassword;
+    // Update user profile fields
+    user.firstname = req.body.firstname || user.firstname;
+    user.lastname = req.body.lastname || user.lastname;
+    user.email = req.body.email || user.email;
 
+    // Check if a new password is provided
+    if (req.body.newPassword) {
+      // Update the user's password securely
+      user.setPassword(req.body.newPassword);
+    }
+
+    // Save the updated user profile
     await user.save();
 
-    res.status(200).json({ message: "Profile updated successfully" });
+    res.status(200).json({ message: "User profile updated successfully" });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Error updating profile" });
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

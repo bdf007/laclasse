@@ -16,30 +16,13 @@ function Class() {
   const [listOfCourseFile, setListOfCourseFile] = useState([]); // New class nextCourse for update
   const [courseFileTitle, setCourseFileTitle] = useState(""); // New class nextCourse for update
   const [courseFileData, setCourseFileData] = useState(null);
+  const [stopEditingName, setStopEditingName] = useState(false);
   // const [classId, setClassId] = useState(""); // New class nextCourse for update
   const [viewMode, setViewMode] = useState("table");
 
   useEffect(() => {
     fetchClasses();
   }, []);
-
-  // const fetchClasses = async () => {
-  //   await axios
-  //     .get(`${process.env.REACT_APP_API_URL}/api/classes`)
-  //     .then((response) => {
-  //       const allClasses = response.data;
-  //       console.log("allClasses", allClasses);
-  //       for (let i = 0; i < allClasses.length; i++) {
-  //         const response = axios.get(
-  //           `${process.env.REACT_APP_API_URL}/api/courseFilesByCLass/${allClasses[i]._id}`
-  //         );
-  //         console.log("response.data", response.data);
-
-  //         allClasses[i].courseFiles = response.data;
-  //       }
-  //       setListOfClass(allClasses);
-  //     });
-  // };
 
   const fetchClasses = async () => {
     try {
@@ -79,6 +62,12 @@ function Class() {
   const startEditing = (classId, className, classAbout, nextCourse) => {
     setEditingClassId(classId);
     setUpdatedClassName(className);
+    if (className === "public") {
+      setStopEditingName(true);
+    } else {
+      setStopEditingName(false);
+    }
+
     setUpdatedClassAbout(classAbout);
     setUpdatedClassNextCourse(nextCourse);
   };
@@ -271,19 +260,25 @@ function Class() {
                     <div className="card-body">
                       {editingClassId === classe._id ? (
                         <div>
-                          <h5 className="card-title">
-                            nom de la classe : {classe.name}
-                          </h5>
-                          {/* <label For="name">changer le nom :</label>
-                          <input
-                            type="text"
-                            name="name"
-                            value={updatedClassName}
-                            onChange={(e) =>
-                              setUpdatedClassName(e.target.value)
-                            }
-                          />
-                          <br /> */}
+                          {stopEditingName ? (
+                            <h5 className="card-title">
+                              nom de la classe : {classe.name}
+                            </h5>
+                          ) : (
+                            <>
+                              <label For="name">changer le nom :</label>
+                              <input
+                                type="text"
+                                name="name"
+                                value={updatedClassName}
+                                onChange={(e) =>
+                                  setUpdatedClassName(e.target.value)
+                                }
+                              />
+                              <br />
+                            </>
+                          )}
+
                           <label For="about">changer le about :</label>
                           <textarea
                             type="text"
@@ -372,7 +367,8 @@ function Class() {
                       <div className="card-text">
                         <p>Fichier(s) de la classe:</p>
                         <ul className="list-group list-group-flush ">
-                          {classe.courseFiles.length === 0 ? (
+                          {classe.courseFiles.length === 0 ||
+                          classe.name === "public" ? (
                             <li className="bg-danger text-white">
                               Pas de fichiers de cours
                             </li>
@@ -402,30 +398,36 @@ function Class() {
                               </li>
                             ))
                           )}
-                          <li className="list-group-item d-flex justify-content-between bg-transparent">
-                            <input
-                              type="text"
-                              id="courseFileTitle"
-                              placeholder="Nom du fichier"
-                              value={courseFileTitle}
-                              onChange={handleCourseTitle}
-                            />
-                            <input
-                              type="file"
-                              id="courseFileData"
-                              accept="application/pdf"
-                              className="btn btn-primary"
-                              onChange={handleCourseFile}
-                            />
-                          </li>
-                          <li>
-                            <button
-                              onClick={() => handleUploadCourseFile(classe._id)}
-                              className="btn btn-primary"
-                            >
-                              Ajouter un fichier
-                            </button>
-                          </li>
+                          {classe.name === "public" ? null : (
+                            <>
+                              <li className="list-group-item d-flex justify-content-between bg-transparent">
+                                <input
+                                  type="text"
+                                  id="courseFileTitle"
+                                  placeholder="Nom du fichier"
+                                  value={courseFileTitle}
+                                  onChange={handleCourseTitle}
+                                />
+                                <input
+                                  type="file"
+                                  id="courseFileData"
+                                  accept="application/pdf"
+                                  className="btn btn-primary"
+                                  onChange={handleCourseFile}
+                                />
+                              </li>
+                              <li className="list-group-item d-flex justify-content-center bg-transparent">
+                                <button
+                                  onClick={() =>
+                                    handleUploadCourseFile(classe._id)
+                                  }
+                                  className="btn btn-primary"
+                                >
+                                  Ajouter un fichier
+                                </button>
+                              </li>
+                            </>
+                          )}
                         </ul>
                       </div>
                     </div>
@@ -468,7 +470,18 @@ function Class() {
             {listOfClass.length > 0 ? (
               listOfClass.map((classe) => (
                 <tr key={classe._id}>
-                  <td>{classe.name}</td>
+                  {editingClassId === classe._id &&
+                  stopEditingName === false ? (
+                    <td>
+                      <input
+                        type="text"
+                        value={updatedClassName}
+                        onChange={(e) => setUpdatedClassName(e.target.value)}
+                      />
+                    </td>
+                  ) : (
+                    <td>{classe.name}</td>
+                  )}
                   <td>
                     {editingClassId === classe._id ? (
                       <textarea
@@ -545,7 +558,8 @@ function Class() {
                   </td>
                   <td>
                     <ul className="list-group list-group-flush ">
-                      {classe.courseFiles.length === 0 ? (
+                      {classe.courseFiles.length === 0 ||
+                      classe.className === "public" ? (
                         <li className="bg-danger text-white">
                           Pas de fichiers de cours
                         </li>
@@ -574,28 +588,34 @@ function Class() {
                           </li>
                         ))
                       )}
-                      <li className="list-group-item d-flex justify-content-between bg-transparent">
-                        <input
-                          type="text"
-                          id="courseFileTitle"
-                          placeholder="nom du fichier"
-                          value={courseFileTitle}
-                          onChange={handleCourseTitle}
-                        />
-                        <input
-                          type="file"
-                          id="courseFileData"
-                          accept="application/pdf"
-                          onChange={handleCourseFile}
-                          className="btn btn-primary"
-                        />
-                        <button
-                          onClick={() => handleUploadCourseFile(classe._id)}
-                          className="btn btn-primary"
-                        >
-                          Ajouter un fichier
-                        </button>
-                      </li>
+                      {classe.name === "public" ? null : (
+                        <>
+                          <li className="list-group-item d-flex justify-content-between bg-transparent">
+                            <input
+                              type="text"
+                              id="courseFileTitle"
+                              placeholder="nom du fichier"
+                              value={courseFileTitle}
+                              onChange={handleCourseTitle}
+                            />
+                            <input
+                              type="file"
+                              id="courseFileData"
+                              accept="application/pdf"
+                              onChange={handleCourseFile}
+                              className="btn btn-primary"
+                            />
+                          </li>
+                          <li className="list-group-item d-flex justify-content-center bg-transparent">
+                            <button
+                              onClick={() => handleUploadCourseFile(classe._id)}
+                              className="btn btn-primary"
+                            >
+                              Ajouter un fichier
+                            </button>
+                          </li>
+                        </>
+                      )}
                     </ul>
                   </td>
                 </tr>

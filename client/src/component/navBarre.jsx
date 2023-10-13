@@ -130,6 +130,11 @@ const NavBarre = () => {
                       </Link>
                     </li>
                     <li className="nav-item">
+                      <Link className="nav-link" to="/AdminInfo">
+                        Gestion de mes informations
+                      </Link>
+                    </li>
+                    <li className="nav-item">
                       <Link className="nav-link" to="/bibliotheque">
                         Gestion de la Bibliothéque
                       </Link>
@@ -139,7 +144,7 @@ const NavBarre = () => {
                         Gestion des Contact
                       </Link>
                     </li>
-                    <li classname="nav-item">
+                    <li className="nav-item">
                       <Link className="nav-link" to="/chatAdmin">
                         Gestion des messages de chat
                       </Link>

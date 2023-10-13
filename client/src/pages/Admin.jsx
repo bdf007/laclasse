@@ -131,7 +131,8 @@ const Admin = () => {
         role: selectedRole, // Send the selected role to the server
       })
       .then(() => {
-        toast.success("User role updated successfully");
+        console.log("User role updated");
+        toast.success("User role updated  very successfully");
         setSelectedRole(""); // Clear the selected role after updating
         window.location.reload();
       })

@@ -41,11 +41,6 @@ router.post("/user/assign-class", addClassToUser);
 router.post("/user/remove-class", removeClassToUser);
 
 //update profile
-router.post(
-  "/update-profile",
-  verifyToken,
-  userRegisterValidator,
-  updateProfile
-);
+router.post("/update-profile/:id", updateProfile);
 
 module.exports = router;
