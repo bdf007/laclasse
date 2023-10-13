@@ -3,45 +3,28 @@ import { UserContext } from "../context/UserContext";
 import { getUser } from "../api/user";
 import { toast } from "react-toastify";
 import { Worker } from "@react-pdf-viewer/core";
-import { Viewer } from "@react-pdf-viewer/core";
 
-// Import styles
-import "@react-pdf-viewer/core/lib/styles/index.css";
-
-// design
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import CommentUploader from "../component/comment";
+import DocumentDisplay from "../component/documentDisplay";
 
 const Student = () => {
   const { user, setUser } = useContext(UserContext);
-  const [showFiles, setShowFiles] = useState({});
-  const [activeFile, setActiveFile] = useState(null);
 
-  const loadFromBase64 = (base64) => {
-    const base64toBlob = (data) => {
-      // Cut the prefix `data:application/pdf;base64` from the raw base64
-      const base64WithoutPrefix = data.substr(
-        "data:application/pdf;base64,".length
-      );
+  const [updatedFirstname, setUpdatedFirstname] = useState("");
+  const [updatedLastname, setUpdateLastname] = useState("");
+  const [updatedEmail, setUpdatedEmail] = useState("");
+  const [updatedPassword, setUpdatedPassword] = useState("");
+  const [confirmpassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
-      const bytes = atob(base64WithoutPrefix);
-      let length = bytes.length;
-      let out = new Uint8Array(length);
+  // password validation
+  let hasSixChar = updatedPassword.length >= 6;
+  let hasLowerChar = /(.*[a-z].*)/.test(updatedPassword);
+  let hasUpperChar = /(.*[A-Z].*)/.test(updatedPassword);
+  let hasNumber = /(.*[0-9].*)/.test(updatedPassword);
+  let hasSpecialChar = /(.*[^a-zA-Z0-9].*)/.test(updatedPassword);
 
-      while (length--) {
-        out[length] = bytes.charCodeAt(length);
-      }
-
-      return new Blob([out], { type: "application/pdf" });
-    };
-
-    const blob = base64toBlob(base64);
-    const blobUrl = URL.createObjectURL(blob);
-
-    return blobUrl;
-  };
-
-  // const defaultLayoutPluginInstance = defaultLayoutPlugin();
   // get the info of the user logged in
   useEffect(() => {
     const fetchData = async () => {
@@ -57,21 +40,21 @@ const Student = () => {
     fetchData();
   }, [setUser]);
 
-  // Function to toggle visibility of a file
-  const toggleFile = (fileId) => {
-    setShowFiles((prevShowFiles) => {
-      const updatedShowFiles = { ...prevShowFiles };
-      updatedShowFiles[fileId] = !updatedShowFiles[fileId];
+  // // Function to toggle visibility of a file
+  // const toggleFile = (fileId) => {
+  //   setShowFiles((prevShowFiles) => {
+  //     const updatedShowFiles = { ...prevShowFiles };
+  //     updatedShowFiles[fileId] = !updatedShowFiles[fileId];
 
-      if (activeFile !== null && activeFile !== fileId) {
-        updatedShowFiles[activeFile] = false; // Hide the previously active file
-      }
+  //     if (activeFile !== null && activeFile !== fileId) {
+  //       updatedShowFiles[activeFile] = false; // Hide the previously active file
+  //     }
 
-      setActiveFile(updatedShowFiles[fileId] ? fileId : null);
+  //     setActiveFile(updatedShowFiles[fileId] ? fileId : null);
 
-      return updatedShowFiles;
-    });
-  };
+  //     return updatedShowFiles;
+  //   });
+  // };
 
   return (
     <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js">
@@ -88,6 +71,9 @@ const Student = () => {
               <br />
               email : {user.email}
             </p>
+            {/* {isEditing && (
+
+            )} */}
             <CommentUploader />
           </div>
           <div className="col-md-6">
@@ -105,7 +91,8 @@ const Student = () => {
                   <p>Vous n'avez pas encore de fichiers de cours</p>
                 ) : (
                   <>
-                    <p>Vous avez {user.courseFiles.length} fichiers de cours</p>
+                    <DocumentDisplay />
+                    {/* <p>Vous avez {user.courseFiles.length} fichiers de cours</p>
 
                     <ul className="list-group list-group-flush">
                       {user.courseFiles.map((file) => (
@@ -139,7 +126,7 @@ const Student = () => {
                           )}
                         </li>
                       ))}
-                    </ul>
+                    </ul> */}
                   </>
                 )}
               </>

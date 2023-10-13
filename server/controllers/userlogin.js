@@ -240,25 +240,25 @@ exports.removeClassToUser = async (req, res) => {
   }
 };
 
-// exports.updateProfile = async (req, res) => {
-//   try {
-//     const { firstname, lastname, email, password } = req.body;
-//     const user = await User.findById(req._id);
+exports.updateProfile = async (req, res) => {
+  try {
+    const { firstname, lastname, email, hashedPassword } = req.body;
+    const user = await User.findById(req._id);
 
-//     if (!user) {
-//       return res.status(400).json({ message: "User not found" });
-//     }
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
 
-//     user.firstname = firstname;
-//     user.lastname = lastname;
-//     user.email = email;
-//     user.password = password;
+    user.firstname = firstname;
+    user.lastname = lastname;
+    user.email = email;
+    user.hashedPassword = hashedPassword;
 
-//     await user.save();
+    await user.save();
 
-//     res.status(200).json({ message: "Profile updated successfully" });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ message: "Error updating profile" });
-//   }
-// };
+    res.status(200).json({ message: "Profile updated successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error updating profile" });
+  }
+};
