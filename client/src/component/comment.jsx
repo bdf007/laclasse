@@ -100,18 +100,6 @@ const CommentUploader = () => {
     setUserId(user._id);
   }, [user]);
 
-  // const handleFirstnameChange = (e) => {
-  //   setFirstname(e.target.value);
-  // };
-
-  // const handleLastnameChange = (e) => {
-  //   setLastname(e.target.value);
-  // };
-
-  // const handleEmailChange = (e) => {
-  //   setEmail(e.target.value);
-  // };
-
   const handleCommentChange = (e) => {
     setComment(e.target.value);
   };
@@ -177,6 +165,7 @@ const CommentUploader = () => {
   const handleResize = () => {
     const newWidth = window.innerWidth;
     setWidth(newWidth);
+    console.warn(width);
     if (newWidth < 768) {
       setShow(false);
     } else {
@@ -191,6 +180,7 @@ const CommentUploader = () => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
+    // eslint-disable-next-line
   }, []);
 
   return (

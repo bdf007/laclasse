@@ -90,35 +90,35 @@ export const getUser = async () => {
   }
 };
 
-export const updateUser = async ({
-  _id,
-  firstname,
-  lastname,
-  email,
-  password,
-}) => {
-  const user = {
-    _id,
-    firstname,
-    lastname,
-    email,
-    password,
-  };
-  try {
-    const res = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/update-profile`,
-      {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json", // Specify content type
-        },
-        body: JSON.stringify(user), // Send as JSON
-      }
-    );
-    return await res.json();
-  } catch (error) {
-    throw new Error("Please login to continue.");
-  }
-};
+// export const updateUser = async ({
+//   _id,
+//   firstname,
+//   lastname,
+//   email,
+//   newPassword,
+// }) => {
+//   const user = {
+//     _id,
+//     firstname,
+//     lastname,
+//     email,
+//     newPassword,
+//   };
+//   try {
+//     const res = await fetch(
+//       `${process.env.REACT_APP_API_URL}/api/userLogin/update-profile`,
+//       {
+//         method: "POST",
+//         credentials: "include",
+//         headers: {
+//           Accept: "application/json",
+//           "Content-Type": "application/json", // Specify content type
+//         },
+//         body: JSON.stringify(user), // Send as JSON
+//       }
+//     );
+//     return await res.json();
+//   } catch (error) {
+//     throw new Error("Please login to continue.");
+//   }
+// };

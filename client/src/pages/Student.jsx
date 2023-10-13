@@ -1,4 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { UserContext } from "../context/UserContext";
 import { getUser } from "../api/user";
 import { toast } from "react-toastify";
@@ -6,24 +8,125 @@ import { Worker } from "@react-pdf-viewer/core";
 
 import CommentUploader from "../component/comment";
 import DocumentDisplay from "../component/documentDisplay";
+import { logout } from "../api/user";
+// design
+import {
+  TextField,
+  InputAdornment,
+  IconButton,
+  OutlinedInput,
+  FormControl,
+  InputLabel,
+  Button,
+  FormHelperText,
+} from "@mui/material";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import axios from "axios";
 
 const Student = () => {
   const { user, setUser } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const [updatedFirstname, setUpdatedFirstname] = useState("");
   const [updatedLastname, setUpdateLastname] = useState("");
   const [updatedEmail, setUpdatedEmail] = useState("");
   const [updatedPassword, setUpdatedPassword] = useState("");
-  const [confirmpassword, setConfirmPassword] = useState("");
+  const [confirmUpdatedPassword, setConfirmUpdatedPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isPasswordModified, setIsPasswordModified] = useState(false);
 
   // password validation
-  let hasSixChar = updatedPassword.length >= 6;
+  let hasSixChar = updatedPassword && updatedPassword.length >= 6;
   let hasLowerChar = /(.*[a-z].*)/.test(updatedPassword);
   let hasUpperChar = /(.*[A-Z].*)/.test(updatedPassword);
   let hasNumber = /(.*[0-9].*)/.test(updatedPassword);
   let hasSpecialChar = /(.*[^a-zA-Z0-9].*)/.test(updatedPassword);
+
+  const handleUpdatedFirstname = (e) => {
+    setUpdatedFirstname(e.target.value);
+  };
+
+  const handleUpdatedLastname = (e) => {
+    setUpdateLastname(e.target.value);
+  };
+
+  const handleUpdatedEmail = (e) => {
+    setUpdatedEmail(e.target.value);
+  };
+
+  const handleUpdatedPassword = (e) => {
+    e.preventDefault();
+    setUpdatedPassword(e.target.value);
+    if (updatedPassword !== user.password) {
+      setIsPasswordModified(true);
+    } else {
+      setIsPasswordModified(false);
+    }
+    setShowPassword(false);
+  };
+
+  const handleConfirmUpdatedPassword = (e) => {
+    setConfirmUpdatedPassword(e.target.value);
+  };
+
+  const handleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    logout()
+      .then((res) => {
+        toast.success(res.message);
+        // set user to null
+        setUser(null);
+        // redirect to login page
+        navigate("/login");
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const handleUpdateUser = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/update-profile/${user._id}`,
+        {
+          firstname: updatedFirstname,
+          lastname: updatedLastname,
+          email: updatedEmail,
+          newPassword: updatedPassword,
+        },
+        { withCredentials: true }
+      );
+      toast.success("Profile updated successfully");
+      setIsEditing(false);
+      handleLogout(e);
+    } catch (err) {
+      toast.error(err);
+    }
+  };
+
+  // useEffect(() => {
+  //   // Check if the password has been modified
+  //   if (updatedPassword && user.password && updatedPassword !== user.password) {
+  //     setIsPasswordModified(true);
+  //   } else {
+  //     setIsPasswordModified(false);
+  //   }
+  // }, [updatedPassword, user.password]);
+
+  // Populate the form data when the component mounts
+  useEffect(() => {
+    setUpdatedFirstname(user.firstname);
+    setUpdateLastname(user.lastname);
+    setUpdatedEmail(user.email);
+    setUpdatedPassword(user.password);
+  }, [user]);
 
   // get the info of the user logged in
   useEffect(() => {
@@ -40,22 +143,6 @@ const Student = () => {
     fetchData();
   }, [setUser]);
 
-  // // Function to toggle visibility of a file
-  // const toggleFile = (fileId) => {
-  //   setShowFiles((prevShowFiles) => {
-  //     const updatedShowFiles = { ...prevShowFiles };
-  //     updatedShowFiles[fileId] = !updatedShowFiles[fileId];
-
-  //     if (activeFile !== null && activeFile !== fileId) {
-  //       updatedShowFiles[activeFile] = false; // Hide the previously active file
-  //     }
-
-  //     setActiveFile(updatedShowFiles[fileId] ? fileId : null);
-
-  //     return updatedShowFiles;
-  //   });
-  // };
-
   return (
     <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js">
       <div
@@ -71,9 +158,227 @@ const Student = () => {
               <br />
               email : {user.email}
             </p>
-            {/* {isEditing && (
-
-            )} */}
+            {isEditing === false && (
+              <Button
+                className="mb-4"
+                variant="contained"
+                color="success"
+                onClick={() => setIsEditing(true)}
+              >
+                modifier
+              </Button>
+            )}
+            {isEditing && (
+              <>
+                <div className="container mt-5 col-10 col-sm-8 col-md-6 col-lg-5">
+                  <div className="form-group">
+                    <TextField
+                      size="small"
+                      variant="outlined"
+                      className="form-control mb-3"
+                      label="Firstname"
+                      value={updatedFirstname}
+                      onChange={handleUpdatedFirstname}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <TextField
+                      size="small"
+                      variant="outlined"
+                      className="form-control mb-3"
+                      label="Lastname"
+                      value={updatedLastname}
+                      onChange={handleUpdatedLastname}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <TextField
+                      size="small"
+                      variant="outlined"
+                      className="form-control mb-3"
+                      label="Email"
+                      value={updatedEmail}
+                      onChange={handleUpdatedEmail}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <FormControl
+                      variant="outlined"
+                      size="small"
+                      className="form-control mb-3"
+                    >
+                      <InputLabel htmlFor="outlined-adornment-password">
+                        Password
+                      </InputLabel>
+                      <OutlinedInput
+                        label="Password"
+                        type={
+                          isPasswordModified
+                            ? showPassword
+                              ? "text"
+                              : "password"
+                            : "password"
+                        }
+                        value={updatedPassword}
+                        onChange={handleUpdatedPassword}
+                        endAdornment={
+                          isPasswordModified ? ( // Check if the password is being modified
+                            <InputAdornment>
+                              <IconButton
+                                edge="end"
+                                onClick={handleShowPassword}
+                              >
+                                {showPassword ? (
+                                  <VisibilityIcon />
+                                ) : (
+                                  <VisibilityOffIcon />
+                                )}
+                              </IconButton>
+                            </InputAdornment>
+                          ) : null // Hide the toggle button when the password is not being modified
+                        }
+                      />
+                    </FormControl>
+                    {updatedPassword && (
+                      <div className="ml-1 mb-3" style={{ columns: 2 }}>
+                        <div>
+                          {hasSixChar ? (
+                            <span className="text-success">
+                              <CheckCircleIcon
+                                className="mr-1"
+                                fontSize="small"
+                              />
+                              <small>at least 6 characters</small>
+                            </span>
+                          ) : (
+                            <span className="text-danger">
+                              <CancelIcon className="mr-1" fontSize="small" />
+                              <small>at least 6 characters</small>
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          <small
+                            className={
+                              hasLowerChar ? "text-success" : "text-danger"
+                            }
+                          >
+                            at least one lowercase character
+                          </small>
+                        </div>
+                        <div>
+                          {hasUpperChar ? (
+                            <span className="text-success">
+                              <CheckCircleIcon
+                                className="mr-1"
+                                fontSize="small"
+                              />
+                              <small>at least one uppercase character</small>
+                            </span>
+                          ) : (
+                            <span className="text-danger">
+                              <CancelIcon className="mr-1" fontSize="small" />
+                              <small>at least one uppercase character</small>
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          {hasNumber ? (
+                            <span className="text-success">
+                              <CheckCircleIcon
+                                className="mr-1"
+                                fontSize="small"
+                              />
+                              <small>at least one number</small>
+                            </span>
+                          ) : (
+                            <span className="text-danger">
+                              <CancelIcon className="mr-1" fontSize="small" />
+                              <small>at least one number</small>
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          {hasSpecialChar ? (
+                            <span className="text-success">
+                              <CheckCircleIcon
+                                className="mr-1"
+                                fontSize="small"
+                              />
+                              <small>at least one special character</small>
+                            </span>
+                          ) : (
+                            <span className="text-danger">
+                              <CancelIcon className="mr-1" fontSize="small" />
+                              <small>at least one special character</small>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="form-group">
+                    <p>
+                      merci de confirmer votre mot de passe pour valider ou
+                      annuler vos modifications
+                    </p>
+                    <TextField
+                      size="small"
+                      variant="outlined"
+                      className="form-control"
+                      label="Confirm Password"
+                      type="password"
+                      value={confirmUpdatedPassword}
+                      onChange={handleConfirmUpdatedPassword}
+                    />
+                    {updatedPassword && confirmUpdatedPassword && (
+                      <FormHelperText className="ml-1 mt-1">
+                        {updatedPassword === confirmUpdatedPassword ? (
+                          <span className="text-success">
+                            Password does match
+                          </span>
+                        ) : (
+                          <span className="text-danger">
+                            Password does not match
+                          </span>
+                        )}
+                      </FormHelperText>
+                    )}
+                  </div>
+                </div>
+                <div className="text-center mt-4">
+                  <Button
+                    className="mb-4"
+                    variant="contained"
+                    color="warning"
+                    onClick={() => setIsEditing(false)}
+                  >
+                    annuler
+                  </Button>
+                  <Button
+                    className="mb-4"
+                    variant="contained"
+                    color="primary"
+                    disabled={
+                      !updatedEmail ||
+                      !updatedPassword ||
+                      !confirmUpdatedPassword ||
+                      !updatedFirstname ||
+                      !updatedLastname ||
+                      updatedPassword !== confirmUpdatedPassword ||
+                      !hasSixChar ||
+                      !hasLowerChar ||
+                      !hasUpperChar ||
+                      !hasNumber ||
+                      !hasSpecialChar
+                    }
+                    onClick={handleUpdateUser}
+                  >
+                    Submit
+                  </Button>
+                </div>
+              </>
+            )}
             <CommentUploader />
           </div>
           <div className="col-md-6">
@@ -92,41 +397,6 @@ const Student = () => {
                 ) : (
                   <>
                     <DocumentDisplay />
-                    {/* <p>Vous avez {user.courseFiles.length} fichiers de cours</p>
-
-                    <ul className="list-group list-group-flush">
-                      {user.courseFiles.map((file) => (
-                        <li
-                          key={file._id}
-                          className="list-group-item bg-transparent"
-                        >
-                          <h3>
-                            {file.courseFileTitle}
-                            <a
-                              href={loadFromBase64(file.courseFileData)}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              <DownloadOutlinedIcon />
-                            </a>
-                            <button
-                              onClick={() => toggleFile(file._id)}
-                              key={file._id}
-                              className="btn btn-primary"
-                            >
-                              {showFiles[file._id]
-                                ? "masquer le fichier"
-                                : "Afficher le fichier"}
-                            </button>
-                          </h3>
-                          {showFiles[file._id] && file._id === activeFile && (
-                            <Viewer
-                              fileUrl={loadFromBase64(file.courseFileData)}
-                            />
-                          )}
-                        </li>
-                      ))}
-                    </ul> */}
                   </>
                 )}
               </>
@@ -139,152 +409,3 @@ const Student = () => {
 };
 
 export default Student;
-
-// import React, { useContext, useEffect, useState } from "react";
-// import { UserContext } from "../context/UserContext";
-// import { getUser, updateUser } from "../api/user";
-// import { toast } from "react-toastify";
-
-// const Student = () => {
-//   const { user, setUser } = useContext(UserContext);
-
-//   // State to manage the edit profile form
-//   const [editProfile, setEditProfile] = useState(false);
-//   const [formData, setFormData] = useState({
-//     firstname: user.firstname,
-//     lastname: user.lastname,
-//     email: user.email,
-//     password: "",
-//     verifyPassword: "",
-//   });
-
-//   // Function to handle input changes in the edit profile form
-//   const handleInputChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData({
-//       ...formData,
-//       [name]: value,
-//     });
-//   };
-
-//   // Function to handle form submission
-//   const handleFormSubmit = async (e) => {
-//     e.preventDefault();
-//     // Add validation logic here
-
-//     // Create an object with the updated user data
-//     const updatedUserData = {
-//       _id: user._id,
-//       firstname: formData.firstname,
-//       lastname: formData.lastname,
-//       email: formData.email, // You can keep the email as it is or add an input field to edit it
-//       password: formData.password,
-//     };
-
-//     // Send a request to update user information with updatedUserData
-//     try {
-//       const response = await updateUser(updatedUserData);
-
-//       if (response.error) {
-//         // Handle errors from the server
-//         toast.error(response.error);
-//       } else {
-//         // Handle successful update
-//         toast.success("Profile updated successfully");
-//         // Refresh user information
-//         const updatedUser = await getUser();
-//         setUser(updatedUser);
-//         setEditProfile(false); // Close the edit profile form
-//       }
-//     } catch (error) {
-//       // Handle network or other errors
-//       toast.error("An error occurred");
-//     }
-//   };
-
-//   // Populate the form data when the component mounts
-//   useEffect(() => {
-//     setFormData({
-//       firstname: user.firstname,
-//       lastname: user.lastname,
-//       email: user.email,
-//       password: "",
-//       verifyPassword: "",
-//     });
-//   }, [user]);
-
-//   return (
-//     <div>
-//       <h1>Student</h1>
-//       {editProfile ? (
-//         <form onSubmit={handleFormSubmit}>
-//           <div>
-//             <label htmlFor="firstname">First Name:</label>
-//             <input
-//               type="text"
-//               id="firstname"
-//               name="firstname"
-//               value={formData.firstname}
-//               onChange={handleInputChange}
-//             />
-//           </div>
-//           <div>
-//             <label htmlFor="lastname">Last Name:</label>
-//             <input
-//               type="text"
-//               id="lastname"
-//               name="lastname"
-//               value={formData.lastname}
-//               onChange={handleInputChange}
-//             />
-//           </div>
-//           <div>
-//             <label htmlFor="email">Email:</label>
-//             <input
-//               type="text"
-//               id="email"
-//               name="email"
-//               value={formData.email}
-//               onChange={handleInputChange}
-//             />
-//           </div>
-//           <div>
-//             <label htmlFor="password">Password:</label>
-//             <input
-//               type="password"
-//               id="password"
-//               name="password"
-//               value={formData.password}
-//               onChange={handleInputChange}
-//             />
-//           </div>
-//           <div>
-//             <label htmlFor="verifyPassword">Verify Password:</label>
-//             <input
-//               type="password"
-//               id="verifyPassword"
-//               name="verifyPassword"
-//               value={formData.verifyPassword}
-//               onChange={handleInputChange}
-//             />
-//           </div>
-//           <button type="submit">Update Profile</button>
-//         </form>
-//       ) : (
-//         <>
-//           <h1>id: {user._id}</h1>
-//           <h1>{user.firstname}</h1>
-//           <h2>{user.role}</h2>
-//           <h2> le nom de ma classe : {user.classes}</h2>
-//           <p>
-//             A propos de ma classe : <br />
-//             {user.aboutClass}
-//           </p>
-//           <button onClick={() => setEditProfile(true)}>Edit Profile</button>
-//         </>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default Student;

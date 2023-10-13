@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import photoprofile from "../assets/photoprofilpublic.jpg";
 
 const AboutPublic = () => {
   const [classInfo, setClassInfo] = useState(null);
@@ -34,15 +35,48 @@ const AboutPublic = () => {
       className="container text-center"
       style={{ paddingBottom: "10rem", marginBottom: "10rem" }}
     >
-      {classInfo &&
-        classInfo.map((classe) => {
-          return (
-            <div key={classe._id}>
-              <h1>{classe.name}</h1>
-              <pre>{classe.about}</pre>
-            </div>
-          );
-        })}
+      {/* <div className="row justify-content-around">
+        <div className="col-6">
+          <div className="footer-brand ">
+            <img
+              src={photoprofile}
+              alt="professeur"
+              className="rounded-circle img-thumbnail"
+              style={{ width: "200px" }}
+            />
+          </div>
+        </div>
+        <div className="col-6">
+          <h1>A propos de mes cours</h1>
+          {classInfo &&
+            classInfo.map((classe) => {
+              return (
+                <div key={classe._id}>
+                  {/* <h1>{classe.name}</h1> */}
+      {/* <pre>{classe.about}</pre>
+                </div>
+              );
+            })}
+        </div>
+      </div> */}
+      <div class="clearfix">
+        <img
+          src={photoprofile}
+          className="rounded-circle img-thumbnail col-md-6 float-md-end mb-3 ms-md-3"
+          style={{ width: "200px" }}
+          alt="..."
+        />
+        <h1>A propos de mes cours</h1>
+        {classInfo &&
+          classInfo.map((classe) => {
+            return (
+              <div key={classe._id}>
+                {/* <h1>{classe.name}</h1> */}
+                <pre>{classe.about}</pre>
+              </div>
+            );
+          })}
+      </div>
     </div>
   );
 };

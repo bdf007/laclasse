@@ -80,6 +80,12 @@ userSchema.methods = {
   authenticate: function (plainText) {
     return this.encryptPassword(plainText) === this.hashedPassword;
   },
+  setPassword: function (newPassword) {
+    // Generate a new salt
+    this.salt = uuidv1();
+    // Encrypt the new password and update hashedPassword
+    this.hashedPassword = this.encryptPassword(newPassword);
+  },
 };
 
 module.exports = mongoose.model("User", userSchema);
