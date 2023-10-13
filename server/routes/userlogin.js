@@ -12,6 +12,7 @@ const {
   changeRoleById,
   addClassToUser,
   removeClassToUser,
+  updateProfile,
   // updateProfile,
 } = require("../controllers/userlogin");
 // import middlewares
@@ -39,7 +40,12 @@ router.post("/user/assign-class", addClassToUser);
 // remmove class from user
 router.post("/user/remove-class", removeClassToUser);
 
-// update profile
-// router.post("/update-profile", getLoggedInUser, updateProfile);
+//update profile
+router.post(
+  "/update-profile",
+  verifyToken,
+  userRegisterValidator,
+  updateProfile
+);
 
 module.exports = router;
