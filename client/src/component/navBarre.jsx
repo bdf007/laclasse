@@ -53,26 +53,6 @@ const NavBarre = () => {
       .catch((err) => console.log(err));
   };
 
-  // const handleAdmin = async (e) => {
-  //   e.preventDefault();
-  //   navigate("/admin");
-  // };
-
-  // const handlebibliotheque = async (e) => {
-  //   e.preventDefault();
-  //   navigate("/bibliotheque");
-  // };
-
-  // const handleProfessor = async (e) => {
-  //   e.preventDefault();
-  //   navigate("/professor");
-  // };
-
-  // const handleStudent = async (e) => {
-  //   e.preventDefault();
-  //   navigate("/student");
-  // };
-
   return (
     <nav className="navbar navbar-expand-lg ">
       <div className="container-fluid">
