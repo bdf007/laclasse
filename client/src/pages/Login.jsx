@@ -52,7 +52,7 @@ const Login = () => {
     <div className="home">
       <div
         className="container mt-5 col-10 col-sm-8 col-md-6 col-lg-5"
-        style={{ paddingBottom: "5rem", marginBottom: "5rem" }}
+        style={{ paddingBottom: "12rem" }}
       >
         <div className="text-center mb-5 alert alert-primary">
           <label htmlFor="" className="h2">

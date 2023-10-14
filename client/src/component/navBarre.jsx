@@ -186,11 +186,6 @@ const NavBarre = () => {
                         Contact le professeur
                       </Link>
                     </li>
-                    <li className="nav-item">
-                      <Link className="nav-link" to="/bibliotheque">
-                        Bibliothéque
-                      </Link>
-                    </li>
                   </>
                 )}
                 <li className="nav-item">

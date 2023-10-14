@@ -25,12 +25,12 @@ main {
   width: 100%;
   left: 0;
   bottom: 0;
-  height: 10rem;
+  height: 12rem;
   border: 1px solid black;
 }
 .home {
   padding-top: 2rem;
-  /* padding-bottom: 10rem; */
+  padding-bottom: 10rem;
   max-width: 99vw;
   margin-right: 0;
   padding-left: 0;

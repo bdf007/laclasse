@@ -131,10 +131,7 @@ const AdminInfo = () => {
   }, [setUser]);
 
   return (
-    <div
-      className="container text-center"
-      style={{ paddingBottom: "10rem", marginBottom: "10rem" }}
-    >
+    <div className="container text-center" style={{ paddingBottom: "12rem" }}>
       <h1>welcome {user.firstname}</h1>
 
       <h2>Mes infos</h2>

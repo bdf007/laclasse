@@ -31,14 +31,8 @@ const AboutPublic = () => {
   // get the class whome name is "public"
 
   return (
-    <div
-      className="container text-center"
-      style={{ paddingBottom: "10rem", marginBottom: "10rem" }}
-    >
-      <div
-        className="clearfix"
-        style={{ paddingBottom: "10rem", marginBottom: "10rem" }}
-      >
+    <div className="container text-center" style={{ paddingBottom: "12rem" }}>
+      <div className="clearfix" style={{ paddingBottom: "12rem" }}>
         <br />
         <br />
         <br />
