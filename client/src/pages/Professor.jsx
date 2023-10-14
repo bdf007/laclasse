@@ -48,6 +48,7 @@ const Professor = () => {
 
   useEffect(() => {
     getUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setUsers, setUser]);
 
   // get the info of the user logged in

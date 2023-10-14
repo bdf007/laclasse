@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import { UserContext } from "../context/UserContext";
-import { getUser } from "../api/user";
+import axios from "axios";
 import { toast } from "react-toastify";
-
+import { getUser } from "../api/user";
 import { logout } from "../api/user";
 // design
 import {
@@ -21,7 +20,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
-import axios from "axios";
+import profilpicture from "../assets/profilpicture.png";
 
 const AdminInfo = () => {
   const { user, setUser } = useContext(UserContext);
@@ -33,7 +32,11 @@ const AdminInfo = () => {
   const [updatedPassword, setUpdatedPassword] = useState("");
   const [confirmUpdatedPassword, setConfirmUpdatedPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [updatedProfilePicture, setUpdatedProfilePicture] = useState(null);
+
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingProfilPicture, setIsEditingProfilPicture] = useState(false);
+
   const [isPasswordModified, setIsPasswordModified] = useState(false);
 
   // password validation
@@ -68,6 +71,10 @@ const AdminInfo = () => {
 
   const handleConfirmUpdatedPassword = (e) => {
     setConfirmUpdatedPassword(e.target.value);
+  };
+
+  const handleUpdatedProfilePicture = (e) => {
+    setUpdatedProfilePicture(e.target.files[0]);
   };
 
   const handleShowPassword = () => {
@@ -107,6 +114,50 @@ const AdminInfo = () => {
       toast.error(err);
     }
   };
+
+  const handleUpdateProfilePicture = async () => {
+    try {
+      const userId = user._id;
+      // if the user has not selected a new profile picture, set the profile picture to null
+      if (!updatedProfilePicture) {
+        await axios.post(
+          `${process.env.REACT_APP_API_URL}/api/update-profile-photo/${userId}`,
+          {
+            profilePictureData: null,
+          },
+          { withCredentials: true }
+        );
+      } else {
+        const fileReader = new FileReader();
+        fileReader.readAsDataURL(updatedProfilePicture);
+
+        fileReader.onload = async () => {
+          const base64Data = fileReader.result;
+
+          await axios.post(
+            `${process.env.REACT_APP_API_URL}/api/update-profile-photo/${userId}`,
+            {
+              profilePictureData: base64Data,
+            },
+            { withCredentials: true }
+          );
+        };
+      }
+      toast.success("Profile picture updated successfully");
+      setIsEditingProfilPicture(false);
+      setUpdatedProfilePicture(null);
+      // set user to null
+      setUser(null);
+      // redirect to login page
+      navigate("/login");
+    } catch (err) {
+      toast.error(err);
+    }
+  };
+
+  const toggleEditingProfilPicture = () => {
+    setIsEditingProfilPicture(true);
+  };
   // Populate the form data when the component mounts
   useEffect(() => {
     setUpdatedFirstname(user.firstname);
@@ -135,21 +186,142 @@ const AdminInfo = () => {
       <h1>welcome {user.firstname}</h1>
 
       <h2>Mes infos</h2>
-      <p>
-        prénom : {user.firstname} <br /> nom : {user.lastname}
-        <br />
-        email : {user.email}
-      </p>
-      {isEditing === false && (
-        <Button
-          className="mb-4"
-          variant="contained"
-          color="success"
-          onClick={() => setIsEditing(true)}
-        >
-          modifier
-        </Button>
-      )}
+      <div className="table-responsive">
+        {isEditingProfilPicture ? (
+          <>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleUpdatedProfilePicture}
+            />
+            <Button
+              size="small"
+              variant="contained"
+              color="primary"
+              onClick={handleUpdateProfilePicture}
+            >
+              Modifier
+            </Button>
+            <Button
+              size="small"
+              variant="contained"
+              color="warning"
+              onClick={() => setIsEditingProfilPicture(false)}
+            >
+              annuler
+            </Button>
+          </>
+        ) : !user.profilePictureData ? (
+          <>
+            <table className="table" style={{ width: "50rem" }}>
+              <tbody>
+                <tr>
+                  <td className=" bg-transparent align-middle">
+                    <div className="d-flex justify-content-center">
+                      <img
+                        src={profilpicture}
+                        alt="profil"
+                        className="rounded-circle img-thumbnail col-md-6 float-md-start mb-3 ms-md-3"
+                        style={{ width: "200px" }}
+                      />
+                    </div>
+                  </td>
+                  <td className=" bg-transparent align-middle">
+                    <div className="d-flex justify-content-center">
+                      <p>
+                        prénom : {user.firstname} <br /> nom : {user.lastname}
+                        <br />
+                        email : {user.email}
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className=" bg-transparent align-middle">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      onClick={toggleEditingProfilPicture}
+                      style={{ cursor: "pointer" }}
+                      title="Modifier la photo de profile"
+                    >
+                      Modifier ma photo de profil
+                    </Button>
+                  </td>
+                  <td className=" bg-transparent align-middle">
+                    {isEditing === false && (
+                      <Button
+                        size="small"
+                        variant="contained"
+                        color="success"
+                        onClick={() => setIsEditing(true)}
+                      >
+                        modifier mes infos
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </>
+        ) : (
+          <>
+            <table className="table " style={{ width: "50rem" }}>
+              <tbody>
+                <tr>
+                  <td className=" bg-transparent align-middle">
+                    <div className="d-flex justify-content-center">
+                      <img
+                        src={user.profilePictureData}
+                        alt="profil"
+                        className="rounded-circle img-thumbnail col-md-6 float-md-start mb-3 ms-md-3"
+                        style={{ width: "200px" }}
+                      />
+                    </div>
+                  </td>
+                  <td className=" bg-transparent align-middle">
+                    <div className="d-flex justify-content-center">
+                      <p>
+                        prénom : {user.firstname} <br /> nom : {user.lastname}
+                        <br />
+                        email : {user.email}
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className=" bg-transparent align-items-middle">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      onClick={toggleEditingProfilPicture}
+                      style={{ cursor: "pointer" }}
+                      title="Modifier la photo de profile"
+                    >
+                      Modifier ma photo de profil
+                    </Button>
+                  </td>
+                  <td className=" bg-transparent ">
+                    {isEditing === false && (
+                      <Button
+                        size="small"
+                        variant="contained"
+                        color="success"
+                        onClick={() => setIsEditing(true)}
+                      >
+                        modifier mes infos
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </>
+        )}
+      </div>
+
       {isEditing && (
         <>
           <div className="container mt-5 col-10 col-sm-8 col-md-6 col-lg-5">

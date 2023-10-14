@@ -14,7 +14,7 @@ const CommentUploader = () => {
   const [className, setClassName] = useState("");
   const [listOfClassNames, setListOfClassNames] = useState([]);
   const [selectedClass, setSelectedClass] = useState("");
-  const [showComments, setShowComments] = useState(true);
+  const [showComments, setShowComments] = useState(false);
   const [searchClass, setSearchClass] = useState("");
   const [searchFirstname, setSearchFirstname] = useState("");
   const [searchEmail, setSearchEmail] = useState("");
@@ -184,7 +184,7 @@ const CommentUploader = () => {
   }, []);
 
   return (
-    <div className="container" style={{ paddingBottom: "2rem" }}>
+    <div className="container" style={{ paddingBottom: "12rem" }}>
       {user.role === "admin" || user.role === "superadmin" ? (
         <div className="table-responsive">
           <table className="table table-striped table-bordered table-hover">
@@ -295,63 +295,75 @@ const CommentUploader = () => {
             </tbody>
           </table>
         </div>
-      ) : (
-        <div>
-          {showComments === true && listOfComment.length === 0 && (
-            <h3>Aucun Commentaire pour le moment</h3>
-          )}
-          {showComments === true &&
-            listOfComment.map((comment) => {
-              const isCurrentUserComment = comment.user === user._id;
-              const commentClass = isCurrentUserComment
-                ? "justify-content-end text-success"
-                : "justify-content-start text-primary";
+      ) : user.role !== "admin" && user.role !== "superadmin" ? (
+        showComments === false ? (
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowComments(true)}
+          >
+            Afficher les messages de la classe
+          </button>
+        ) : (
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowComments(false)}
+          >
+            Masquer les messages de la classe
+          </button>
+        )
+      ) : null}
+      <div>
+        {showComments === true && listOfComment.length === 0 && (
+          <h3>Aucun Commentaire pour le moment</h3>
+        )}
+        {showComments === true &&
+          listOfComment.map((comment) => {
+            const isCurrentUserComment = comment.user === user._id;
+            const commentClass = isCurrentUserComment
+              ? "justify-content-end text-success"
+              : "justify-content-start text-primary";
 
-              const isAdminComment =
-                comment.userRole === "admin" ||
-                comment.userRole === "superadmin";
-              const commentClassAdmin = isAdminComment
-                ? "bg-danger text-white"
-                : "";
-              return (
-                <div key={comment._id}>
-                  <div className="container">
-                    {user.role === "admin" ||
-                      (user.role === "superadmin" && (
-                        <span className="text-danger fs-4">
-                          {comment.classes}
-                        </span>
-                      ))}
-                    <br />
-                    {comment.Date && (
-                      <span className="text-success fs-6 ">
-                        envoyé le :{/* add the date and the time in fr*/}
-                        {new Date(comment.Date).toLocaleDateString(
-                          "fr-FR"
-                        )} à{" "}
-                        {new Date(comment.Date).toLocaleTimeString("fr-FR")}
+            const isAdminComment =
+              comment.userRole === "admin" || comment.userRole === "superadmin";
+            const commentClassAdmin = isAdminComment
+              ? "bg-danger text-white"
+              : "";
+            return (
+              <div key={comment._id}>
+                <div className="container">
+                  {user.role === "admin" ||
+                    (user.role === "superadmin" && (
+                      <span className="text-danger fs-4">
+                        {comment.classes}
                       </span>
-                    )}
-                    <br />
-                    <p
-                      className={`d-flex ${commentClass} ${commentClassAdmin}`}
-                    >
-                      <span className="fs-4">{comment.firstname} :</span>
+                    ))}
+                  <br />
+                  {comment.Date && (
+                    <span className="text-success fs-6 ">
+                      envoyé le :{/* add the date and the time in fr*/}
+                      {new Date(comment.Date).toLocaleDateString(
+                        "fr-FR"
+                      )} à {new Date(comment.Date).toLocaleTimeString("fr-FR")}
+                    </span>
+                  )}
+                  <br />
+                  <p className={`d-flex ${commentClass} ${commentClassAdmin}`}>
+                    <span className="fs-4">{comment.firstname} :</span>
 
-                      <span className="fs-4 ">{comment.comment}</span>
-                      {(user.role !== "admin" || user.role !== "superadmin") &&
-                        comment.user === user._id && (
-                          <HighlightOffOutlinedIcon
-                            onClick={() => deleteComment(comment._id)}
-                          />
-                        )}
-                    </p>
-                  </div>
+                    <span className="fs-4 ">{comment.comment}</span>
+                    {(user.role !== "admin" || user.role !== "superadmin") &&
+                      comment.user === user._id && (
+                        <HighlightOffOutlinedIcon
+                          onClick={() => deleteComment(comment._id)}
+                        />
+                      )}
+                  </p>
                 </div>
-              );
-            })}
-        </div>
-      )}
+              </div>
+            );
+          })}
+      </div>
+
       {showComments === true && user && (
         <>
           <ul className="list-group list-group-flush ">
@@ -414,23 +426,6 @@ const CommentUploader = () => {
           </ul>
         </>
       )}
-      {user.role !== "admin" && user.role !== "superadmin" ? (
-        showComments === false ? (
-          <button
-            className="btn btn-primary"
-            onClick={() => setShowComments(true)}
-          >
-            Afficher les messages de la classe
-          </button>
-        ) : (
-          <button
-            className="btn btn-primary"
-            onClick={() => setShowComments(false)}
-          >
-            Masquer les messages de la classe
-          </button>
-        )
-      ) : null}
     </div>
   );
 };

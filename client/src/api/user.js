@@ -73,6 +73,7 @@ export const getUser = async () => {
       aboutClass,
       nextClass,
       courseFiles,
+      profilePictureData,
     } = data;
     return {
       _id,
@@ -84,41 +85,9 @@ export const getUser = async () => {
       aboutClass,
       nextClass,
       courseFiles,
+      profilePictureData,
     };
   } catch (error) {
     throw new Error("Please login to continue.");
   }
 };
-
-// export const updateUser = async ({
-//   _id,
-//   firstname,
-//   lastname,
-//   email,
-//   newPassword,
-// }) => {
-//   const user = {
-//     _id,
-//     firstname,
-//     lastname,
-//     email,
-//     newPassword,
-//   };
-//   try {
-//     const res = await fetch(
-//       `${process.env.REACT_APP_API_URL}/api/userLogin/update-profile`,
-//       {
-//         method: "POST",
-//         credentials: "include",
-//         headers: {
-//           Accept: "application/json",
-//           "Content-Type": "application/json", // Specify content type
-//         },
-//         body: JSON.stringify(user), // Send as JSON
-//       }
-//     );
-//     return await res.json();
-//   } catch (error) {
-//     throw new Error("Please login to continue.");
-//   }
-// };

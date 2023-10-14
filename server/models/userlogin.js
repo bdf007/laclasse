@@ -48,6 +48,10 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Class",
     },
+    profilePictureData: {
+      type: String,
+      trim: true,
+    },
 
     salt: String,
   },

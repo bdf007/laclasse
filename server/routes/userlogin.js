@@ -13,6 +13,7 @@ const {
   addClassToUser,
   removeClassToUser,
   updateProfile,
+  updateProfilePhoto,
   // updateProfile,
 } = require("../controllers/userlogin");
 // import middlewares
@@ -42,5 +43,8 @@ router.post("/user/remove-class", removeClassToUser);
 
 //update profile
 router.post("/update-profile/:id", updateProfile);
+
+//update profile photo
+router.post("/update-profile-photo/:id", updateProfilePhoto);
 
 module.exports = router;

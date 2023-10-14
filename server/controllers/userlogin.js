@@ -82,7 +82,8 @@ exports.logout = (req, res) => {
 };
 
 exports.getLoggedInUser = async (req, res) => {
-  const { _id, firstname, lastname, email, role, classes } = req.user;
+  const { _id, firstname, lastname, email, role, classes, profilePictureData } =
+    req.user;
   // if the classis not null, get the info of the class and add it to the user
   if (classes) {
     const classInfo = await Class.findById(classes);
@@ -98,6 +99,7 @@ exports.getLoggedInUser = async (req, res) => {
       aboutClass: classInfo.about,
       nextClass: classInfo.nextCourse,
       courseFiles,
+      profilePictureData,
     });
   } else {
     return res.json({
@@ -107,6 +109,7 @@ exports.getLoggedInUser = async (req, res) => {
       lastname,
       email,
       role,
+      profilePictureData,
     });
   }
 };
@@ -245,6 +248,38 @@ exports.updateProfile = async (req, res) => {
     if (req.body.newPassword) {
       // Update the user's password securely
       user.setPassword(req.body.newPassword);
+    }
+
+    // Save the updated user profile
+    await user.save();
+
+    res.status(200).json({ message: "User profile updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.updateProfilePhoto = async (req, res) => {
+  try {
+    const _id = req.params.id;
+    const { profilePictureData } = req.body;
+
+    // Retrieve the user from the database
+    const user = await User.findById(_id);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Update user profile fields
+    // if profilePictureData is null, then erase the profile picture
+    if (profilePictureData === null) {
+      user.profilePictureData = null;
+    }
+    // else, update the profile picture
+    else {
+      user.profilePictureData = profilePictureData;
     }
 
     // Save the updated user profile

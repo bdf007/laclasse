@@ -191,18 +191,21 @@ const Bibliotheque = () => {
   };
 
   const handleSearchAuthor = (e) => {
+    e.preventDefault();
     const value = e.target.value;
     setSearchAuthor(value);
     localStorage.setItem("searchAuthor", value);
   };
 
   const handleSearchTitle = (e) => {
+    e.preventDefault();
     const value = e.target.value;
     setSearchTitle(value);
     localStorage.setItem("searchTitle", value);
   };
 
   const handleSearchGenre = (e) => {
+    e.preventDefault();
     const value = e.target.value;
     setSearchGenre(value);
     localStorage.setItem("searchGenre", value);
@@ -212,7 +215,6 @@ const Bibliotheque = () => {
   const handleResize = () => {
     const newWidth = window.innerWidth;
     setWidth(newWidth);
-    console.warn(width);
     if (newWidth < 768) {
       setShow(false);
     } else {
@@ -227,7 +229,7 @@ const Bibliotheque = () => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [width]);
 
   useEffect(() => {
     getListOfBooks();
@@ -301,12 +303,15 @@ const Bibliotheque = () => {
                   listOfBooks
                     .filter(
                       (book) =>
+                        book.author &&
                         book.author
                           .toLowerCase()
                           .includes(searchAuthor.toLowerCase()) &&
+                        book.title &&
                         book.title
                           .toLowerCase()
                           .includes(searchTitle.toLowerCase()) &&
+                        book.genre &&
                         book.genre
                           .toLowerCase()
                           .includes(searchGenre.toLowerCase())
