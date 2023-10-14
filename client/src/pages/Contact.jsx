@@ -8,6 +8,7 @@ const Contact = () => {
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [email, setEmail] = useState("");
+  const [classes, setClasses] = useState("");
   const [message, setMessage] = useState("");
   const [listOfContact, setListOfContact] = useState([]);
   const { user } = useContext(UserContext);
@@ -50,6 +51,7 @@ const Contact = () => {
         setFirstname(user.firstname);
         setLastname(user.lastname);
         setEmail(user.email);
+        setClasses(user.classes);
       }
       axios
         .post(`${process.env.REACT_APP_API_URL}/api/contact`, {
@@ -57,6 +59,7 @@ const Contact = () => {
           lastname: lastname,
           email: email,
           message: message,
+          classes: classes,
         })
         .then((response) => {
           toast.success("Message sent");
@@ -68,6 +71,7 @@ const Contact = () => {
               lastname: lastname,
               email: email,
               message: message,
+              classes: classes,
             },
           ]);
 
@@ -106,6 +110,7 @@ const Contact = () => {
       setFirstname(user.firstname);
       setLastname(user.lastname);
       setEmail(user.email);
+      setClasses(user.classes);
     }
   }, [user]);
 
@@ -184,11 +189,16 @@ const Contact = () => {
               {listOfContact.length === 0 && <h1>No message</h1>}
               {listOfContact.map((value) => {
                 return (
-                  <div key={value._id} className="card mb-3">
+                  <div key={value._id} className="card mb-3 bg-transparent">
                     <div className="card-body">
                       <h5 className="card-title">
                         {value.firstname} {value.lastname}
                       </h5>
+                      {value.classes && (
+                        <h6 className="card-subtitle mb-2  bg-success text-white">
+                          {value.classes}
+                        </h6>
+                      )}
                       <h6 className="card-subtitle mb-2 text-muted">
                         {value.email}
                       </h6>
