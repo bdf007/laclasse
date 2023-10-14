@@ -26,10 +26,7 @@ const Home = () => {
             content="portfolio, développeur web, fullstack, react, nodejs, express, mongodb, christophe midelet"
           />
         </Helmet>
-        <div
-          className="container-fluid"
-          style={{ marginBottom: "10rem", paddingBottom: "10rem" }}
-        >
+        <div className="container-fluid" style={{ paddingBottom: "12rem" }}>
           <div className="row">
             <div className="col-md-6" style={{ borderLeft: "1px solid black" }}>
               <div style={{ marginTop: "5rem", paddingTop: "5rem" }}>

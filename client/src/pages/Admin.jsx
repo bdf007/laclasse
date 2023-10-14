@@ -202,7 +202,7 @@ const Admin = () => {
       {(user.role === "admin" || user.role === "superadmin") && (
         <div
           className="container text-center home"
-          style={{ marginTop: "1rem", paddingBottom: "20rem" }}
+          style={{ marginTop: "1rem", paddingBottom: "12rem" }}
         >
           <div className="alert alert-primary p-5">
             <h1>

@@ -23,7 +23,7 @@ const User = () => {
     fetchData();
   }, [setUser]);
   return (
-    <div className="container text-center">
+    <div className="container text-center" style={{ paddingBottom: "12rem" }}>
       <h1>welcome {user.firstname}</h1>
       <div className="row">
         <div className="col-md-6">

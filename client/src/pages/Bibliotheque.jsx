@@ -212,6 +212,7 @@ const Bibliotheque = () => {
   const handleResize = () => {
     const newWidth = window.innerWidth;
     setWidth(newWidth);
+    console.warn(width);
     if (newWidth < 768) {
       setShow(false);
     } else {
@@ -239,7 +240,7 @@ const Bibliotheque = () => {
   }, [setListOfBooks, setListOfUsers, user]);
 
   return (
-    <div className="container " style={{ paddingBottom: "10rem" }}>
+    <div className="container " style={{ paddingBottom: "12rem" }}>
       <div className="row">
         <h1 className="mx-auto text-center">La bibliothéque de Stéphanie</h1>
 

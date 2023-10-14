@@ -113,7 +113,7 @@ const Contact = () => {
     <div className="home">
       <div
         className="row d-flex justify-content-center align-items-center"
-        style={{ paddingBottom: "10rem", marginBottom: "8rem" }}
+        style={{ paddingBottom: "12rem" }}
       >
         <div className="container mt-5 mb-5 col-10 col-sm-8 col-md-6 col-lg-5">
           <h1 className="text-danger">Contactez moi</h1>

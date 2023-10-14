@@ -184,10 +184,7 @@ const CommentUploader = () => {
   }, []);
 
   return (
-    <div
-      className="container"
-      style={{ paddingBottom: "10rem", marginBottom: "10rem" }}
-    >
+    <div className="container" style={{ paddingBottom: "2rem" }}>
       {user.role === "admin" || user.role === "superadmin" ? (
         <div className="table-responsive">
           <table className="table table-striped table-bordered table-hover">
