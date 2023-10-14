@@ -2,7 +2,7 @@ import React from "react";
 import { Helmet } from "react-helmet";
 
 // design
-import "../cssFiles/homeCss.css";
+// import "../cssFiles/homeCss.css";
 import acceuil from "../assets/acceuilwobg.png";
 import photoacceuil1 from "../assets/photoacceuil1.jpg";
 import photoacceuil2 from "../assets/photoacceuil2.jpg";

@@ -212,7 +212,6 @@ const Admin = () => {
             <Class />
             <div className="text-center">
               {/* list all user */}
-              <h1 className="text-center">Liste des utilisateurs</h1>
               <div className="mb-3">
                 <button
                   className="btn btn-primary"
@@ -225,6 +224,7 @@ const Admin = () => {
                     <FormatListBulletedOutlinedIcon />
                   )}
                 </button>
+                <h1 className="text-center">Liste des utilisateurs</h1>
               </div>
               {viewMode === "table" ? (
                 <div className="row">
@@ -255,10 +255,19 @@ const Admin = () => {
                             <p className="card-text">{user.className}</p>
                           )}
                           {/* add a drop down menu of classes and update the user with the class selected */}
-                          {user.role === "oldstudent" ? (
-                            <ul>
-                              <li>Old Student</li>
-                            </ul>
+                          {user.role === "oldstudent" ||
+                          user.role === "user" ? (
+                            user.role === "oldstudent" ? (
+                              <ul>
+                                <li>Old Student</li>
+                              </ul>
+                            ) : (
+                              <ul className="list-inline">
+                                <li className="list-inline-item">
+                                  les simples utilisateurs n'ont pas de classe
+                                </li>
+                              </ul>
+                            )
                           ) : (
                             <ul className="list-inline">
                               <li className="list-inline-item">
@@ -386,8 +395,20 @@ const Admin = () => {
                           ) : (
                             <td>{user.className}</td>
                           )}
-                          {user.role === "oldstudent" ? (
-                            <td>old Student</td>
+                          {user.role === "oldstudent" ||
+                          user.role === "user" ||
+                          user.role === "admin" ||
+                          user.role === "superadmin" ||
+                          user.role === "professor" ? (
+                            user.role === "oldstudent" ? (
+                              <td>old Student</td>
+                            ) : (
+                              <td>
+                                les simples utilisateurs, les admins, les
+                                superadmin et les professeurs n'ont pas de
+                                classe assignée
+                              </td>
+                            )
                           ) : (
                             <td>
                               <ul className="list-inline">

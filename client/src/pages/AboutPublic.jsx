@@ -35,31 +35,13 @@ const AboutPublic = () => {
       className="container text-center"
       style={{ paddingBottom: "10rem", marginBottom: "10rem" }}
     >
-      {/* <div className="row justify-content-around">
-        <div className="col-6">
-          <div className="footer-brand ">
-            <img
-              src={photoprofile}
-              alt="professeur"
-              className="rounded-circle img-thumbnail"
-              style={{ width: "200px" }}
-            />
-          </div>
-        </div>
-        <div className="col-6">
-          <h1>A propos de mes cours</h1>
-          {classInfo &&
-            classInfo.map((classe) => {
-              return (
-                <div key={classe._id}>
-                  {/* <h1>{classe.name}</h1> */}
-      {/* <pre>{classe.about}</pre>
-                </div>
-              );
-            })}
-        </div>
-      </div> */}
-      <div class="clearfix">
+      <div
+        className="clearfix"
+        style={{ paddingBottom: "10rem", marginBottom: "10rem" }}
+      >
+        <br />
+        <br />
+        <br />
         <img
           src={photoprofile}
           className="rounded-circle img-thumbnail col-md-6 float-md-end mb-3 ms-md-3"

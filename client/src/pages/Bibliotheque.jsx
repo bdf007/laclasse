@@ -239,10 +239,7 @@ const Bibliotheque = () => {
   }, [setListOfBooks, setListOfUsers, user]);
 
   return (
-    <div
-      className="container "
-      style={{ marginBottom: "12rem", paddingBottom: "10rem" }}
-    >
+    <div className="container " style={{ paddingBottom: "10rem" }}>
       <div className="row">
         <h1 className="mx-auto text-center">La bibliothéque de Stéphanie</h1>
 
