@@ -23,7 +23,7 @@ const Home = () => {
           />
           <meta
             name="keyword"
-            content="portfolio, développeur web, fullstack, react, nodejs, express, mongodb, christophe midelet"
+            content="french teacher, course, native speaker, stéphanie labbé, la classe de français, la classe"
           />
         </Helmet>
         <div className="container-fluid" style={{ paddingBottom: "12rem" }}>

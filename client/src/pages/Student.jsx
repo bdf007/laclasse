@@ -535,10 +535,15 @@ const Student = () => {
               <>
                 <p>Vous êtes dans la classe {user.classes}</p>
                 <p>
-                  A propos de ma classe : <br />
-                  {user.aboutClass}
+                  <pre>
+                    A propos de ma classe : <br />
+                    {user.aboutClass}
+                  </pre>
                 </p>
-                <p>Mon prochain cours : {user.nextClass}</p>
+                <p>
+                  Mon prochain cours :<pre>{user.nextClass}</pre>
+                </p>
+                <p>mes livres empruntés</p>
                 {!user.courseFiles ? (
                   <p>Vous n'avez pas encore de fichiers de cours</p>
                 ) : (

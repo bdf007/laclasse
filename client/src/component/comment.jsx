@@ -14,7 +14,7 @@ const CommentUploader = () => {
   const [className, setClassName] = useState("");
   const [listOfClassNames, setListOfClassNames] = useState([]);
   const [selectedClass, setSelectedClass] = useState("");
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(true);
   const [searchClass, setSearchClass] = useState("");
   const [searchFirstname, setSearchFirstname] = useState("");
   const [searchEmail, setSearchEmail] = useState("");

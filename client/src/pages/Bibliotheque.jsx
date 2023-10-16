@@ -537,7 +537,7 @@ const Bibliotheque = () => {
                         <input
                           type="file"
                           id="file"
-                          accept="image/*"
+                          accept="image/jpg, image/jpeg, image/png"
                           className="form-control"
                           placeholder="couverture"
                           onChange={handleFileInputChange}
