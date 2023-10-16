@@ -165,6 +165,12 @@ const Bibliotheque = () => {
 
   const deleteBookById = async (id) => {
     try {
+      // check if the book is emprunté
+      const book = listOfBooks.find((book) => book._id === id);
+      if (book.statut === "emprunté") {
+        toast.error("Ce livre est emprunté, vous ne pouvez pas le supprimer");
+        return;
+      }
       await axios.delete(`${process.env.REACT_APP_API_URL}/api/book/${id}`);
       toast.success("Livre supprimé avec succès");
       setListOfBooks(listOfBooks.filter((book) => book._id !== id));

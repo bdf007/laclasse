@@ -185,7 +185,7 @@ const Student = () => {
   return (
     <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js">
       <div className="container text-center" style={{ paddingBottom: "12rem" }}>
-        <h1>welcome {user.firstname}</h1>
+        <h1>Bienvenue {user.firstname}</h1>
         <div className="row">
           <div className="col-md-6">
             <h2>Mes infos</h2>

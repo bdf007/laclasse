@@ -133,10 +133,32 @@ const Admin = () => {
 
   // delete function for user
   const deleteUser = (id) => {
-    axios.delete(`${process.env.REACT_APP_API_URL}/api/user/${id}`).then(() => {
-      toast.success("Utilisateur supprimé");
-      setListOfUser((prevList) => prevList.filter((val) => val._id !== id));
-    });
+    try {
+      // check if the user is admin or superadmin
+      const user = listOfUser.find((user) => user._id === id);
+      if (user.role === "admin" || user.role === "superadmin") {
+        toast.error("Vous ne pouvez pas supprimer un admin ou un superadmin");
+        return;
+      }
+
+      // check if the user has a class
+      if (user.classes) {
+        toast.error(
+          "l'utilisateur a une classe assignée, merci de le retirer de la classe avant de le supprimer"
+        );
+        return;
+      }
+      axios
+        .delete(`${process.env.REACT_APP_API_URL}/api/user/${id}`)
+        .then(() => {
+          toast.success("Utilisateur supprimé");
+          setListOfUser((prevList) => prevList.filter((val) => val._id !== id));
+        });
+    } catch (error) {
+      toast.error(
+        "Une erreur est survenue lors de la suppression de l'utilisateur"
+      );
+    }
   };
 
   const updateUserRole = (id) => {

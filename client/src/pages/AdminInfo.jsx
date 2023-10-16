@@ -183,12 +183,19 @@ const AdminInfo = () => {
 
   return (
     <div className="container text-center" style={{ paddingBottom: "12rem" }}>
-      <h1>welcome {user.firstname}</h1>
+      <h1>Bienvenue {user.firstname}</h1>
 
       <h2>Mes infos</h2>
       <div className="table-responsive">
         {isEditingProfilPicture ? (
           <>
+            <div>
+              <p>
+                Si aucun fichier n'est choisi, l'image par défaut remplacera la
+                photo actuel
+              </p>
+              <p>en cas de modifications, vous devrez vous reconnecter</p>
+            </div>
             <input
               type="file"
               accept="image/*"
@@ -478,6 +485,9 @@ const AdminInfo = () => {
                 </FormHelperText>
               )}
             </div>
+          </div>
+          <div>
+            <p>en cas de modifications, vous devrez vous reconnecter</p>
           </div>
           <div className="text-center mt-4">
             <Button
