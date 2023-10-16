@@ -17,6 +17,7 @@ function Class() {
   const [courseFileTitle, setCourseFileTitle] = useState(""); // New class nextCourse for update
   const [courseFileData, setCourseFileData] = useState(null);
   const [stopEditingName, setStopEditingName] = useState(false);
+  const [stopEditingCourse, setStopEditingCourse] = useState(false);
   // const [classId, setClassId] = useState(""); // New class nextCourse for update
   const [viewMode, setViewMode] = useState("cards");
   const [width, setWidth] = useState(window.innerWidth);
@@ -85,8 +86,10 @@ function Class() {
     setUpdatedClassName(className);
     if (className === "public") {
       setStopEditingName(true);
+      setStopEditingCourse(true);
     } else {
       setStopEditingName(false);
+      setStopEditingCourse(false);
     }
 
     setUpdatedClassAbout(classAbout);
@@ -326,17 +329,21 @@ function Class() {
                             }
                           />
                           <br />
-                          <label For="nextCourse">
-                            changer le prochain cours :
-                          </label>
-                          <textarea
-                            type="text"
-                            name="nextCourse"
-                            value={updatedClassNextCourse}
-                            onChange={(e) =>
-                              setUpdatedClassNextCourse(e.target.value)
-                            }
-                          />
+                          {stopEditingCourse ? null : (
+                            <>
+                              <label For="nextCourse">
+                                changer le prochain cours :
+                              </label>
+                              <textarea
+                                type="text"
+                                name="nextCourse"
+                                value={updatedClassNextCourse}
+                                onChange={(e) =>
+                                  setUpdatedClassNextCourse(e.target.value)
+                                }
+                              />
+                            </>
+                          )}
                           <br />
                           <button
                             onClick={() => updateClass(classe._id)}
@@ -538,7 +545,7 @@ function Class() {
                     )}
                   </td>
                   <td>
-                    {editingClassId === classe._id ? (
+                    {editingClassId === classe._id && !stopEditingCourse ? (
                       <textarea
                         type="text"
                         value={updatedClassNextCourse}

@@ -4,7 +4,6 @@
 
 
 
-supprimer la possibilite de modifier ou d'ajouter des heures de cours sur la classe public
 
 old student en ancien élève
 masquer les champs de la bibliotheque avant la selection de la couverture
