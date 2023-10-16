@@ -22,6 +22,7 @@ import Bibliotheque from "./pages/Bibliotheque";
 import Student from "./pages/Student";
 import User from "./pages/User";
 import NotFound from "./pages/NotFound";
+import Vinotheque from "./pages/Vinotheque";
 
 import Footer from "./component/footer";
 
@@ -75,6 +76,12 @@ function App() {
                 <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route path="*" element={<NotFound />} />
               </>
+            ) : // if user is vinotheque
+            user.role === "AdminVin" ? (
+              <>
+                <Route exact path="/Vinotheque" element={<Vinotheque />} />
+                <Route path="*" element={<NotFound />} />
+              </>
             ) : (
               // if user is student
               user.role === "student" && (
@@ -90,6 +97,7 @@ function App() {
                 </>
               )
             )}
+
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />

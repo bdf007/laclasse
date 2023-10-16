@@ -83,3 +83,13 @@ exports.getBookById = async (req, res, next, id) => {
     });
   }
 };
+
+exports.getAllBookForAUSser = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const books = await Book.find({ emprunteur: id });
+    res.status(200).json(books);
+  } catch (error) {
+    console.log(error);
+  }
+};

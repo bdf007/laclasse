@@ -38,6 +38,7 @@ const Student = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingProfilPicture, setIsEditingProfilPicture] = useState(false);
   const [isPasswordModified, setIsPasswordModified] = useState(false);
+  const [listOfBooks, setListOfBooks] = useState([]);
 
   // password validation
   let hasSixChar = updatedPassword && updatedPassword.length >= 6;
@@ -159,6 +160,19 @@ const Student = () => {
     setIsEditingProfilPicture(true);
   };
 
+  const getAllBooksFromAUser = async () => {
+    try {
+      const userID = user._id;
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/get-all-books-from-a-user/${userID}`,
+        { withCredentials: true }
+      );
+      setListOfBooks(res.data);
+    } catch (err) {
+      toast.error(err);
+    }
+  };
+
   // Populate the form data when the component mounts
   useEffect(() => {
     setUpdatedFirstname(user.firstname);
@@ -178,9 +192,9 @@ const Student = () => {
         toast(err);
       }
     };
-
+    getAllBooksFromAUser();
     fetchData();
-  }, [setUser]);
+  }, [setUser, setListOfBooks]);
 
   return (
     <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js">
@@ -226,7 +240,7 @@ const Student = () => {
                           <div className="d-flex justify-content-center">
                             <img
                               src={profilpicture}
-                              alt="profil"
+                              alt="profil de base"
                               className="rounded-circle img-thumbnail col-md-6 float-md-start mb-3 ms-md-3"
                               style={{ width: "200px" }}
                             />
@@ -276,7 +290,7 @@ const Student = () => {
                         <td className=" bg-transparent">
                           <img
                             src={user.profilePictureData}
-                            alt="profil"
+                            alt={(user.firstname, user.lastname)}
                             className="rounded-circle img-thumbnail col-md-6 float-md-start mb-3 ms-md-3"
                             style={{ width: "200px" }}
                           />
@@ -533,17 +547,38 @@ const Student = () => {
               <p>Vous n'avez pas encore de classe</p>
             ) : (
               <>
-                <p>Vous êtes dans la classe {user.classes}</p>
-                <p>
-                  <pre>
-                    A propos de ma classe : <br />
-                    {user.aboutClass}
-                  </pre>
+                <p className="fs-5 fw-bold fst-italic">
+                  Vous êtes dans la classe {user.classes}
                 </p>
-                <p>
-                  Mon prochain cours :<pre>{user.nextClass}</pre>
-                </p>
-                <p>mes livres empruntés</p>
+                <div>
+                  <p className="fw-bold">A propos de ma classe :</p>
+                  <pre>{user.aboutClass}</pre>
+                </div>
+                <div>
+                  <p className="fw-bold">Mon prochain cours :</p>
+                  <pre>{user.nextClass}</pre>
+                </div>
+                {listOfBooks.length > 0 ? (
+                  <div>
+                    <p>
+                      vous avez emprunté{" "}
+                      <span className="text-primary">
+                        {" "}
+                        {listOfBooks.length}{" "}
+                      </span>
+                      livre(s)
+                    </p>
+
+                    {listOfBooks.map((book) => (
+                      <p key={book._id} className="fst-italic fw-light">
+                        {book.title}
+                      </p>
+                    ))}
+                  </div>
+                ) : (
+                  <p>vous n'avez pas encore emprunté de livre</p>
+                )}
+
                 {!user.courseFiles ? (
                   <p>Vous n'avez pas encore de fichiers de cours</p>
                 ) : (

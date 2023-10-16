@@ -227,7 +227,7 @@ const AdminInfo = () => {
                     <div className="d-flex justify-content-center">
                       <img
                         src={profilpicture}
-                        alt="profil"
+                        alt="profil de base"
                         className="rounded-circle img-thumbnail col-md-6 float-md-start mb-3 ms-md-3"
                         style={{ width: "200px" }}
                       />
@@ -281,7 +281,7 @@ const AdminInfo = () => {
                     <div className="d-flex justify-content-center">
                       <img
                         src={user.profilePictureData}
-                        alt="profil"
+                        alt={(user.firstname, user.lastname)}
                         className="rounded-circle img-thumbnail col-md-6 float-md-start mb-3 ms-md-3"
                         style={{ width: "200px" }}
                       />

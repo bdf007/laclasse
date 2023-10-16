@@ -3,18 +3,23 @@ import axios from "axios";
 import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
 
-const Bibliotheque = () => {
+const Vinotheque = () => {
   const { user } = useContext(UserContext);
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [genre, setGenre] = useState("");
-  const [description, setDescription] = useState("");
+  const [nomDuChateau, setNomDuChateau] = useState("");
+  const [year, setYear] = useState(1800);
+  const [region, setRegion] = useState("");
+  const [country, setCountry] = useState("");
+  const [typeDeVin, setTypeDeVin] = useState("");
+  const [whereIFindIt, setWhereIFindIt] = useState("");
+  const [price, setPrice] = useState(0);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [listOfBooks, setListOfBooks] = useState([]);
-  const [listOfUsers, setListOfUsers] = useState([]);
+  const [quantity, setQuantity] = useState(0);
+  const [literage, setLiterage] = useState("Bouteille - 0.75 l");
+  const [comments, setComments] = useState("");
+  const [listOfWines, setListOfWines] = useState([]);
   const [selectedUser, setSelectedUser] = useState("");
-  const [searchAuthor, setSearchAuthor] = useState(
-    localStorage.getItem("searchAuthor") || ""
+  const [searchCastle, setSearchCastle] = useState(
+    localStorage.getItem("searchCastle") || ""
   );
   const [searchTitle, setSearchTitle] = useState(
     localStorage.getItem("searchTitle") || ""
@@ -26,84 +31,57 @@ const Bibliotheque = () => {
   const [width, setWidth] = useState(window.innerWidth);
   const [show, setShow] = useState(true);
 
-  const getListOfUsers = async () => {
+  const getListOfWines = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/users`
+        `${process.env.REACT_APP_API_URL}/api/wines`
       );
 
-      setListOfUsers(response.data);
-    } catch (error) {
-      console.log(error);
-      toast.error("Erreur lors de la récupération des utilisateurs");
-    }
-  };
-
-  const getListOfBooks = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/books`
-      );
-
-      // Create an array of promises to fetch user data for all books
-      const fetchUserPromises = response.data.map((book) => {
-        if (book.statut === "emprunté") {
-          const user = listOfUsers.find((user) => user._id === book.emprunteur);
-          if (user) {
-            book.emprunteur = `${user.firstname} ${user.lastname}`;
-          } else {
-            book.emprunteur = null;
-          }
-        } else {
-          book.emprunteur = null;
-          book.statut = "disponible";
-        }
-        return book;
-      });
+      // Create an array of promises to fetch user data for all wines
 
       // Wait for all user data fetching promises to resolve
-      const updatedBooks = await Promise.all(fetchUserPromises);
+      const updatedWines = await Promise.all(response);
 
-      // Set the list of books with the updated data
-      setListOfBooks(updatedBooks);
+      // Set the list of wines with the updated data
+      setListOfWines(updatedWines);
     } catch (error) {
       console.log(error);
-      toast.error("Erreur lors de la récupération des livres");
+      toast.error("Erreur lors de la récupération des vins");
     }
   };
 
-  const assignUserToBook = async (bookId) => {
+  const assignUserToWine = async (wineId) => {
     try {
       let emprunteurValue = selectedUser;
 
-      // Get the book to update
-      const book = listOfBooks.find((book) => book._id === bookId);
+      // Get the wine to update
+      const wine = listOfWines.find((wine) => wine._id === wineId);
 
       // Check if selectedUser is "aucun" and set emprunteurValue to null
       if (selectedUser === "none") {
         emprunteurValue = null;
-        book.statut = "disponible";
+        wine.statut = "disponible";
         await axios
-          .put(`${process.env.REACT_APP_API_URL}/api/book/${bookId}`, {
+          .put(`${process.env.REACT_APP_API_URL}/api/wine/${wineId}`, {
             emprunteur: emprunteurValue,
             statut: "disponible",
           })
           .then(() => {
             toast.success("emprunteur assigné avec succès");
-            // get the response from the server and update the book in the state
-            getListOfBooks();
+            // get the response from the server and update the wine in the state
+            getListOfWines();
             setSelectedUser("");
           });
       } else {
         await axios
-          .put(`${process.env.REACT_APP_API_URL}/api/book/${bookId}`, {
+          .put(`${process.env.REACT_APP_API_URL}/api/wine/${wineId}`, {
             emprunteur: emprunteurValue,
             statut: "emprunté",
           })
           .then(() => {
             toast.success("emprunteur assigné avec succès");
-            // get the response from the server and update the book in the state
-            getListOfBooks();
+            // get the response from the server and update the wine in the state
+            getListOfWines();
             setSelectedUser("");
           });
       }
@@ -116,8 +94,8 @@ const Bibliotheque = () => {
     setTitle(e.target.value);
   };
 
-  const handleAuthorChange = (e) => {
-    setAuthor(e.target.value);
+  const handleCastleChange = (e) => {
+    setCastle(e.target.value);
   };
 
   const handleGenreChange = (e) => {
@@ -133,7 +111,7 @@ const Bibliotheque = () => {
     setSelectedFile(file);
   };
 
-  const handleUploadBook = () => {
+  const handleUploadWine = () => {
     try {
       const fileReader = new FileReader();
       fileReader.readAsDataURL(selectedFile);
@@ -141,7 +119,7 @@ const Bibliotheque = () => {
       fileReader.onload = async () => {
         const base64Data = fileReader.result;
 
-        const bookData = {
+        const wineData = {
           title,
           author,
           genre,
@@ -150,42 +128,42 @@ const Bibliotheque = () => {
         };
 
         const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/api/book`,
-          bookData
+          `${process.env.REACT_APP_API_URL}/api/wine`,
+          wineData
         );
-        toast.success("Livre ajouté avec succès");
-        setListOfBooks((prevBooks) => [...prevBooks, response.data]);
+        toast.success("Vin ajouté avec succès");
+        setListOfWines((prevWines) => [...prevWines, response.data]);
       };
       resetForm();
       window.location.reload();
     } catch (error) {
-      toast.error("Erreur lors de l'ajout du livre");
+      toast.error("Erreur lors de l'ajout du vin");
     }
   };
 
-  const deleteBookById = async (id) => {
+  const deleteWineById = async (id) => {
     try {
-      // check if the book is emprunté
-      const book = listOfBooks.find((book) => book._id === id);
-      if (book.statut === "emprunté") {
-        toast.error("Ce livre est emprunté, vous ne pouvez pas le supprimer");
+      // check if the wine is emprunté
+      const wine = listOfWines.find((wine) => wine._id === id);
+      if (wine.statut === "emprunté") {
+        toast.error("Ce vin est emprunté, vous ne pouvez pas le supprimer");
         return;
       }
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/book/${id}`);
-      toast.success("Livre supprimé avec succès");
-      setListOfBooks(listOfBooks.filter((book) => book._id !== id));
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/wine/${id}`);
+      toast.success("Vin supprimé avec succès");
+      setListOfWines(listOfWines.filter((wine) => wine._id !== id));
     } catch (error) {
-      toast.error("Erreur lors de la suppression du livre");
+      toast.error("Erreur lors de la suppression du vin");
     }
   };
 
   const resetForm = () => {
     setTitle("");
-    setAuthor("");
+    setCastle("");
     setGenre("");
     setDescription("");
     setSelectedFile(null);
-    setSearchAuthor("");
+    setSearchCastle("");
     setSearchTitle("");
     setSearchGenre("");
     // clear input file
@@ -196,11 +174,11 @@ const Bibliotheque = () => {
     document.getElementById("description").value = "";
   };
 
-  const handleSearchAuthor = (e) => {
+  const handleSearchCastle = (e) => {
     e.preventDefault();
     const value = e.target.value;
-    setSearchAuthor(value);
-    localStorage.setItem("searchAuthor", value);
+    setSearchCastle(value);
+    localStorage.setItem("searchCastle", value);
   };
 
   const handleSearchTitle = (e) => {
@@ -238,14 +216,10 @@ const Bibliotheque = () => {
   }, [width]);
 
   useEffect(() => {
-    getListOfBooks();
-    if (!user) {
-      return;
-    } else if (user.role === "admin" || user.role === "superadmin") {
-      getListOfUsers();
-    }
+    getListOfWines();
+
     //eslint-disable-next-line
-  }, [setListOfBooks, setListOfUsers, user]);
+  }, [setListOfWines, user]);
 
   return (
     <div className="container " style={{ paddingBottom: "12rem" }}>
@@ -280,9 +254,9 @@ const Bibliotheque = () => {
                     <td>
                       <input
                         type="text"
-                        value={searchAuthor}
+                        value={searchCastle}
                         placeholder="recherche par auteur"
-                        onChange={handleSearchAuthor}
+                        onChange={handleSearchCastle}
                       />
                     </td>
                     <td>
@@ -297,43 +271,43 @@ const Bibliotheque = () => {
                     <td></td>
                   </tr>
                 )}
-                {!listOfBooks || listOfBooks.length === 0 ? (
+                {!listOfWines || listOfWines.length === 0 ? (
                   <tr>
                     {show === true ? (
-                      <td colSpan="8">Aucun livre</td>
+                      <td colSpan="8">Aucun vin</td>
                     ) : (
-                      <td colSpan="7">Aucun livre</td>
+                      <td colSpan="7">Aucun vin</td>
                     )}
                   </tr>
                 ) : (
-                  listOfBooks
+                  listOfWines
                     .filter(
-                      (book) =>
-                        book.author &&
-                        book.author
+                      (wine) =>
+                        wine.author &&
+                        wine.author
                           .toLowerCase()
-                          .includes(searchAuthor.toLowerCase()) &&
-                        book.title &&
-                        book.title
+                          .includes(searchCastle.toLowerCase()) &&
+                        wine.title &&
+                        wine.title
                           .toLowerCase()
                           .includes(searchTitle.toLowerCase()) &&
-                        book.genre &&
-                        book.genre
+                        wine.genre &&
+                        wine.genre
                           .toLowerCase()
                           .includes(searchGenre.toLowerCase())
                     )
-                    .map((book) => (
-                      <tr key={book._id}>
-                        <th className="text-justify">{book.title}</th>
-                        <td className="text-justify">{book.author}</td>
-                        <td>{book.genre}</td>
+                    .map((wine) => (
+                      <tr key={wine._id}>
+                        <th className="text-justify">{wine.title}</th>
+                        <td className="text-justify">{wine.author}</td>
+                        <td>{wine.genre}</td>
                         {show === true && (
-                          <td className="text-justify">{book.description}</td>
+                          <td className="text-justify">{wine.description}</td>
                         )}
                         <td>
                           <img
-                            src={book.imageData}
-                            alt={book.title}
+                            src={wine.imageData}
+                            alt={wine.title}
                             className="img-thumbnail"
                             style={{ maxWidth: "200px", maxHeight: "200px" }}
                           />
@@ -380,9 +354,9 @@ const Bibliotheque = () => {
                     <td>
                       <input
                         type="text"
-                        value={searchAuthor}
+                        value={searchCastle}
                         placeholder="recherche par auteur"
-                        onChange={handleSearchAuthor}
+                        onChange={handleSearchCastle}
                       />
                     </td>
                     <td>
@@ -405,45 +379,45 @@ const Bibliotheque = () => {
                       )}
                   </tr>
                 )}
-                {!listOfBooks || listOfBooks.length === 0 ? (
+                {!listOfWines || listOfWines.length === 0 ? (
                   <tr>
                     {show === true ? (
-                      <td colSpan="8">Aucun livre</td>
+                      <td colSpan="8">Aucun vin</td>
                     ) : (
-                      <td colSpan="4">Aucun livre</td>
+                      <td colSpan="4">Aucun vin</td>
                     )}
                   </tr>
                 ) : (
-                  listOfBooks
+                  listOfWines
                     .filter(
-                      (book) =>
-                        book.author
+                      (wine) =>
+                        wine.author
                           .toLowerCase()
-                          .includes(searchAuthor.toLowerCase()) &&
-                        book.title
+                          .includes(searchCastle.toLowerCase()) &&
+                        wine.title
                           .toLowerCase()
                           .includes(searchTitle.toLowerCase()) &&
-                        book.genre
+                        wine.genre
                           .toLowerCase()
                           .includes(searchGenre.toLowerCase())
                     )
-                    .map((book) => (
-                      <tr key={book._id}>
-                        <th className="text-justify">{book.title}</th>
-                        <td className="text-justify">{book.author}</td>
-                        <td>{book.genre}</td>
+                    .map((wine) => (
+                      <tr key={wine._id}>
+                        <th className="text-justify">{wine.title}</th>
+                        <td className="text-justify">{wine.author}</td>
+                        <td>{wine.genre}</td>
                         {show === true && (
-                          <td className="text-justify">{book.description}</td>
+                          <td className="text-justify">{wine.description}</td>
                         )}
-                        {show === true && <td>{book.statut}</td>}
+                        {show === true && <td>{wine.statut}</td>}
                         <td>
                           <img
-                            src={book.imageData}
-                            alt={book.title}
+                            src={wine.imageData}
+                            alt={wine.title}
                             className="img-thumbnail"
                           />
                         </td>
-                        {show === true && <td>{book.emprunteur}</td>}
+                        {show === true && <td>{wine.emprunteur}</td>}
                         {(user.role === "admin" ||
                           user.role === "superadmin") &&
                           show === true && (
@@ -452,7 +426,7 @@ const Bibliotheque = () => {
                                 <button
                                   type="button"
                                   className="btn btn-danger"
-                                  onClick={() => deleteBookById(book._id)}
+                                  onClick={() => deleteWineById(wine._id)}
                                 >
                                   supprimer
                                 </button>
@@ -479,7 +453,7 @@ const Bibliotheque = () => {
                                 <button
                                   type="button"
                                   className="btn btn-primary"
-                                  onClick={() => assignUserToBook(book._id)}
+                                  onClick={() => assignUserToWine(wine._id)}
                                 >
                                   assigner
                                 </button>
@@ -512,7 +486,7 @@ const Bibliotheque = () => {
                               value={author}
                               className="form-control"
                               placeholder="auteur"
-                              onChange={handleAuthorChange}
+                              onChange={handleCastleChange}
                             />
                           </td>
                           <td>
@@ -560,7 +534,7 @@ const Bibliotheque = () => {
                         <button
                           type="button"
                           className="btn btn-success"
-                          onClick={handleUploadBook}
+                          onClick={handleUploadWine}
                         >
                           Ajouter
                         </button>
@@ -576,4 +550,4 @@ const Bibliotheque = () => {
   );
 };
 
-export default Bibliotheque;
+export default Vinotheque;

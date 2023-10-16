@@ -20,6 +20,8 @@ const contactRoutes = require("./routes/contact");
 const courseFileRoutes = require("./routes/courseFile");
 // get the comment routes for connection
 const commentRoutes = require("./routes/comment");
+// get the wine routes for connection
+const wineRoutes = require("./routes/wine");
 
 // middleware
 app.use(json({ limit: "10mb" }));
@@ -51,6 +53,8 @@ app.use("/api/", contactRoutes);
 app.use("/api/", courseFileRoutes);
 // use the comment routes for connection
 app.use("/api/", commentRoutes);
+// use the wine routes for connection
+app.use("/api/", wineRoutes);
 
 // Serve the React app
 app.get("/*", (req, res) => {

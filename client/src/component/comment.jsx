@@ -14,7 +14,7 @@ const CommentUploader = () => {
   const [className, setClassName] = useState("");
   const [listOfClassNames, setListOfClassNames] = useState([]);
   const [selectedClass, setSelectedClass] = useState("");
-  const [showComments, setShowComments] = useState(true);
+  const [showComments, setShowComments] = useState(false);
   const [searchClass, setSearchClass] = useState("");
   const [searchFirstname, setSearchFirstname] = useState("");
   const [searchEmail, setSearchEmail] = useState("");
@@ -140,6 +140,7 @@ const CommentUploader = () => {
         // reset the form
 
         setComment("");
+        setSelectedClass("");
 
         // clear the input field
         // document.getElementById("firstname").value = "";
@@ -367,7 +368,7 @@ const CommentUploader = () => {
           })}
       </div>
 
-      {showComments === true && user && (
+      {showComments === true && user.role === "student" && (
         <>
           <ul className="list-group list-group-flush ">
             <li className="text-center list-group-item bg-transparent">
@@ -377,27 +378,6 @@ const CommentUploader = () => {
                 <h2>Chat avec ta classe</h2>
               )}
             </li>
-            {user.role === "admin" ||
-              (user.role === "superadmin" && (
-                <li className="form-group list-group-item bg-transparent d-flex justify-content-center">
-                  <div className="d-flex justify-content-between">
-                    <select
-                      className="form-select"
-                      aria-label="Default select example"
-                      value={selectedClass}
-                      onChange={(e) => setSelectedClass(e.target.value)}
-                    >
-                      <option value="">Choose a class</option>
-                      {listOfClassNames.map((classe) => (
-                        <option value={classe.name} key={classe._id}>
-                          {classe.name}
-                        </option>
-                      ))}
-                      <option value="none">None</option>
-                    </select>
-                  </div>
-                </li>
-              ))}
             <li className="form-group list-group-item bg-transparent">
               <label htmlFor="comment">Commentaire*</label>
               <textarea
@@ -413,7 +393,56 @@ const CommentUploader = () => {
               </textarea>
               <p className="fs-6 text-muted">*: champs obligatoire</p>
             </li>
-
+            <li className="form-group list-group-item bg-transparent d-flex justify-content-center">
+              <button
+                className="btn btn-primary"
+                onClick={handleUpload}
+                disabled={!comment}
+              >
+                Envoyer
+              </button>
+            </li>
+          </ul>
+        </>
+      )}
+      {(user.role === "admin" || user.role === "superadmin") && (
+        <>
+          <ul className="list-group list-group-flush ">
+            <li className="form-group list-group-item bg-transparent d-flex justify-content-center">
+              <div className="d-flex justify-content-between">
+                <select
+                  className="form-select"
+                  aria-label="Default select example"
+                  value={selectedClass}
+                  onChange={(e) => setSelectedClass(e.target.value)}
+                >
+                  <option value="">Choose a class</option>
+                  {listOfClassNames.map(
+                    (classe) =>
+                      classe.name !== "public" && (
+                        <option value={classe.name} key={classe._id}>
+                          {classe.name}
+                        </option>
+                      )
+                  )}
+                </select>
+              </div>
+            </li>
+            <li className="form-group list-group-item bg-transparent">
+              <label htmlFor="comment">Commentaire*</label>
+              <textarea
+                value={comment}
+                id="comment"
+                size="small"
+                className="form-control mb-3"
+                placeholder="Commentaire*"
+                label="Commentaire*"
+                onChange={handleCommentChange}
+              >
+                {" "}
+              </textarea>
+              <p className="fs-6 text-muted">*: champs obligatoire</p>
+            </li>
             <li className="form-group list-group-item bg-transparent d-flex justify-content-center">
               <button
                 className="btn btn-primary"
