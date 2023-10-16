@@ -118,25 +118,7 @@ const Footer = () => {
                     </li>
                   </>
                 )}
-                {user.role === "professor" && (
-                  <>
-                    <li className="list-inline-item">
-                      <Link className="nav-link" to="/Professor">
-                        Professor
-                      </Link>
-                    </li>
-                    <li className="list-inline-item">
-                      <Link className="nav-link" to="/contact">
-                        Contact
-                      </Link>
-                    </li>
-                    <li className="list-inline-item">
-                      <Link className="nav-link" to="/bibliotheque">
-                        Bibliothéque
-                      </Link>
-                    </li>
-                  </>
-                )}
+
                 {user.role === "student" && (
                   <>
                     <li className="list-inline-item">

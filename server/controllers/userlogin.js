@@ -52,7 +52,7 @@ exports.login = async (req, res) => {
     if (classes) {
       const classInfo = await Class.findById(classes);
       return res.json({
-        message: "Login success",
+        message: "Connexion réussie",
         _id,
         firstname,
         lastname,
@@ -61,7 +61,7 @@ exports.login = async (req, res) => {
       });
     } else {
       return res.json({
-        message: "Login success",
+        message: "Connexion réussie",
         firstname,
         lastname,
         role,
@@ -77,7 +77,7 @@ exports.logout = (req, res) => {
   // clear the cookie
   res.clearCookie("jwt");
   return res.json({
-    message: "Logout success",
+    message: "Déconnexion réussie",
   });
 };
 
@@ -166,19 +166,19 @@ exports.changeRoleById = async (req, res) => {
     const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({
-        error: "ID does not exist",
+        error: "cet ID n'existe pas",
       });
     }
     // if the user exists, update it
     user.role = role;
     await user.save();
     res.status(200).json({
-      message: "User role updated successfully",
+      message: "role de l'utilisateur mis à jour avec succès",
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message: "Error updating user role",
+      message: "erreur lors de la mise à jour du rôle de l'utilisateur",
     });
   }
 };

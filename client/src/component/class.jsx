@@ -18,7 +18,28 @@ function Class() {
   const [courseFileData, setCourseFileData] = useState(null);
   const [stopEditingName, setStopEditingName] = useState(false);
   // const [classId, setClassId] = useState(""); // New class nextCourse for update
-  const [viewMode, setViewMode] = useState("table");
+  const [viewMode, setViewMode] = useState("cards");
+  const [width, setWidth] = useState(window.innerWidth);
+
+  const handleResize = () => {
+    const newWidth = window.innerWidth;
+    setWidth(newWidth);
+    if (newWidth < 1200) {
+      setViewMode("table");
+    } else {
+      setViewMode("cards");
+    }
+  };
+
+  useEffect(() => {
+    handleResize(); // Call it on initial render
+    window.addEventListener("resize", handleResize); // Attach it to the resize event
+
+    // Don't forget to remove the event listener on cleanup
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [width]);
 
   useEffect(() => {
     fetchClasses();
@@ -110,7 +131,20 @@ function Class() {
     const studentsInClass = users.some((user) => user.classes === classId);
 
     if (studentsInClass) {
-      toast.error("There are students in this class. Deletion aborted.");
+      toast.error("La classe a des étudiants, vous ne pouvez pas la supprimer");
+      return;
+    }
+
+    // check if the class as no course files
+    const courseFilesResponse = await axios.get(
+      `${process.env.REACT_APP_API_URL}/api/courseFilesByClass/${classId}`
+    );
+    const courseFiles = courseFilesResponse.data;
+
+    if (courseFiles.length > 0) {
+      toast.error(
+        "La classe a des fichiers de cours, Supprimer d'abord les fichiers de cours avant de supprimer la classe"
+      );
       return;
     }
 
@@ -166,7 +200,7 @@ function Class() {
           `${process.env.REACT_APP_API_URL}/api/courseFile`,
           courseFileData
         );
-        toast.success("Course file uploaded successfully");
+        toast.success("fichier ajouté avec succès");
         setListOfCourseFile((prev) => [...prev, response.data]);
         console.warn(listOfCourseFile);
 
@@ -175,7 +209,9 @@ function Class() {
         window.location.reload();
       };
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(
+        "erreur lors de l'ajout du fichier, veuillez réessayer ou contacter le super administrateur"
+      );
     }
   };
   const resetFormFile = () => {
@@ -241,12 +277,12 @@ function Class() {
         style={{ float: "right" }}
       >
         {viewMode === "cards" ? (
-          <FormatListBulletedOutlinedIcon />
-        ) : (
           <DashboardOutlinedIcon />
+        ) : (
+          <FormatListBulletedOutlinedIcon />
         )}
       </button>
-      {viewMode === "cards" ? (
+      {viewMode === "table" ? (
         <div className="row">
           {/* Add class form */}
 
@@ -355,12 +391,14 @@ function Class() {
                           >
                             Modifier la classe
                           </button>
-                          <button
-                            onClick={() => deleteClass(classe._id)}
-                            className="btn btn-danger"
-                          >
-                            Supprimer la classe
-                          </button>
+                          {classe.name === "public" ? null : (
+                            <button
+                              onClick={() => deleteClass(classe._id)}
+                              className="btn btn-danger"
+                            >
+                              Supprimer la classe
+                            </button>
+                          )}
                         </>
                       )}
                       <br />
@@ -547,12 +585,14 @@ function Class() {
                         >
                           Modifier la classe
                         </button>
-                        <button
-                          onClick={() => deleteClass(classe._id)}
-                          className="btn btn-danger"
-                        >
-                          Supprimer la classe
-                        </button>
+                        {classe.name === "public" ? null : (
+                          <button
+                            onClick={() => deleteClass(classe._id)}
+                            className="btn btn-danger"
+                          >
+                            Supprimer la classe
+                          </button>
+                        )}
                       </div>
                     )}
                   </td>

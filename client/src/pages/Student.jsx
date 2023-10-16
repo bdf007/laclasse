@@ -107,7 +107,7 @@ const Student = () => {
         },
         { withCredentials: true }
       );
-      toast.success("Profile updated successfully");
+      toast.success("profil mis à jour avec succès");
       setIsEditing(false);
       handleLogout(e);
     } catch (err) {
@@ -143,7 +143,7 @@ const Student = () => {
           );
         };
       }
-      toast.success("Profile picture updated successfully");
+      toast.success("photo de profil mise à jour avec succès");
       setIsEditingProfilPicture(false);
       setUpdatedProfilePicture(null);
       // set user to null
@@ -192,6 +192,13 @@ const Student = () => {
             <div className="table-responsive">
               {isEditingProfilPicture ? (
                 <>
+                  <div>
+                    <p>
+                      Si aucun fichier n'est choisi, l'image par défaut
+                      remplacera la photo actuel
+                    </p>
+                    <p>en cas de modifications, vous devrez vous reconnecter</p>
+                  </div>
                   <input
                     type="file"
                     accept="image/*"
@@ -486,6 +493,9 @@ const Student = () => {
                       </FormHelperText>
                     )}
                   </div>
+                </div>
+                <div>
+                  <p>en cas de modifications, vous devrez vous reconnecter</p>
                 </div>
                 <div className="text-center mt-4">
                   <button

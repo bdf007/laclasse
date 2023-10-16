@@ -107,7 +107,7 @@ const AdminInfo = () => {
         },
         { withCredentials: true }
       );
-      toast.success("Profile updated successfully");
+      toast.success("profil mis à jour avec succès");
       setIsEditing(false);
       handleLogout(e);
     } catch (err) {
@@ -143,7 +143,7 @@ const AdminInfo = () => {
           );
         };
       }
-      toast.success("Profile picture updated successfully");
+      toast.success("photo de profil mise à jour avec succès");
       setIsEditingProfilPicture(false);
       setUpdatedProfilePicture(null);
       // set user to null

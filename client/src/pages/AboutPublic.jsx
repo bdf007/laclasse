@@ -20,7 +20,7 @@ const AboutPublic = () => {
       setClassInfo(publicClass);
     } catch (error) {
       console.log(error);
-      toast.error("Error occured while getting all classes");
+      toast.error("une erreur est survenue lors de la récupération des cours");
     }
   };
 

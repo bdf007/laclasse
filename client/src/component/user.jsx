@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 function User() {
   const [listOfUsers, setListOfUsers] = useState([]);
@@ -24,7 +25,7 @@ function User() {
         username: username,
       })
       .then((response) => {
-        alert("User added successfully");
+        toast.success("utilisateur ajouté avec succès");
         setListOfUsers([
           ...listOfUsers,
           { _id: response.data._id, name: name, age: age, username: username },
@@ -44,7 +45,7 @@ function User() {
     axios
       .delete(`${process.env.REACT_APP_API_URL}/api/user/deleteUser/${id}`)
       .then((response) => {
-        alert("User deleted successfully");
+        toast.success("utilisateur supprimé avec succès");
         setListOfUsers(
           listOfUsers.filter((val) => {
             return val._id !== id;

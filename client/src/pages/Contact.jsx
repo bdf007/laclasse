@@ -62,7 +62,7 @@ const Contact = () => {
           classes: classes,
         })
         .then((response) => {
-          toast.success("Message sent");
+          toast.success("Message envoyé");
           setListOfContact([
             ...listOfContact,
             {
@@ -96,7 +96,7 @@ const Contact = () => {
     axios
       .delete(`${process.env.REACT_APP_API_URL}/api/contact/${id}`)
       .then(() => {
-        toast.success("Message deleted");
+        toast.success("Message supprimé");
         setListOfContact(
           listOfContact.filter((value) => {
             return value._id !== id;
@@ -214,7 +214,7 @@ const Contact = () => {
                         handleDelete(value._id);
                       }}
                     >
-                      Delete
+                      Supprimer le message
                     </Button>
                   </div>
                 );

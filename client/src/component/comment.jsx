@@ -27,8 +27,10 @@ const CommentUploader = () => {
   const [listOfComment, setListOfComment] = useState([]);
 
   //get the size of the window
+  // eslint-disable-next-line
   const [width, setWidth] = useState(window.innerWidth);
   const [show, setShow] = useState(true);
+
   const getComment = async () => {
     try {
       if (user.role === "admin" || user.role === "superadmin") {
@@ -36,7 +38,6 @@ const CommentUploader = () => {
         await axios
           .get(`${process.env.REACT_APP_API_URL}/api/comment`)
           .then((res) => {
-            console.log(res.data);
             setListOfComment(res.data);
           });
       } else {
@@ -123,7 +124,7 @@ const CommentUploader = () => {
         classes: className,
       })
       .then((response) => {
-        toast.success("Comment added");
+        toast.success("Commentaire posté avec succès");
         setListOfComment([
           ...listOfComment,
           {
@@ -152,7 +153,7 @@ const CommentUploader = () => {
     axios
       .delete(`${process.env.REACT_APP_API_URL}/api/comment/${id}`)
       .then(() => {
-        toast.success("Comment deleted");
+        toast.success("Commentaire supprimé avec succès");
         setListOfComment(
           listOfComment.filter((val) => {
             return val._id !== id;
@@ -165,8 +166,7 @@ const CommentUploader = () => {
   const handleResize = () => {
     const newWidth = window.innerWidth;
     setWidth(newWidth);
-    console.warn(width);
-    if (newWidth < 768) {
+    if (newWidth < 1200) {
       setShow(false);
     } else {
       setShow(true);
@@ -191,9 +191,9 @@ const CommentUploader = () => {
             <thead>
               <tr>
                 <th>Classe</th>
-                <th>firstname</th>
+                <th>Prénom</th>
                 {show === true && <th>email</th>}
-                <th>comment</th>
+                <th>Commentaire</th>
                 <th>date</th>
                 {show === true && <th>action</th>}
               </tr>
@@ -204,7 +204,7 @@ const CommentUploader = () => {
                   <td>
                     <input
                       type="text"
-                      placeholder="Search by class"
+                      placeholder="recherche par classe"
                       value={searchClass}
                       onChange={handleSearchClass}
                     />
@@ -212,7 +212,7 @@ const CommentUploader = () => {
                   <td>
                     <input
                       type="text"
-                      placeholder="Search by firstname"
+                      placeholder="recherche par prénom"
                       value={searchFirstname}
                       onChange={handleSearchFirstname}
                     />
@@ -220,7 +220,7 @@ const CommentUploader = () => {
                   <td>
                     <input
                       type="text"
-                      placeholder="Search by email"
+                      placeholder="recherche par email"
                       value={searchEmail}
                       onChange={handleSearchEmail}
                     />
@@ -228,7 +228,7 @@ const CommentUploader = () => {
                   <td>
                     <input
                       type="text"
-                      placeholder="Search by comment"
+                      placeholder="recherche par commentaire"
                       value={searchComment}
                       onChange={handleSearchComment}
                     />
@@ -262,6 +262,9 @@ const CommentUploader = () => {
                   const commentClassAdmin = isAdminComment
                     ? "bg-primary text-white text-end"
                     : "";
+                  const commentClassAdmin2 = isAdminComment
+                    ? "bg-primary text-white text-start"
+                    : "";
                   return (
                     <tr key={comment._id}>
                       <td className={`${commentClassAdmin}`}>
@@ -278,7 +281,7 @@ const CommentUploader = () => {
                       <td className={`${commentClassAdmin}`}>
                         {comment.comment}
                       </td>
-                      <td className={`${commentClassAdmin}`}>
+                      <td className={`${commentClassAdmin2}`}>
                         {new Date(comment.Date).toLocaleDateString("fr-FR")} à{" "}
                         {new Date(comment.Date).toLocaleTimeString("fr-FR")}
                       </td>

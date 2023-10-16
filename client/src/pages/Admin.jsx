@@ -17,6 +17,27 @@ const Admin = () => {
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedRole, setSelectedRole] = useState("user");
   const [viewMode, setViewMode] = useState("cards");
+  const [width, setWidth] = useState(window.innerWidth);
+
+  const handleResize = () => {
+    const newWidth = window.innerWidth;
+    setWidth(newWidth);
+    if (newWidth < 1200) {
+      setViewMode("table");
+    } else {
+      setViewMode("cards");
+    }
+  };
+
+  useEffect(() => {
+    handleResize(); // Call it on initial render
+    window.addEventListener("resize", handleResize); // Attach it to the resize event
+
+    // Don't forget to remove the event listener on cleanup
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [width]);
 
   useEffect(() => {
     // Fetch users and classes
@@ -72,7 +93,12 @@ const Admin = () => {
     };
 
     axios.get(`${process.env.REACT_APP_API_URL}/api/classes`).then((res) => {
-      setListOfClass(res.data);
+      // remove the class "public" from the list of classes
+      const filteredClasses = res.data.filter(
+        (classe) => classe.name !== "public"
+      );
+
+      setListOfClass(filteredClasses);
     });
 
     // Fetch user info
@@ -108,37 +134,35 @@ const Admin = () => {
   // delete function for user
   const deleteUser = (id) => {
     axios.delete(`${process.env.REACT_APP_API_URL}/api/user/${id}`).then(() => {
-      toast.success("User deleted");
+      toast.success("Utilisateur supprimé");
       setListOfUser((prevList) => prevList.filter((val) => val._id !== id));
     });
   };
 
-  // const updateUser = (id) => {
-  //   axios
-  //     .put(`${process.env.REACT_APP_API_URL}/api/user/${id}`, {
-  //       class: selectedClass,
-  //     })
-  //     .then(() => {
-  //       toast.success("User updated");
-  //       setSelectedClass("");
-  //     })
-  //     .catch((err) => console.log(err));
-  // };
-
   const updateUserRole = (id) => {
+    // check if the selected role is user
+    if (selectedRole === "user" || selectedRole === "oldstudent") {
+      // if the selected role is user, check if the user has a class
+      const user = listOfUser.find((user) => user._id === id);
+      if (user.classes) {
+        toast.error(
+          "l'utilisateur a une classe assignée, merci de retirer la classe avant de changer son role"
+        );
+        return;
+      }
+    }
     axios
       .put(`${process.env.REACT_APP_API_URL}/api/user/${id}/change-role`, {
         role: selectedRole, // Send the selected role to the server
       })
       .then(() => {
-        console.log("User role updated");
-        toast.success("User role updated  very successfully");
+        toast.success("Le role de l'utilisateur a été modifié");
         setSelectedRole(""); // Clear the selected role after updating
         window.location.reload();
       })
       .catch((err) => {
         console.error(err);
-        toast.error("Error updating user role");
+        toast.error("Une erreur est survenue lors de la modification du role");
       });
   };
   const assignClassToUser = (userId) => {
@@ -149,7 +173,7 @@ const Admin = () => {
         classId: selectedClass,
       })
       .then(() => {
-        toast.success("Class assigned to user");
+        toast.success("classe assignée à l'utilisateur");
         setSelectedClass(""); // Clear selected class
         window.location.reload();
       })
@@ -164,14 +188,14 @@ const Admin = () => {
       })
       .then((response) => {
         if (response.status === 200) {
-          toast.success("Class removed from user");
+          toast.success("classe retirée de l'utilisateur");
           setSelectedClass(""); // Clear selected class
           window.location.reload();
         } else {
           const errorMessage =
             response.data && response.data.error
               ? response.data.error
-              : "An unknown error occurred while removing class from user";
+              : "une erreur inconue est survenue lors de la suppression de la classe de l'utilisateur";
           toast.error(errorMessage);
           console.error(response); // Log the response for debugging
         }
@@ -180,7 +204,7 @@ const Admin = () => {
         const errorMessage =
           err.response && err.response.data && err.response.data.error
             ? err.response.data.error
-            : "An unknown error occurred while removing class from user";
+            : "une erreur inconue est survenue lors de la suppression de la classe de l'utilisateur";
         toast.error(errorMessage);
         console.error(err); // Log the error for debugging
       });
@@ -204,7 +228,7 @@ const Admin = () => {
           className="container text-center home"
           style={{ marginTop: "1rem", paddingBottom: "12rem" }}
         >
-          <div className="alert alert-primary p-5">
+          <div className="bg-transparent p-5">
             <h1>
               {" "}
               <span className="text-success">{user.firstname}'s</span> Admin
@@ -243,11 +267,13 @@ const Admin = () => {
                           )}
                           {!user.classes ? (
                             <>
-                              {user.role === "oldstudent" ? (
-                                <p> no need</p>
+                              {user.role === "oldstudent" ||
+                              user.role === "admin" ||
+                              user.role === "superadmin" ? (
+                                <p> - </p>
                               ) : (
                                 <p className="card-text text-danger">
-                                  No class assigned
+                                  Classe non attribué
                                 </p>
                               )}
                             </>
@@ -256,15 +282,25 @@ const Admin = () => {
                           )}
                           {/* add a drop down menu of classes and update the user with the class selected */}
                           {user.role === "oldstudent" ||
-                          user.role === "user" ? (
+                          user.role === "user" ||
+                          user.role === "admin" ||
+                          user.role === "superadmin" ? (
                             user.role === "oldstudent" ? (
                               <ul>
-                                <li>Old Student</li>
+                                <li>Ancien élève</li>
+                              </ul>
+                            ) : user.role === "user" ? (
+                              <ul>
+                                <li className="list-inline">
+                                  changer le role de cet utilisateur afin de lui
+                                  attribuer une classe
+                                </li>
                               </ul>
                             ) : (
                               <ul className="list-inline">
                                 <li className="list-inline-item">
-                                  les simples utilisateurs n'ont pas de classe
+                                  les admins et les superadmin n'ont pas de
+                                  classe assignée
                                 </li>
                               </ul>
                             )
@@ -279,13 +315,13 @@ const Admin = () => {
                                     setSelectedClass(e.target.value)
                                   }
                                 >
-                                  <option value="">Choose a class</option>
+                                  <option value="">Choisir la classe</option>
                                   {listOfClass.map((classe) => (
                                     <option value={classe._id} key={classe._id}>
                                       {classe.name}
                                     </option>
                                   ))}
-                                  <option value="none">None</option>
+                                  <option value="none">Aucune</option>
                                 </select>
                               </li>
                               <li className="list-inline-item">
@@ -301,8 +337,8 @@ const Admin = () => {
                                   }}
                                 >
                                   {selectedClass === "none"
-                                    ? "Clear Class"
-                                    : "Assign Class"}{" "}
+                                    ? "Retirer la classe"
+                                    : "Assigner une classe"}{" "}
                                   {/* Change button text based on selection */}
                                 </button>
                               </li>
@@ -318,12 +354,11 @@ const Admin = () => {
                                   setSelectedRole(e.target.value)
                                 }
                               >
-                                <option value="user">User</option>
-                                <option value="student">Student</option>
-                                <option value="professor">Professor</option>
+                                <option value="user">Utilisateur</option>
+                                <option value="student">Eleve</option>
                                 <option value="admin">Admin</option>
                                 <option value="superadmin">Super Admin</option>
-                                <option value="oldstudent">Old Student</option>
+                                <option value="oldstudent">Ancien éléve</option>
                                 {/* Add more role options as needed */}
                               </select>
                             </li>
@@ -334,7 +369,7 @@ const Admin = () => {
                                   updateUserRole(user._id, selectedRole)
                                 }
                               >
-                                Update Role
+                                Modifier le role
                               </button>
                             </li>
                           </ul>
@@ -345,7 +380,7 @@ const Admin = () => {
                             className="btn btn-danger"
                             onClick={() => deleteUser(user._id)}
                           >
-                            Delete User
+                            Supprimer l'utilisateur
                           </button>
                         </div>
                       </div>
@@ -384,11 +419,13 @@ const Admin = () => {
                           )}
                           {!user.classes ? (
                             <td>
-                              {user.role === "oldstudent" ? (
-                                <span>No need</span>
+                              {user.role === "oldstudent" ||
+                              user.role === "admin" ||
+                              user.role === "superadmin" ? (
+                                <span>-</span>
                               ) : (
                                 <span className="bg-danger text-white">
-                                  No class assigned
+                                  Classe non attribué
                                 </span>
                               )}
                             </td>
@@ -398,15 +435,18 @@ const Admin = () => {
                           {user.role === "oldstudent" ||
                           user.role === "user" ||
                           user.role === "admin" ||
-                          user.role === "superadmin" ||
-                          user.role === "professor" ? (
+                          user.role === "superadmin" ? (
                             user.role === "oldstudent" ? (
-                              <td>old Student</td>
+                              <td>Ancien élève</td>
+                            ) : user.role === "user" ? (
+                              <td>
+                                changer le role de cet utilisateur afin de lui
+                                attribuer une classe
+                              </td>
                             ) : (
                               <td>
-                                les simples utilisateurs, les admins, les
-                                superadmin et les professeurs n'ont pas de
-                                classe assignée
+                                les admins et les superadmin n'ont pas de classe
+                                assignée
                               </td>
                             )
                           ) : (
@@ -421,7 +461,7 @@ const Admin = () => {
                                       setSelectedClass(e.target.value)
                                     }
                                   >
-                                    <option value="">Choose a class</option>
+                                    <option value="">Choisir la classe</option>
                                     {listOfClass.map((classe) => (
                                       <option
                                         value={classe._id}
@@ -430,7 +470,7 @@ const Admin = () => {
                                         {classe.name}
                                       </option>
                                     ))}
-                                    <option value="none">None</option>
+                                    <option value="none">Aucune</option>
                                   </select>
                                 </li>
                                 <li className="list-inline-item">
@@ -446,8 +486,8 @@ const Admin = () => {
                                     }}
                                   >
                                     {selectedClass === "none"
-                                      ? "Clear Class"
-                                      : "Assign Class"}{" "}
+                                      ? "Retirer la classe"
+                                      : "Assigner une classe"}{" "}
                                     {/* Change button text based on selection */}
                                   </button>
                                 </li>
@@ -464,15 +504,14 @@ const Admin = () => {
                                     setSelectedRole(e.target.value)
                                   }
                                 >
-                                  <option value="user">User</option>
-                                  <option value="student">Student</option>
-                                  <option value="professor">Professor</option>
+                                  <option value="user">Utilisateur</option>
+                                  <option value="student">Elève</option>
                                   <option value="admin">Admin</option>
                                   <option value="superadmin">
                                     Super Admin
                                   </option>
                                   <option value="oldstudent">
-                                    Old Student
+                                    Ancien élève
                                   </option>
                                   {/* Add more role options as needed */}
                                 </select>
@@ -484,7 +523,7 @@ const Admin = () => {
                                     updateUserRole(user._id, selectedRole)
                                   }
                                 >
-                                  Update Role
+                                  Modifier le role
                                 </button>
                               </li>
                             </ul>
@@ -494,7 +533,7 @@ const Admin = () => {
                               className="btn btn-danger"
                               onClick={() => deleteUser(user._id)}
                             >
-                              Delete User
+                              Supprimer l'utilisateur
                             </button>
                           </td>
                           {/* ... (other table data) */}

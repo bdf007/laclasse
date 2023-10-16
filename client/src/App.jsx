@@ -19,7 +19,6 @@ import Admin from "./pages/Admin";
 import AdminInfo from "./pages/AdminInfo";
 import ChatAdmin from "./pages/ChatAdmin";
 import Bibliotheque from "./pages/Bibliotheque";
-import Professor from "./pages/Professor";
 import Student from "./pages/Student";
 import User from "./pages/User";
 import NotFound from "./pages/NotFound";
@@ -76,14 +75,6 @@ function App() {
                 <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route path="*" element={<NotFound />} />
               </>
-            ) : // if user is professor
-            user.role === "professor" ? (
-              <>
-                <Route exact path="/Professor" element={<Professor />} />
-                <Route exact path="/contact" element={<Contact />} />
-                <Route exact path="/bibliotheque" element={<Bibliotheque />} />
-                <Route path="*" element={<NotFound />} />
-              </>
             ) : (
               // if user is student
               user.role === "student" && (
@@ -99,6 +90,7 @@ function App() {
                 </>
               )
             )}
+            <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />
         </UserContext.Provider>
