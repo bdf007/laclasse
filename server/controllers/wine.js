@@ -19,6 +19,21 @@ exports.getWines = async (req, res) => {
   }
 };
 
+exports.getWineById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const wine = await Wine.findById(id);
+    if (!wine) {
+      return res.status(404).json({
+        error: "ID does not exist",
+      });
+    }
+    res.status(200).json(wine);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 exports.deleteWineById = async (req, res) => {
   try {
     const id = req.params.id;

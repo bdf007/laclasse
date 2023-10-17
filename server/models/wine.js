@@ -5,18 +5,17 @@ const wineSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    lowercase: true,
   },
-  Year: {
+  year: {
     type: Number,
     trim: true,
   },
-  Region: {
+  region: {
     type: String,
     trim: true,
     lowercase: true,
   },
-  Country: {
+  country: {
     type: String,
     trim: true,
     lowercase: true,

@@ -14,6 +14,7 @@ function Class() {
   const [updatedClassAbout, setUpdatedClassAbout] = useState(""); // New class about for update
   const [updatedClassNextCourse, setUpdatedClassNextCourse] = useState(""); // New class nextCourse for update
   const [listOfCourseFile, setListOfCourseFile] = useState([]); // New class nextCourse for update
+  // eslint-disable-next-line
   const [courseFileTitle, setCourseFileTitle] = useState({}); // New class nextCourse for update
   const [classCourseTitles, setClassCourseTitles] = useState({});
   const [courseFileData, setCourseFileData] = useState(null);

@@ -1,12 +1,18 @@
 import React, { useState, useContext, useEffect } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
 
+//design
+import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
+
 const Vinotheque = () => {
   const { user } = useContext(UserContext);
   const [nomDuChateau, setNomDuChateau] = useState("");
-  const [year, setYear] = useState(1800);
+  const [year, setYear] = useState("");
   const [region, setRegion] = useState("");
   const [country, setCountry] = useState("");
   const [typeDeVin, setTypeDeVin] = useState("");
@@ -17,18 +23,50 @@ const Vinotheque = () => {
   const [literage, setLiterage] = useState("Bouteille - 0.75 l");
   const [comments, setComments] = useState("");
   const [listOfWines, setListOfWines] = useState([]);
-  const [selectedUser, setSelectedUser] = useState("");
+  const [addNewWine, setAddNewWine] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   const [searchCastle, setSearchCastle] = useState(
     localStorage.getItem("searchCastle") || ""
   );
-  const [searchTitle, setSearchTitle] = useState(
-    localStorage.getItem("searchTitle") || ""
+  const [searchYear, setSearchYear] = useState(
+    localStorage.getItem("searchYear") || ""
   );
-  const [searchGenre, setSearchGenre] = useState(
-    localStorage.getItem("searchGenre") || ""
+  const [searchRegion, setSearchRegion] = useState(
+    localStorage.getItem("searchRegion") || ""
+  );
+  const [searchCountry, setSearchCountry] = useState(
+    localStorage.getItem("searchCountry") || ""
+  );
+  const [searchType, setSearchType] = useState(
+    localStorage.getItem("searchType") || ""
+  );
+  const [searchWhereIFindIt, setSearchWhereIFindIt] = useState(
+    localStorage.getItem("searchWhereIFindIt") || ""
+  );
+  const [searchPriceMin, setSearchPriceMin] = useState(
+    localStorage.getItem("searchPriceMin") || ""
+  );
+  const [searchPriceMax, setSearchPriceMax] = useState(
+    localStorage.getItem("searchPriceMax") || ""
+  );
+  const [searchQuantityMin, setSearchQuantityMin] = useState(
+    localStorage.getItem("searchQuantityMin") || ""
+  );
+  const [searchQuantityMax, setSearchQuantityMax] = useState(
+    localStorage.getItem("searchQuantityMax") || ""
+  );
+  const [searchLiterage, setSearchLiterage] = useState(
+    localStorage.getItem("searchLiterage") || ""
+  );
+  const [searchComments, setSearchComments] = useState(
+    localStorage.getItem("searchComments") || ""
+  );
+  const [searchAddedAt, setSearchAddedAt] = useState(
+    localStorage.getItem("searchAddedAt") || ""
   );
   //get the size of the window
   const [width, setWidth] = useState(window.innerWidth);
+  // eslint-disable-next-line
   const [show, setShow] = useState(true);
 
   const getListOfWines = async () => {
@@ -36,74 +74,115 @@ const Vinotheque = () => {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/wines`
       );
-
-      // Create an array of promises to fetch user data for all wines
-
-      // Wait for all user data fetching promises to resolve
-      const updatedWines = await Promise.all(response);
-
-      // Set the list of wines with the updated data
-      setListOfWines(updatedWines);
+      setListOfWines(response.data);
     } catch (error) {
       console.log(error);
       toast.error("Erreur lors de la récupération des vins");
     }
   };
 
-  const assignUserToWine = async (wineId) => {
-    try {
-      let emprunteurValue = selectedUser;
-
-      // Get the wine to update
-      const wine = listOfWines.find((wine) => wine._id === wineId);
-
-      // Check if selectedUser is "aucun" and set emprunteurValue to null
-      if (selectedUser === "none") {
-        emprunteurValue = null;
-        wine.statut = "disponible";
-        await axios
-          .put(`${process.env.REACT_APP_API_URL}/api/wine/${wineId}`, {
-            emprunteur: emprunteurValue,
-            statut: "disponible",
-          })
-          .then(() => {
-            toast.success("emprunteur assigné avec succès");
-            // get the response from the server and update the wine in the state
-            getListOfWines();
-            setSelectedUser("");
-          });
-      } else {
-        await axios
-          .put(`${process.env.REACT_APP_API_URL}/api/wine/${wineId}`, {
-            emprunteur: emprunteurValue,
-            statut: "emprunté",
-          })
-          .then(() => {
-            toast.success("emprunteur assigné avec succès");
-            // get the response from the server and update the wine in the state
-            getListOfWines();
-            setSelectedUser("");
-          });
-      }
-    } catch (error) {
-      toast.error("Erreur lors de l'assignation de l'emprunteur");
-    }
+  const handleSearchCastle = (e) => {
+    setSearchCastle(e.target.value);
+    localStorage.setItem("searchCastle", e.target.value);
   };
 
-  const handleTitleChange = (e) => {
-    setTitle(e.target.value);
+  const handleSearchYear = (e) => {
+    setSearchYear(e.target.value);
+    localStorage.setItem("searchYear", e.target.value);
   };
 
-  const handleCastleChange = (e) => {
-    setCastle(e.target.value);
+  const handleSearchRegion = (e) => {
+    setSearchRegion(e.target.value);
+    localStorage.setItem("searchRegion", e.target.value);
   };
 
-  const handleGenreChange = (e) => {
-    setGenre(e.target.value);
+  const handleSearchCountry = (e) => {
+    setSearchCountry(e.target.value);
+    localStorage.setItem("searchCountry", e.target.value);
   };
 
-  const handleDescriptionChange = (e) => {
-    setDescription(e.target.value);
+  const handleSearchType = (e) => {
+    setSearchType(e.target.value);
+    localStorage.setItem("searchType", e.target.value);
+  };
+
+  const handleSearchWhereIFindIt = (e) => {
+    setSearchWhereIFindIt(e.target.value);
+    localStorage.setItem("searchWhereIFindIt", e.target.value);
+  };
+
+  const handleSearchPriceMin = (e) => {
+    setSearchPriceMin(e.target.value);
+    localStorage.setItem("searchPriceMin", e.target.value);
+  };
+  const handleSearchPriceMax = (e) => {
+    setSearchPriceMax(e.target.value);
+    localStorage.setItem("searchPriceMax", e.target.value);
+  };
+
+  const handleSearchQuantityMin = (e) => {
+    setSearchQuantityMin(e.target.value);
+    localStorage.setItem("searchQuantityMin", e.target.value);
+  };
+
+  const handleSearchQuantityMax = (e) => {
+    setSearchQuantityMax(e.target.value);
+    localStorage.setItem("searchQuantityMax", e.target.value);
+  };
+
+  const handleSearchLiterage = (e) => {
+    setSearchLiterage(e.target.value);
+    localStorage.setItem("searchLiterage", e.target.value);
+  };
+
+  const handleSearchComments = (e) => {
+    setSearchComments(e.target.value);
+    localStorage.setItem("searchComments", e.target.value);
+  };
+
+  const handleSearchAddedAt = (e) => {
+    setSearchAddedAt(e.target.value);
+    localStorage.setItem("searchAddedAt", e.target.value);
+  };
+
+  const handleNomDuChateau = (e) => {
+    setNomDuChateau(e.target.value);
+  };
+
+  const handleYear = (e) => {
+    setYear(e.target.value);
+  };
+
+  const handleRegion = (e) => {
+    setRegion(e.target.value);
+  };
+
+  const handleCountry = (e) => {
+    setCountry(e.target.value);
+  };
+
+  const handleTypeDeVin = (e) => {
+    setTypeDeVin(e.target.value);
+  };
+
+  const handleWhereIFindIt = (e) => {
+    setWhereIFindIt(e.target.value);
+  };
+
+  const handlePrice = (e) => {
+    setPrice(e.target.value);
+  };
+
+  const handleQuantity = (e) => {
+    setQuantity(e.target.value);
+  };
+
+  const handleLiterage = (e) => {
+    setLiterage(e.target.value);
+  };
+
+  const handleComments = (e) => {
+    setComments(e.target.value);
   };
 
   const handleFileInputChange = (e) => {
@@ -120,11 +199,17 @@ const Vinotheque = () => {
         const base64Data = fileReader.result;
 
         const wineData = {
-          title,
-          author,
-          genre,
-          description,
-          imageData: base64Data,
+          nomDuChateau,
+          year,
+          region,
+          country,
+          typeDeVin,
+          whereIFindIt,
+          price,
+          quantity,
+          literage,
+          comments,
+          pictureData: base64Data,
         };
 
         const response = await axios.post(
@@ -143,10 +228,12 @@ const Vinotheque = () => {
 
   const deleteWineById = async (id) => {
     try {
-      // check if the wine is emprunté
-      const wine = listOfWines.find((wine) => wine._id === id);
-      if (wine.statut === "emprunté") {
-        toast.error("Ce vin est emprunté, vous ne pouvez pas le supprimer");
+      // check if quantity is 0
+      const wine = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/wine/${id}`
+      );
+      if (wine.data.quantity > 0) {
+        toast.error("Vous possédez encore des bouteilles de ce vin");
         return;
       }
       await axios.delete(`${process.env.REACT_APP_API_URL}/api/wine/${id}`);
@@ -157,42 +244,54 @@ const Vinotheque = () => {
     }
   };
 
+  const cancelEditing = () => {
+    setAddNewWine(false);
+    resetForm();
+  };
+
   const resetForm = () => {
-    setTitle("");
-    setCastle("");
-    setGenre("");
-    setDescription("");
+    setAddNewWine(false);
+    setNomDuChateau("");
+    setYear("");
+    setRegion("");
+    setCountry("");
+    setTypeDeVin("");
+    setWhereIFindIt("");
+    setPrice(0);
+    setQuantity(0);
+    setLiterage("Bouteille - 0.75 l");
+    setComments("");
     setSelectedFile(null);
-    setSearchCastle("");
-    setSearchTitle("");
-    setSearchGenre("");
+    resetFilter();
+
     // clear input file
-    document.getElementById("file").value = null;
-    document.getElementById("title").value = "";
-    document.getElementById("author").value = "";
-    document.getElementById("genre").value = "";
-    document.getElementById("description").value = "";
+    // document.getElementById("chateau").value = null;
+    // document.getElementById("year").value = null;
+    // document.getElementById("region").value = null;
+    // document.getElementById("country").value = null;
+    // document.getElementById("type").value = null;
+    // document.getElementById("whereIFindIt").value = null;
+    // document.getElementById("price").value = null;
+    // document.getElementById("quantity").value = null;
+    // document.getElementById("literage").value = null;
+    // document.getElementById("comments").value = null;
+    // document.getElementById("file").value = null;
   };
 
-  const handleSearchCastle = (e) => {
-    e.preventDefault();
-    const value = e.target.value;
-    setSearchCastle(value);
-    localStorage.setItem("searchCastle", value);
-  };
-
-  const handleSearchTitle = (e) => {
-    e.preventDefault();
-    const value = e.target.value;
-    setSearchTitle(value);
-    localStorage.setItem("searchTitle", value);
-  };
-
-  const handleSearchGenre = (e) => {
-    e.preventDefault();
-    const value = e.target.value;
-    setSearchGenre(value);
-    localStorage.setItem("searchGenre", value);
+  const resetFilter = () => {
+    setSearchCastle("");
+    setSearchYear("");
+    setSearchRegion("");
+    setSearchCountry("");
+    setSearchType("");
+    setSearchWhereIFindIt("");
+    setSearchPriceMin("");
+    setSearchPriceMax("");
+    setSearchQuantityMin("");
+    setSearchQuantityMax("");
+    setSearchLiterage("");
+    setSearchComments("");
+    setSearchAddedAt("");
   };
 
   // check if the size of the window is a mobile size
@@ -216,337 +315,482 @@ const Vinotheque = () => {
   }, [width]);
 
   useEffect(() => {
+    resetFilter();
     getListOfWines();
 
     //eslint-disable-next-line
-  }, [setListOfWines, user]);
+  }, [setListOfWines]);
 
   return (
-    <div className="container " style={{ paddingBottom: "12rem" }}>
-      <div className="row">
-        <h1 className="mx-auto text-center">La bibliothéque de Stéphanie</h1>
+    // check if user is AdminVin
+    user.role !== "AdminVin" ? (
+      <div
+        className="d-flex justify-content-center"
+        style={{ paddingTop: "5rem" }}
+      >
+        <h2>Vous n'avez pas accès à cette page</h2>
+      </div>
+    ) : (
+      <div className="container " style={{ paddingBottom: "12rem" }}>
+        <div className="row">
+          <h1 className="mx-auto text-center">La cave d'alexis</h1>
+          <div>
+            <div className="col-12 col-md-6 mx-auto ">
+              <div className="d-flex justify-content-around">
+                {addNewWine ? (
+                  <>
+                    <CancelOutlinedIcon
+                      onClick={() => cancelEditing()}
+                      style={{ fontSize: "3rem", cursor: "pointer" }}
+                    />
 
-        <div className="table-responsive">
-          {/* Search input fields */}
-
-          {!user ? (
-            <table className="table table-striped table-bordered table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">titre</th>
-                  <th scope="col">auteur</th>
-                  <th scope="col">genre</th>
-                  {show === true && <th scope="col">résumé</th>}
-                  <th scope="col">couverture</th>
-                </tr>
-              </thead>
-              <tbody>
-                {show === true && (
-                  <tr className="search-fields">
-                    <td>
-                      <input
-                        type="text"
-                        value={searchTitle}
-                        placeholder="recherche par titre"
-                        onChange={handleSearchTitle}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={searchCastle}
-                        placeholder="recherche par auteur"
-                        onChange={handleSearchCastle}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={searchGenre}
-                        placeholder="recherche par genre"
-                        onChange={handleSearchGenre}
-                      />
-                    </td>
-                    {show === true && <td></td>}
-                    <td></td>
-                  </tr>
-                )}
-                {!listOfWines || listOfWines.length === 0 ? (
-                  <tr>
-                    {show === true ? (
-                      <td colSpan="8">Aucun vin</td>
-                    ) : (
-                      <td colSpan="7">Aucun vin</td>
-                    )}
-                  </tr>
-                ) : (
-                  listOfWines
-                    .filter(
-                      (wine) =>
-                        wine.author &&
-                        wine.author
-                          .toLowerCase()
-                          .includes(searchCastle.toLowerCase()) &&
-                        wine.title &&
-                        wine.title
-                          .toLowerCase()
-                          .includes(searchTitle.toLowerCase()) &&
-                        wine.genre &&
-                        wine.genre
-                          .toLowerCase()
-                          .includes(searchGenre.toLowerCase())
-                    )
-                    .map((wine) => (
-                      <tr key={wine._id}>
-                        <th className="text-justify">{wine.title}</th>
-                        <td className="text-justify">{wine.author}</td>
-                        <td>{wine.genre}</td>
-                        {show === true && (
-                          <td className="text-justify">{wine.description}</td>
-                        )}
-                        <td>
-                          <img
-                            src={wine.imageData}
-                            alt={wine.title}
-                            className="img-thumbnail"
-                            style={{ maxWidth: "200px", maxHeight: "200px" }}
-                          />
-                        </td>
-                      </tr>
-                    ))
-                )}
-              </tbody>
-            </table>
-          ) : (
-            <table className="table table-striped table-bordered table-hover">
-              <thead>
-                <tr className="">
-                  <th scope="col">titre</th>
-                  <th scope="col">auteur</th>
-                  <th scope="col">genre</th>
-                  {show === true && (
-                    <>
-                      <th scope="col">résumé</th>
-                      <th scope="col">disponibilité</th>
-                    </>
-                  )}
-                  <th scope="col">couverture</th>
-                  {(user.role === "admin" || user.role === "superadmin") &&
-                    show === true && (
-                      <>
-                        <th scope="col">emprunteur</th>
-                        <th scope="col">action</th>
-                      </>
-                    )}
-                </tr>
-              </thead>
-              <tbody>
-                {show === true && (
-                  <tr className="search-fields">
-                    <td>
-                      <input
-                        type="text"
-                        value={searchTitle}
-                        placeholder="recherche par titre"
-                        onChange={handleSearchTitle}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={searchCastle}
-                        placeholder="recherche par auteur"
-                        onChange={handleSearchCastle}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={searchGenre}
-                        placeholder="recherche par genre"
-                        onChange={handleSearchGenre}
-                      />
-                    </td>
-                    <td></td>
-                    {show === true && <td></td>}
-                    <td></td>
-                    {(user.role === "admin" || user.role === "superadmin") &&
-                      show === true && (
+                    <form>
+                      {selectedFile && (
                         <>
-                          <td></td>
-                          <td></td>
-                        </>
-                      )}
-                  </tr>
-                )}
-                {!listOfWines || listOfWines.length === 0 ? (
-                  <tr>
-                    {show === true ? (
-                      <td colSpan="8">Aucun vin</td>
-                    ) : (
-                      <td colSpan="4">Aucun vin</td>
-                    )}
-                  </tr>
-                ) : (
-                  listOfWines
-                    .filter(
-                      (wine) =>
-                        wine.author
-                          .toLowerCase()
-                          .includes(searchCastle.toLowerCase()) &&
-                        wine.title
-                          .toLowerCase()
-                          .includes(searchTitle.toLowerCase()) &&
-                        wine.genre
-                          .toLowerCase()
-                          .includes(searchGenre.toLowerCase())
-                    )
-                    .map((wine) => (
-                      <tr key={wine._id}>
-                        <th className="text-justify">{wine.title}</th>
-                        <td className="text-justify">{wine.author}</td>
-                        <td>{wine.genre}</td>
-                        {show === true && (
-                          <td className="text-justify">{wine.description}</td>
-                        )}
-                        {show === true && <td>{wine.statut}</td>}
-                        <td>
-                          <img
-                            src={wine.imageData}
-                            alt={wine.title}
-                            className="img-thumbnail"
-                          />
-                        </td>
-                        {show === true && <td>{wine.emprunteur}</td>}
-                        {(user.role === "admin" ||
-                          user.role === "superadmin") &&
-                          show === true && (
-                            <>
-                              <td>
-                                <button
-                                  type="button"
-                                  className="btn btn-danger"
-                                  onClick={() => deleteWineById(wine._id)}
-                                >
-                                  supprimer
-                                </button>
-                                <br />
-                                <br />
-                                <select
-                                  className="form-select"
-                                  aria-label="Default select example"
-                                  value={selectedUser}
-                                  onChange={(e) =>
-                                    setSelectedUser(e.target.value)
-                                  }
-                                >
-                                  <option value="">
-                                    Choisir un emprunteur
-                                  </option>
-                                  {listOfUsers.map((user) => (
-                                    <option key={user._id} value={user._id}>
-                                      {user.firstname} {user.lastname}
-                                    </option>
-                                  ))}
-                                  <option value="none">Aucun</option>
-                                </select>
-                                <button
-                                  type="button"
-                                  className="btn btn-primary"
-                                  onClick={() => assignUserToWine(wine._id)}
-                                >
-                                  assigner
-                                </button>
-                              </td>
-                            </>
-                          )}
-                      </tr>
-                    ))
-                )}
-
-                {(user.role === "admin" || user.role === "superadmin") &&
-                  show === true && (
-                    <tr>
-                      {selectedFile ? (
-                        <>
-                          <td>
+                          <div className="form-group">
+                            <label htmlFor="chateau">Nom du Vin*</label>
                             <input
                               type="text"
-                              id="title"
-                              value={title}
                               className="form-control"
-                              placeholder="titre"
-                              onChange={handleTitleChange}
+                              id="chateau"
+                              placeholder="Nom du chateau"
+                              value={nomDuChateau}
+                              onChange={handleNomDuChateau}
                             />
-                          </td>
-                          <td>
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="year">Année</label>
+                            <input
+                              type="number"
+                              className="form-control"
+                              id="year"
+                              placeholder="Année"
+                              value={year}
+                              onChange={handleYear}
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="region">Région</label>
                             <input
                               type="text"
-                              id="author"
-                              value={author}
                               className="form-control"
-                              placeholder="auteur"
-                              onChange={handleCastleChange}
+                              id="region"
+                              placeholder="Région"
+                              value={region}
+                              onChange={handleRegion}
                             />
-                          </td>
-                          <td>
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="country">Pays</label>
                             <input
                               type="text"
-                              id="genre"
-                              value={genre}
                               className="form-control"
-                              placeholder="genre"
-                              onChange={handleGenreChange}
+                              id="country"
+                              placeholder="Pays"
+                              value={country}
+                              onChange={handleCountry}
                             />
-                          </td>
-                          <td>
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="type">Type de vin</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              id="type"
+                              placeholder="Type de vin"
+                              value={typeDeVin}
+                              onChange={handleTypeDeVin}
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="whereIFindIt">Ou je l'ai eu</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              id="whereIFindIt"
+                              placeholder="Ou je l'ai eu"
+                              value={whereIFindIt}
+                              onChange={handleWhereIFindIt}
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="price">Prix</label>
+                            <input
+                              type="number"
+                              className="form-control"
+                              id="price"
+                              placeholder="Prix"
+                              value={price}
+                              onChange={handlePrice}
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="quantity">Quantité</label>
+                            <input
+                              type="number"
+                              className="form-control"
+                              id="quantity"
+                              placeholder="Quantité"
+                              value={quantity}
+                              onChange={handleQuantity}
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="literage">Litres</label>
+                            <select
+                              className="form-control"
+                              id="literage"
+                              value={literage}
+                              onChange={handleLiterage}
+                            >
+                              <option>Picola - 0.20 l</option>
+                              <option>Chopine ou quart - 0.25 l</option>
+                              <option>Fillette - 0.375 l</option>
+                              <option>Medium - 0.5 l</option>
+                              <option>Bouteille - 0.75 l</option>
+                              <option>Magnum - 1.5 l</option>
+                              <option>Jeroboam - 3 l</option>
+                              <option>Mathusalem - 6 l</option>
+                              <option>Salamanzar - 9 l</option>
+                              <option>Balthazar - 12 l</option>
+                              <option>Nabuchodonosor - 15 l</option>
+                              <option>Melchior ou Salomon - 18 l</option>
+                              <option>Souverain - 26,25 l</option>
+                              <option>Primat - 27 l</option>
+                              <option>Midas ou Melchizedek - 30 l</option>
+                            </select>
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="comments">Commentaires</label>
                             <textarea
-                              type="text"
-                              id="description"
-                              value={description}
-                              placeholder="résumé"
-                              onChange={handleDescriptionChange}
-                            />
-                          </td>
-                          <td></td>
-                        </>
-                      ) : (
-                        <>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
+                              className="form-control"
+                              id="comments"
+                              rows="3"
+                              value={comments}
+                              onChange={handleComments}
+                            ></textarea>
+                          </div>
+                          <div className="text-center">
+                            * : champ obligatoire
+                          </div>
                         </>
                       )}
-                      <td>
+                      <div className="form-group">
+                        <label htmlFor="file">Etiquette</label>
                         <input
                           type="file"
+                          className="form-control-file"
                           id="file"
-                          accept="image/jpg, image/jpeg, image/png"
-                          className="form-control"
-                          placeholder="couverture"
                           onChange={handleFileInputChange}
                         />
-                      </td>
-                      <td></td>
-                      <td>
+                      </div>
+                      <div className="d-flex justify-content-around">
+                        {selectedFile && (
+                          <button
+                            type="submit"
+                            className="btn btn-primary"
+                            onClick={handleUploadWine}
+                            disabled={!nomDuChateau}
+                          >
+                            Ajouter
+                          </button>
+                        )}
                         <button
-                          type="button"
-                          className="btn btn-success"
-                          onClick={handleUploadWine}
+                          className="btn btn-warning"
+                          onClick={() => cancelEditing()}
                         >
-                          Ajouter
+                          Annuler
                         </button>
-                      </td>
-                    </tr>
-                  )}
-              </tbody>
-            </table>
-          )}
+                      </div>
+                    </form>
+                  </>
+                ) : (
+                  showSearch === false && (
+                    <AddCircleOutlineOutlinedIcon
+                      onClick={() => {
+                        setAddNewWine(!addNewWine);
+                        setShowSearch(false);
+                      }}
+                      style={{ fontSize: "3rem", cursor: "pointer" }}
+                    />
+                  )
+                )}
+                {showSearch ? (
+                  <div className="d-flex justify-content-around ">
+                    <CancelOutlinedIcon
+                      onClick={() => setShowSearch(!showSearch)}
+                      style={{ fontSize: "3rem", cursor: "pointer" }}
+                    />
+                    <div className="table-responsive">
+                      {/* Search input fields */}
+                      <table>
+                        <thead>
+                          <tr>
+                            <td colSpan="2" className="text-center">
+                              Recherche
+                            </td>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td colSpan="2" className="text-center">
+                              <input
+                                type="text"
+                                value={searchCastle}
+                                placeholder="recherche par chateau"
+                                onChange={handleSearchCastle}
+                              />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input
+                                type="number"
+                                value={searchYear}
+                                placeholder="recherche par année"
+                                onChange={handleSearchYear}
+                              />
+                            </td>
+
+                            <td>
+                              <input
+                                type="text"
+                                value={searchRegion}
+                                placeholder="recherche par région"
+                                onChange={handleSearchRegion}
+                              />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input
+                                type="text"
+                                value={searchCountry}
+                                placeholder="recherche par pays"
+                                onChange={handleSearchCountry}
+                              />
+                            </td>
+
+                            <td>
+                              <input
+                                type="text"
+                                value={searchType}
+                                placeholder="recherche par type"
+                                onChange={handleSearchType}
+                              />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input
+                                type="text"
+                                value={searchWhereIFindIt}
+                                placeholder="recherche par lieu"
+                                onChange={handleSearchWhereIFindIt}
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="text"
+                                value={searchLiterage}
+                                placeholder="recherche par litres"
+                                onChange={handleSearchLiterage}
+                              />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input
+                                type="number"
+                                value={searchPriceMin}
+                                placeholder="Prix supérieur ou égal à"
+                                onChange={handleSearchPriceMin}
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="number"
+                                value={searchPriceMax}
+                                placeholder="Prix inférieur ou égal à"
+                                onChange={handleSearchPriceMax}
+                              />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input
+                                type="number"
+                                value={searchQuantityMin}
+                                placeholder="nb de bouteilles supérieur ou égal à"
+                                onChange={handleSearchQuantityMin}
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="number"
+                                value={searchQuantityMax}
+                                placeholder="nb de bouteilles inférieur ou égal à"
+                                onChange={handleSearchQuantityMax}
+                              />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input
+                                type="text"
+                                value={searchComments}
+                                placeholder="recherche par commentaires"
+                                onChange={handleSearchComments}
+                              />
+                            </td>
+
+                            <td>
+                              <input
+                                type="text"
+                                value={searchAddedAt}
+                                placeholder="recherche par date"
+                                onChange={handleSearchAddedAt}
+                              />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="text-center">
+                              <button
+                                className="btn btn-danger"
+                                onClick={() => setShowSearch(!showSearch)}
+                              >
+                                annuler la recherche
+                              </button>
+                            </td>
+                            <td className="text-center">
+                              <button
+                                className="btn btn-warning"
+                                onClick={resetFilter}
+                              >
+                                reset Filter
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  addNewWine === false && (
+                    <SearchOutlinedIcon
+                      onClick={() => {
+                        setShowSearch(!showSearch);
+                        cancelEditing();
+                      }}
+                      style={{ fontSize: "3rem", cursor: "pointer" }}
+                    />
+                  )
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="col-12 col-md-6 mx-auto "></div>
+        </div>
+        <div className="table-responsive">
+          {/* Search input fields */}
+          <table className="table table-striped table-bordered table-hover">
+            <thead>
+              <tr className="text-center">
+                <th scope="col">Etiquette</th>
+                <th scope="col">Nom</th>
+                <th scope="col">année</th>
+                <th scope="col">Région</th>
+
+                {/* <th scope="col">Pays</th>
+              <th scope="col">Type</th>
+
+              <th scope="col">Ou je l'ai eu</th>
+
+              <th scope="col">prix</th>
+              <th scope="col">Quantité</th>
+              <th scope="col">Litres</th>
+              <th scope="col">Commentaires</th>
+              <th scope="col">ajouté le</th> */}
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {listOfWines
+                .filter(
+                  (wine) =>
+                    wine.nomDuChateau
+                      .toLowerCase()
+                      .includes(searchCastle.toLowerCase()) &&
+                    // year is a number
+                    (!searchYear || wine.year === Number(searchYear)) &&
+                    wine.region
+                      .toLowerCase()
+                      .includes(searchRegion.toLowerCase()) &&
+                    wine.country
+                      .toLowerCase()
+                      .includes(searchCountry.toLowerCase()) &&
+                    wine.typeDeVin
+                      .toLowerCase()
+                      .includes(searchType.toLowerCase()) &&
+                    wine.whereIFindIt
+                      .toLowerCase()
+                      .includes(searchWhereIFindIt.toLowerCase()) &&
+                    // wine price <= search price
+                    (!searchPriceMin || wine.price >= searchPriceMin) &&
+                    (!searchPriceMax || wine.price <= searchPriceMax) &&
+                    // wine quantity <= search quantity
+                    (!searchQuantityMin ||
+                      wine.quantity >= searchQuantityMin) &&
+                    (!searchQuantityMax ||
+                      wine.quantity <= searchQuantityMax) &&
+                    wine.literage
+                      .toLowerCase()
+                      .includes(searchLiterage.toLowerCase()) &&
+                    wine.comments
+                      .toLowerCase()
+                      .includes(searchComments.toLowerCase()) &&
+                    new Date(wine.date)
+                      .toLocaleDateString("fr-FR")
+                      .includes(searchAddedAt)
+                )
+                .map((wine) => (
+                  <tr key={wine._id}>
+                    <td>
+                      <Link to={`/BouteilleDeVin/${wine._id}`}>
+                        <img
+                          src={wine.pictureData}
+                          alt={wine.nomDuChateau}
+                          className="img-thumbnail img-fluid"
+                          style={{ maxHeight: "10rem" }}
+                        />
+                      </Link>
+                    </td>
+                    <td>{wine.nomDuChateau}</td>
+                    <td>{wine.year}</td>
+                    <td>{wine.region}</td>
+                    {/* <td>{wine.country}</td> */}
+                    {/* <td>{wine.typeDeVin}</td>
+                  <td>{wine.whereIFindIt}</td>
+                  <td>{wine.price}</td>
+                  <td>{wine.quantity}</td>
+                  <td>{wine.literage}</td>
+                  <td>{wine.comments}</td>
+                  <td>{new Date(wine.date).toLocaleDateString("fr-FR")}</td> */}
+                    <td>
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => deleteWineById(wine._id)}
+                      >
+                        Supprimer
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
         </div>
       </div>
-    </div>
+    )
   );
 };
 

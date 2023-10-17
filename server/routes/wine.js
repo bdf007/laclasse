@@ -5,6 +5,7 @@ const router = express.Router();
 const {
   createWine,
   getWines,
+  getWineById,
   deleteWineById,
   updateWineById,
 } = require("../controllers/wine");
@@ -12,6 +13,7 @@ const {
 // api routes
 router.post("/wine", createWine);
 router.get("/wines", getWines);
+router.get("/wine/:id", getWineById);
 router.delete("/wine/:id", deleteWineById);
 router.put("/wine/:id", updateWineById);
 

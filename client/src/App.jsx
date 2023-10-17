@@ -23,6 +23,7 @@ import Student from "./pages/Student";
 import User from "./pages/User";
 import NotFound from "./pages/NotFound";
 import Vinotheque from "./pages/Vinotheque";
+import WineAbout from "./pages/WineAbout";
 
 import Footer from "./component/footer";
 
@@ -80,6 +81,11 @@ function App() {
             user.role === "AdminVin" ? (
               <>
                 <Route exact path="/Vinotheque" element={<Vinotheque />} />
+                <Route
+                  exact
+                  path="/BouteilleDeVin/:id"
+                  element={<WineAbout />}
+                />
                 <Route path="*" element={<NotFound />} />
               </>
             ) : (
