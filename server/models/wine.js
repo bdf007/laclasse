@@ -13,22 +13,18 @@ const wineSchema = new mongoose.Schema({
   region: {
     type: String,
     trim: true,
-    lowercase: true,
   },
   country: {
     type: String,
     trim: true,
-    lowercase: true,
   },
   typeDeVin: {
     type: String,
     trim: true,
-    lowercase: true,
   },
   whereIFindIt: {
     type: String,
     trim: true,
-    lowercase: true,
   },
   price: {
     type: Number,

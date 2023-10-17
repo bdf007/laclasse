@@ -46,16 +46,16 @@ const Bibliotheque = () => {
       );
 
       // Create an array of promises to fetch user data for all books
-      const fetchUserPromises = response.data.map((book) => {
+      const fetchUserPromises = await response.data.map((book) => {
         if (book.statut === "emprunté") {
           const user = listOfUsers.find((user) => user._id === book.emprunteur);
           if (user) {
-            book.emprunteur = `${user.firstname} ${user.lastname}`;
+            book.emprunteurName = `${user.firstname} ${user.lastname}`;
           } else {
-            book.emprunteur = null;
+            book.emprunteurName = null;
           }
         } else {
-          book.emprunteur = null;
+          book.emprunteurName = null;
           book.statut = "disponible";
         }
         return book;
@@ -153,15 +153,32 @@ const Bibliotheque = () => {
           `${process.env.REACT_APP_API_URL}/api/book`,
           bookData
         );
+        getListOfBooks();
         toast.success("Livre ajouté avec succès");
         setListOfBooks((prevBooks) => [...prevBooks, response.data]);
       };
       resetForm();
-      window.location.reload();
     } catch (error) {
       toast.error("Erreur lors de l'ajout du livre");
     }
   };
+
+  // Filter condition that checks if the properties exist before calling toLowerCase()
+  const filterdBooks = listOfBooks.filter((book) => {
+    const matchesSearchTitle =
+      !searchTitle ||
+      (book.title &&
+        book.title.toLowerCase().includes(searchTitle.toLowerCase()));
+    const matchesSearchAuthor =
+      !searchAuthor ||
+      (book.author &&
+        book.author.toLowerCase().includes(searchAuthor.toLowerCase()));
+    const matchesSearchGenre =
+      !searchGenre ||
+      (book.genre &&
+        book.genre.toLowerCase().includes(searchGenre.toLowerCase()));
+    return matchesSearchTitle && matchesSearchAuthor && matchesSearchGenre;
+  });
 
   const deleteBookById = async (id) => {
     try {
@@ -414,80 +431,64 @@ const Bibliotheque = () => {
                     )}
                   </tr>
                 ) : (
-                  listOfBooks
-                    .filter(
-                      (book) =>
-                        book.author
-                          .toLowerCase()
-                          .includes(searchAuthor.toLowerCase()) &&
-                        book.title
-                          .toLowerCase()
-                          .includes(searchTitle.toLowerCase()) &&
-                        book.genre
-                          .toLowerCase()
-                          .includes(searchGenre.toLowerCase())
-                    )
-                    .map((book) => (
-                      <tr key={book._id}>
-                        <th className="text-justify">{book.title}</th>
-                        <td className="text-justify">{book.author}</td>
-                        <td>{book.genre}</td>
-                        {show === true && (
-                          <td className="text-justify">{book.description}</td>
-                        )}
-                        {show === true && <td>{book.statut}</td>}
-                        <td>
-                          <img
-                            src={book.imageData}
-                            alt={book.title}
-                            className="img-thumbnail"
-                          />
-                        </td>
-                        {show === true && <td>{book.emprunteur}</td>}
-                        {(user.role === "admin" ||
-                          user.role === "superadmin") &&
-                          show === true && (
-                            <>
-                              <td>
-                                <button
-                                  type="button"
-                                  className="btn btn-danger"
-                                  onClick={() => deleteBookById(book._id)}
-                                >
-                                  supprimer
-                                </button>
-                                <br />
-                                <br />
-                                <select
-                                  className="form-select"
-                                  aria-label="Default select example"
-                                  value={selectedUser}
-                                  onChange={(e) =>
-                                    setSelectedUser(e.target.value)
-                                  }
-                                >
-                                  <option value="">
-                                    Choisir un emprunteur
+                  filterdBooks.map((book) => (
+                    <tr key={book._id}>
+                      <th className="text-justify">{book.title}</th>
+                      <td className="text-justify">{book.author}</td>
+                      <td>{book.genre}</td>
+                      {show === true && (
+                        <td className="text-justify">{book.description}</td>
+                      )}
+                      {show === true && <td>{book.statut}</td>}
+                      <td>
+                        <img
+                          src={book.imageData}
+                          alt={book.title}
+                          className="img-thumbnail"
+                        />
+                      </td>
+                      {show === true && <td>{book.emprunteurName}</td>}
+                      {(user.role === "admin" || user.role === "superadmin") &&
+                        show === true && (
+                          <>
+                            <td>
+                              <button
+                                type="button"
+                                className="btn btn-danger"
+                                onClick={() => deleteBookById(book._id)}
+                              >
+                                supprimer
+                              </button>
+                              <br />
+                              <br />
+                              <select
+                                className="form-select"
+                                aria-label="Default select example"
+                                value={selectedUser}
+                                onChange={(e) =>
+                                  setSelectedUser(e.target.value)
+                                }
+                              >
+                                <option value="">Choisir un emprunteur</option>
+                                {listOfUsers.map((user) => (
+                                  <option key={user._id} value={user._id}>
+                                    {user.firstname} {user.lastname}
                                   </option>
-                                  {listOfUsers.map((user) => (
-                                    <option key={user._id} value={user._id}>
-                                      {user.firstname} {user.lastname}
-                                    </option>
-                                  ))}
-                                  <option value="none">Aucun</option>
-                                </select>
-                                <button
-                                  type="button"
-                                  className="btn btn-primary"
-                                  onClick={() => assignUserToBook(book._id)}
-                                >
-                                  assigner
-                                </button>
-                              </td>
-                            </>
-                          )}
-                      </tr>
-                    ))
+                                ))}
+                                <option value="none">Aucun</option>
+                              </select>
+                              <button
+                                type="button"
+                                className="btn btn-primary"
+                                onClick={() => assignUserToBook(book._id)}
+                              >
+                                assigner
+                              </button>
+                            </td>
+                          </>
+                        )}
+                    </tr>
+                  ))
                 )}
 
                 {(user.role === "admin" || user.role === "superadmin") &&

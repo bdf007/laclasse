@@ -216,11 +216,11 @@ const Vinotheque = () => {
           `${process.env.REACT_APP_API_URL}/api/wine`,
           wineData
         );
+        getListOfWines();
         toast.success("Vin ajouté avec succès");
         setListOfWines((prevWines) => [...prevWines, response.data]);
       };
       resetForm();
-      window.location.reload();
     } catch (error) {
       toast.error("Erreur lors de l'ajout du vin");
     }
@@ -257,25 +257,12 @@ const Vinotheque = () => {
     setCountry("");
     setTypeDeVin("");
     setWhereIFindIt("");
-    setPrice(0);
-    setQuantity(0);
+    setPrice("");
+    setQuantity("");
     setLiterage("Bouteille - 0.75 l");
     setComments("");
     setSelectedFile(null);
     resetFilter();
-
-    // clear input file
-    // document.getElementById("chateau").value = null;
-    // document.getElementById("year").value = null;
-    // document.getElementById("region").value = null;
-    // document.getElementById("country").value = null;
-    // document.getElementById("type").value = null;
-    // document.getElementById("whereIFindIt").value = null;
-    // document.getElementById("price").value = null;
-    // document.getElementById("quantity").value = null;
-    // document.getElementById("literage").value = null;
-    // document.getElementById("comments").value = null;
-    // document.getElementById("file").value = null;
   };
 
   const resetFilter = () => {
@@ -293,6 +280,77 @@ const Vinotheque = () => {
     setSearchComments("");
     setSearchAddedAt("");
   };
+
+  // Filter condition that checks if the properties exist before calling toLowerCase()
+  const filteredWines = listOfWines.filter((wine) => {
+    const matchesSearchCastle =
+      !searchCastle ||
+      (wine.nomDuChateau &&
+        wine.nomDuChateau.toLowerCase().includes(searchCastle.toLowerCase()));
+    const matchesSearchYear =
+      !searchYear || (wine.year && wine.year.toString().includes(searchYear));
+    const matchesSearchRegion =
+      !searchRegion ||
+      (wine.region &&
+        wine.region.toLowerCase().includes(searchRegion.toLowerCase()));
+    const matchesSearchCountry =
+      !searchCountry ||
+      (wine.country &&
+        wine.country.toLowerCase().includes(searchCountry.toLowerCase()));
+    const matchesSearchType =
+      !searchType ||
+      (wine.typeDeVin &&
+        wine.typeDeVin.toLowerCase().includes(searchType.toLowerCase()));
+    const matchesSearchWhereIFindIt =
+      !searchWhereIFindIt ||
+      (wine.whereIFindIt &&
+        wine.whereIFindIt
+          .toLowerCase()
+          .includes(searchWhereIFindIt.toLowerCase()));
+    const matchesSearchPriceMin =
+      !searchPriceMin || (wine.price && wine.price >= searchPriceMin);
+    const matchesSearchPriceMax =
+      !searchPriceMax || (wine.price && wine.price <= searchPriceMax);
+    const matchesSearchQuantityMin =
+      !searchQuantityMin ||
+      (wine.quantity && wine.quantity >= searchQuantityMin);
+    const matchesSearchQuantityMax =
+      !searchQuantityMax ||
+      (wine.quantity && wine.quantity <= searchQuantityMax);
+    const matchesSearchLiterage =
+      !searchLiterage ||
+      (wine.literage &&
+        wine.literage.toLowerCase().includes(searchLiterage.toLowerCase()));
+    const matchesSearchComments =
+      !searchComments ||
+      (wine.comments &&
+        wine.comments.toLowerCase().includes(searchComments.toLowerCase()));
+    const matchesSearchAddedAt =
+      !searchAddedAt ||
+      (new Date(wine.date) &&
+        new Date(wine.date)
+          .toLocaleDateString("fr-FR")
+          .includes(searchAddedAt));
+
+    // Return true if the wine matches all the filter criteria, or false otherwise
+    return (
+      matchesSearchCastle &&
+      matchesSearchYear &&
+      matchesSearchRegion &&
+      matchesSearchCountry &&
+      matchesSearchType &&
+      matchesSearchWhereIFindIt &&
+      matchesSearchPriceMin &&
+      matchesSearchPriceMax &&
+      matchesSearchQuantityMin &&
+      matchesSearchQuantityMax &&
+      matchesSearchLiterage &&
+      matchesSearchComments &&
+      matchesSearchAddedAt
+    );
+  });
+
+  // Now you can map the filteredWines to display them in the table
 
   // check if the size of the window is a mobile size
   const handleResize = () => {
@@ -701,58 +759,48 @@ const Vinotheque = () => {
                 <th scope="col">année</th>
                 <th scope="col">Région</th>
 
-                {/* <th scope="col">Pays</th>
-              <th scope="col">Type</th>
-
-              <th scope="col">Ou je l'ai eu</th>
-
-              <th scope="col">prix</th>
-              <th scope="col">Quantité</th>
-              <th scope="col">Litres</th>
-              <th scope="col">Commentaires</th>
-              <th scope="col">ajouté le</th> */}
                 <th scope="col">Action</th>
               </tr>
             </thead>
             <tbody>
-              {listOfWines
-                .filter(
-                  (wine) =>
-                    wine.nomDuChateau
-                      .toLowerCase()
-                      .includes(searchCastle.toLowerCase()) &&
-                    // year is a number
-                    (!searchYear || wine.year === Number(searchYear)) &&
-                    wine.region
-                      .toLowerCase()
-                      .includes(searchRegion.toLowerCase()) &&
-                    wine.country
-                      .toLowerCase()
-                      .includes(searchCountry.toLowerCase()) &&
-                    wine.typeDeVin
-                      .toLowerCase()
-                      .includes(searchType.toLowerCase()) &&
-                    wine.whereIFindIt
-                      .toLowerCase()
-                      .includes(searchWhereIFindIt.toLowerCase()) &&
-                    // wine price <= search price
-                    (!searchPriceMin || wine.price >= searchPriceMin) &&
-                    (!searchPriceMax || wine.price <= searchPriceMax) &&
-                    // wine quantity <= search quantity
-                    (!searchQuantityMin ||
-                      wine.quantity >= searchQuantityMin) &&
-                    (!searchQuantityMax ||
-                      wine.quantity <= searchQuantityMax) &&
-                    wine.literage
-                      .toLowerCase()
-                      .includes(searchLiterage.toLowerCase()) &&
-                    wine.comments
-                      .toLowerCase()
-                      .includes(searchComments.toLowerCase()) &&
-                    new Date(wine.date)
-                      .toLocaleDateString("fr-FR")
-                      .includes(searchAddedAt)
-                )
+              {filteredWines
+                // .filter(
+                //   (wine) =>
+                //     wine.nomDuChateau
+                //       .toLowerCase()
+                //       .includes(searchCastle.toLowerCase()) &&
+                //     // year is a number
+                //     (!searchYear || wine.year === Number(searchYear)) &&
+                //     wine.region
+                //       .toLowerCase()
+                //       .includes(searchRegion.toLowerCase()) &&
+                //     wine.country
+                //       .toLowerCase()
+                //       .includes(searchCountry.toLowerCase()) &&
+                //     wine.typeDeVin
+                //       .toLowerCase()
+                //       .includes(searchType.toLowerCase()) &&
+                //     wine.whereIFindIt
+                //       .toLowerCase()
+                //       .includes(searchWhereIFindIt.toLowerCase()) &&
+                //     // wine price <= search price
+                //     (!searchPriceMin || wine.price >= searchPriceMin) &&
+                //     (!searchPriceMax || wine.price <= searchPriceMax) &&
+                //     // wine quantity <= search quantity
+                //     (!searchQuantityMin ||
+                //       wine.quantity >= searchQuantityMin) &&
+                //     (!searchQuantityMax ||
+                //       wine.quantity <= searchQuantityMax) &&
+                //     wine.literage
+                //       .toLowerCase()
+                //       .includes(searchLiterage.toLowerCase()) &&
+                //     wine.comments
+                //       .toLowerCase()
+                //       .includes(searchComments.toLowerCase()) &&
+                //     new Date(wine.date)
+                //       .toLocaleDateString("fr-FR")
+                //       .includes(searchAddedAt)
+                // )
                 .map((wine) => (
                   <tr key={wine._id}>
                     <td>
@@ -768,14 +816,7 @@ const Vinotheque = () => {
                     <td>{wine.nomDuChateau}</td>
                     <td>{wine.year}</td>
                     <td>{wine.region}</td>
-                    {/* <td>{wine.country}</td> */}
-                    {/* <td>{wine.typeDeVin}</td>
-                  <td>{wine.whereIFindIt}</td>
-                  <td>{wine.price}</td>
-                  <td>{wine.quantity}</td>
-                  <td>{wine.literage}</td>
-                  <td>{wine.comments}</td>
-                  <td>{new Date(wine.date).toLocaleDateString("fr-FR")}</td> */}
+
                     <td>
                       <button
                         className="btn btn-danger"
