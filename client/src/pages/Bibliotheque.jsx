@@ -332,9 +332,13 @@ const Bibliotheque = () => {
                 {!listOfBooks || listOfBooks.length === 0 ? (
                   <tr>
                     {show === true ? (
-                      <td colSpan="8">Aucun livre</td>
+                      <td colSpan="8" className="text-center">
+                        Aucun livre pour le moment
+                      </td>
                     ) : (
-                      <td colSpan="7">Aucun livre</td>
+                      <td colSpan="7" className="text-center">
+                        Aucun livre pour le moment
+                      </td>
                     )}
                   </tr>
                 ) : (
@@ -426,9 +430,13 @@ const Bibliotheque = () => {
                 {!listOfBooks || listOfBooks.length === 0 ? (
                   <tr>
                     {show === true ? (
-                      <td colSpan="8">Aucun livre</td>
+                      <td colSpan="8" className="text-center">
+                        Aucun livre pour le moment
+                      </td>
                     ) : (
-                      <td colSpan="4">Aucun livre</td>
+                      <td colSpan="4" className="text-center">
+                        Aucun livre pour le moment
+                      </td>
                     )}
                   </tr>
                 ) : (
