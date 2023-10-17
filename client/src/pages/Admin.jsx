@@ -15,7 +15,7 @@ const Admin = () => {
   // get the list of the classes
   const [listOfClass, setListOfClass] = useState([]);
   const [selectedClass, setSelectedClass] = useState({});
-  const [selectedRole, setSelectedRole] = useState({});
+  const [selectedRole, setSelectedRole] = useState({ user });
   const [viewMode, setViewMode] = useState("cards");
   const [width, setWidth] = useState(window.innerWidth);
 
@@ -162,6 +162,7 @@ const Admin = () => {
   };
 
   const updateUserRole = (id) => {
+    console.log("updateUserRole");
     // check if the selected role is user
     if (selectedRole === "user" || selectedRole === "oldstudent") {
       // if the selected role is user, check if the user has a class
@@ -401,6 +402,7 @@ const Admin = () => {
                                 <option value="AdminVin">
                                   Admin Vinotheque
                                 </option>
+
                                 {/* Add more role options as needed */}
                               </select>
                             </li>

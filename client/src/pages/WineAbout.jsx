@@ -287,7 +287,6 @@ const WineAbout = () => {
         )}
 
         <div className="d-flex justify-content-center">
-          {/* Display wine details using wineId */}
           <Link to="/Vinotheque">Back to Wine List</Link>
         </div>
       </div>

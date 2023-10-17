@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
@@ -83,9 +84,13 @@ const Bibliotheque = () => {
       if (selectedUser === "none") {
         emprunteurValue = null;
         book.statut = "disponible";
+        book.firstname = null;
+        book.lastname = null;
         await axios
           .put(`${process.env.REACT_APP_API_URL}/api/book/${bookId}`, {
             emprunteur: emprunteurValue,
+            firstname: null,
+            lastname: null,
             statut: "disponible",
           })
           .then(() => {
@@ -95,9 +100,19 @@ const Bibliotheque = () => {
             setSelectedUser("");
           });
       } else {
+        // Get the info of the selectedUser
+        await axios
+          .get(`${process.env.REACT_APP_API_URL}/api/user/${selectedUser}`)
+          .then((res) => {
+            book.firstname = res.data.firstname;
+            book.lastname = res.data.lastname;
+          });
+
         await axios
           .put(`${process.env.REACT_APP_API_URL}/api/book/${bookId}`, {
             emprunteur: emprunteurValue,
+            firstname: book.firstname,
+            lastname: book.lastname,
             statut: "emprunté",
           })
           .then(() => {
@@ -272,7 +287,7 @@ const Bibliotheque = () => {
         <div className="table-responsive">
           {/* Search input fields */}
 
-          {!user ? (
+          {!user || user.role === "user" ? (
             <table className="table table-striped table-bordered table-hover">
               <thead>
                 <tr>
@@ -323,40 +338,26 @@ const Bibliotheque = () => {
                     )}
                   </tr>
                 ) : (
-                  listOfBooks
-                    .filter(
-                      (book) =>
-                        book.author &&
-                        book.author
-                          .toLowerCase()
-                          .includes(searchAuthor.toLowerCase()) &&
-                        book.title &&
-                        book.title
-                          .toLowerCase()
-                          .includes(searchTitle.toLowerCase()) &&
-                        book.genre &&
-                        book.genre
-                          .toLowerCase()
-                          .includes(searchGenre.toLowerCase())
-                    )
-                    .map((book) => (
-                      <tr key={book._id}>
-                        <th className="text-justify">{book.title}</th>
-                        <td className="text-justify">{book.author}</td>
-                        <td>{book.genre}</td>
-                        {show === true && (
-                          <td className="text-justify">{book.description}</td>
-                        )}
-                        <td>
+                  filterdBooks.map((book) => (
+                    <tr key={book._id}>
+                      <th className="text-justify">{book.title}</th>
+                      <td className="text-justify">{book.author}</td>
+                      <td>{book.genre}</td>
+                      {show === true && (
+                        <td className="text-justify">{book.description}</td>
+                      )}
+                      <td>
+                        <Link to={`/BookAbout/${book._id}`}>
                           <img
                             src={book.imageData}
                             alt={book.title}
                             className="img-thumbnail"
                             style={{ maxWidth: "200px", maxHeight: "200px" }}
                           />
-                        </td>
-                      </tr>
-                    ))
+                        </Link>
+                      </td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>
@@ -374,10 +375,10 @@ const Bibliotheque = () => {
                     </>
                   )}
                   <th scope="col">couverture</th>
+                  {show === true && <th scope="col">emprunteur</th>}
                   {(user.role === "admin" || user.role === "superadmin") &&
                     show === true && (
                       <>
-                        <th scope="col">emprunteur</th>
                         <th scope="col">action</th>
                       </>
                     )}
@@ -413,10 +414,10 @@ const Bibliotheque = () => {
                     <td></td>
                     {show === true && <td></td>}
                     <td></td>
+                    <td></td>
                     {(user.role === "admin" || user.role === "superadmin") &&
                       show === true && (
                         <>
-                          <td></td>
                           <td></td>
                         </>
                       )}
@@ -441,13 +442,22 @@ const Bibliotheque = () => {
                       )}
                       {show === true && <td>{book.statut}</td>}
                       <td>
-                        <img
-                          src={book.imageData}
-                          alt={book.title}
-                          className="img-thumbnail"
-                        />
+                        <Link to={`/BookAbout/${book._id}`}>
+                          <img
+                            src={book.imageData}
+                            alt={book.title}
+                            className="img-thumbnail"
+                          />
+                        </Link>
                       </td>
-                      {show === true && <td>{book.emprunteurName}</td>}
+                      {show === true &&
+                        (user.role === "student" ||
+                          user.role === "admin" ||
+                          user.role === "superadmin") && (
+                          <td>
+                            {book.firstname} {book.lastname}
+                          </td>
+                        )}
                       {(user.role === "admin" || user.role === "superadmin") &&
                         show === true && (
                           <>

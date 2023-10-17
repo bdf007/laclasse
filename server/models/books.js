@@ -32,6 +32,14 @@ const bookSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  firstname: {
+    type: String,
+    trim: true,
+  },
+  lastname: {
+    type: String,
+    trim: true,
+  },
   salt: String,
 });
 

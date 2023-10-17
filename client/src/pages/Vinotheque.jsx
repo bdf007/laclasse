@@ -379,16 +379,17 @@ const Vinotheque = () => {
     //eslint-disable-next-line
   }, [setListOfWines]);
 
-  return (
-    // check if user is AdminVin
-    user.role !== "AdminVin" ? (
-      <div
-        className="d-flex justify-content-center"
-        style={{ paddingTop: "5rem" }}
-      >
-        <h2>Vous n'avez pas accès à cette page</h2>
-      </div>
-    ) : (
+  return !user || user.role === "user" || user.role === "student" ? (
+    <div
+      className="d-flex justify-content-center"
+      style={{ paddingTop: "5rem" }}
+    >
+      <h2>Vous n'avez pas accès à cette page</h2>
+    </div>
+  ) : (
+    (user.role === "AdminVin" ||
+      user.role === "superadmin" ||
+      user.role === "admin") && (
       <div className="container " style={{ paddingBottom: "12rem" }}>
         <div className="row">
           <h1 className="mx-auto text-center">La cave d'alexis</h1>
@@ -763,70 +764,32 @@ const Vinotheque = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredWines
-                // .filter(
-                //   (wine) =>
-                //     wine.nomDuChateau
-                //       .toLowerCase()
-                //       .includes(searchCastle.toLowerCase()) &&
-                //     // year is a number
-                //     (!searchYear || wine.year === Number(searchYear)) &&
-                //     wine.region
-                //       .toLowerCase()
-                //       .includes(searchRegion.toLowerCase()) &&
-                //     wine.country
-                //       .toLowerCase()
-                //       .includes(searchCountry.toLowerCase()) &&
-                //     wine.typeDeVin
-                //       .toLowerCase()
-                //       .includes(searchType.toLowerCase()) &&
-                //     wine.whereIFindIt
-                //       .toLowerCase()
-                //       .includes(searchWhereIFindIt.toLowerCase()) &&
-                //     // wine price <= search price
-                //     (!searchPriceMin || wine.price >= searchPriceMin) &&
-                //     (!searchPriceMax || wine.price <= searchPriceMax) &&
-                //     // wine quantity <= search quantity
-                //     (!searchQuantityMin ||
-                //       wine.quantity >= searchQuantityMin) &&
-                //     (!searchQuantityMax ||
-                //       wine.quantity <= searchQuantityMax) &&
-                //     wine.literage
-                //       .toLowerCase()
-                //       .includes(searchLiterage.toLowerCase()) &&
-                //     wine.comments
-                //       .toLowerCase()
-                //       .includes(searchComments.toLowerCase()) &&
-                //     new Date(wine.date)
-                //       .toLocaleDateString("fr-FR")
-                //       .includes(searchAddedAt)
-                // )
-                .map((wine) => (
-                  <tr key={wine._id}>
-                    <td>
-                      <Link to={`/BouteilleDeVin/${wine._id}`}>
-                        <img
-                          src={wine.pictureData}
-                          alt={wine.nomDuChateau}
-                          className="img-thumbnail img-fluid"
-                          style={{ maxHeight: "10rem" }}
-                        />
-                      </Link>
-                    </td>
-                    <td>{wine.nomDuChateau}</td>
-                    <td>{wine.year}</td>
-                    <td>{wine.region}</td>
+              {filteredWines.map((wine) => (
+                <tr key={wine._id}>
+                  <td>
+                    <Link to={`/BouteilleDeVin/${wine._id}`}>
+                      <img
+                        src={wine.pictureData}
+                        alt={wine.nomDuChateau}
+                        className="img-thumbnail img-fluid"
+                        style={{ maxHeight: "10rem" }}
+                      />
+                    </Link>
+                  </td>
+                  <td>{wine.nomDuChateau}</td>
+                  <td>{wine.year}</td>
+                  <td>{wine.region}</td>
 
-                    <td>
-                      <button
-                        className="btn btn-danger"
-                        onClick={() => deleteWineById(wine._id)}
-                      >
-                        Supprimer
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                  <td>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => deleteWineById(wine._id)}
+                    >
+                      Supprimer
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

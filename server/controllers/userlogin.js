@@ -1,6 +1,7 @@
 const User = require("../models/userlogin");
 const Class = require("../models/class");
 const CourseFile = require("../models/courseFile");
+const mongoose = require("mongoose");
 
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
@@ -160,6 +161,7 @@ exports.userById = async (req, res, next, id) => {
 };
 
 exports.changeRoleById = async (req, res) => {
+  console.log("change role");
   try {
     const id = req.params.id;
     const { role } = req.body;
@@ -290,4 +292,22 @@ exports.updateProfilePhoto = async (req, res) => {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
+};
+
+// get user by id and send only firstname, lastname and id
+exports.getUserById = async (req, res) => {
+  const id = req.params.id;
+  const _id = new mongoose.Types.ObjectId(id);
+  const userInfo = await User.findById(_id);
+  if (!userInfo) {
+    return res.status(404).json({
+      error: "User not found",
+    });
+  }
+
+  res.status(200).json({
+    _id: userInfo._id,
+    firstname: userInfo.firstname,
+    lastname: userInfo.lastname,
+  });
 };

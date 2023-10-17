@@ -14,6 +14,7 @@ const {
   removeClassToUser,
   updateProfile,
   updateProfilePhoto,
+  getUserById,
   // updateProfile,
 } = require("../controllers/userlogin");
 // import middlewares
@@ -46,5 +47,8 @@ router.post("/update-profile/:id", updateProfile);
 
 //update profile photo
 router.post("/update-profile-photo/:id", updateProfilePhoto);
+
+// get user by id
+router.get("/user/:id", getUserById);
 
 module.exports = router;

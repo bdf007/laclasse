@@ -1,4 +1,5 @@
 const Book = require("../models/books");
+const User = require("../models/userlogin");
 const mongoose = require("mongoose");
 
 exports.createBook = async (req, res) => {
@@ -63,19 +64,19 @@ exports.updateBookById = async (req, res) => {
 };
 
 // get book info
-exports.getBookById = async (req, res, next, id) => {
+exports.getBookById = async (req, res) => {
   try {
     const id = req.params.id;
     // convert the id to a mongoose object
-    const _id = mongoose.Types.ObjectId(id);
+    const _id = new mongoose.Types.ObjectId(id);
     const bookInfo = await Book.findById(_id);
     if (!bookInfo) {
       return res.status(404).json({
         error: "Book not found",
       });
     }
-    req.book = bookInfo;
-    next();
+
+    res.status(200).json(bookInfo);
   } catch (error) {
     console.error(error);
     res.status(500).json({
