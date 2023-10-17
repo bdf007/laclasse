@@ -178,6 +178,11 @@ const NavBarre = () => {
                 {user.role === "AdminVin" && (
                   <>
                     <li className="nav-item">
+                      <Link className="nav-link" to="/AdminInfo">
+                        Gestion de mes informations
+                      </Link>
+                    </li>
+                    <li className="nav-item">
                       <Link className="nav-link" to="/Vinotheque">
                         Vinotheque
                       </Link>

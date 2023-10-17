@@ -91,6 +91,7 @@ function App() {
             ) : // if user is vinotheque
             user.role === "AdminVin" ? (
               <>
+                <Route exact path="/AdminInfo" element={<AdminInfo />} />
                 <Route exact path="/Vinotheque" element={<Vinotheque />} />
                 <Route
                   exact
