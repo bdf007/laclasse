@@ -748,7 +748,6 @@ const Vinotheque = () => {
               </div>
             </div>
           </div>
-          <div className="col-12 col-md-6 mx-auto "></div>
         </div>
         <div className="table-responsive">
           {/* Search input fields */}

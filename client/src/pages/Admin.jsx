@@ -555,45 +555,55 @@ const Admin = () => {
                           )}
                           <td>
                             <ul className="list-inline">
-                              <li className="list-inline-item">
-                                <select
-                                  className="form-select"
-                                  value={selectedRole}
-                                  onChange={(e) =>
-                                    setSelectedRole(e.target.value)
-                                  }
-                                >
-                                  <option value="user">Utilisateur</option>
-                                  <option value="student">Elève</option>
-                                  <option value="admin">Admin</option>
-                                  <option value="superadmin">
-                                    Super Admin
-                                  </option>
-                                  <option value="oldstudent">
-                                    Ancien élève
-                                  </option>
-                                  <option value="AdminVin">
-                                    Admin Vinotheque
-                                  </option>
-                                  {/* Add more role options as needed */}
-                                </select>
-                              </li>
-                              <li className="list-inline-item">
-                                <button
-                                  className="btn btn-primary"
-                                  onClick={() =>
-                                    updateUserRole(user._id, selectedRole)
-                                  }
-                                >
-                                  Modifier le role
-                                </button>
-                              </li>
+                              {user.role === "superadmin" ? (
+                                <li>ne peu etre modifié</li>
+                              ) : (
+                                <>
+                                  <li className="list-inline-item">
+                                    <select
+                                      className="form-select"
+                                      value={selectedRole}
+                                      onChange={(e) =>
+                                        setSelectedRole(e.target.value)
+                                      }
+                                    >
+                                      <option value="user">Utilisateur</option>
+                                      <option value="student">Elève</option>
+                                      <option value="admin">Admin</option>
+                                      <option value="superadmin">
+                                        Super Admin
+                                      </option>
+                                      <option value="oldstudent">
+                                        Ancien élève
+                                      </option>
+                                      <option value="AdminVin">
+                                        Admin Vinotheque
+                                      </option>
+                                      {/* Add more role options as needed */}
+                                    </select>
+                                  </li>
+                                  <li className="list-inline-item">
+                                    <button
+                                      className="btn btn-primary"
+                                      onClick={() =>
+                                        updateUserRole(user._id, selectedRole)
+                                      }
+                                    >
+                                      Modifier le role
+                                    </button>
+                                  </li>
+                                </>
+                              )}
                             </ul>
                           </td>
                           <td>
                             <button
                               className="btn btn-danger"
                               onClick={() => deleteUser(user._id)}
+                              disabled={
+                                user.role === "admin" ||
+                                user.role === "superadmin"
+                              }
                             >
                               Supprimer l'utilisateur
                             </button>

@@ -13,7 +13,7 @@
       "buildPath": ".",
       "port": 3000,
       "envVars": {
-        "MONGO_URI": "mongodb://db:27017/portfolioDocker"
+        "MONGO_URI": "mongodb://db:27017/laclasse"
       }
     }
   }
