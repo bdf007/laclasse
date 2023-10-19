@@ -105,7 +105,9 @@ function Class() {
   };
 
   const updateClass = (classId) => {
-    handleTextareaEnter(updatedClassAbout);
+    if (updatedClassAbout) {
+      handleTextareaEnter(updatedClassAbout);
+    }
     axios
       .put(`${process.env.REACT_APP_API_URL}/api/class/${classId}`, {
         name: updatedClassName,

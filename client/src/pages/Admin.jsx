@@ -556,7 +556,7 @@ const Admin = () => {
                           <td>
                             <ul className="list-inline">
                               {user.role === "superadmin" ? (
-                                <li>ne peu etre modifié</li>
+                                <li>ne peut etre modifié</li>
                               ) : (
                                 <>
                                   <li className="list-inline-item">

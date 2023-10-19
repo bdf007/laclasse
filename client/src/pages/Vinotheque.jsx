@@ -379,7 +379,10 @@ const Vinotheque = () => {
     //eslint-disable-next-line
   }, [setListOfWines]);
 
-  return !user || user.role === "user" || user.role === "student" ? (
+  return !user ||
+    user.role === "user" ||
+    user.role === "student" ||
+    user.role === "oldstudent" ? (
     <div
       className="d-flex justify-content-center"
       style={{ paddingTop: "5rem" }}
