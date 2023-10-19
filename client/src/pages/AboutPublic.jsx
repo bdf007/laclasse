@@ -46,9 +46,9 @@ const AboutPublic = () => {
         {classInfo &&
           classInfo.map((classe) => {
             return (
-              <div key={classe._id}>
+              <div key={classe._id} className="text-wrap">
                 {/* <h1>{classe.name}</h1> */}
-                <pre>{classe.about}</pre>
+                <pre className="text-break">{classe.about}</pre>
               </div>
             );
           })}
