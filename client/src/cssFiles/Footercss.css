@@ -1,0 +1,9 @@
+.list-inline {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 767px) {
+  .list-inline {
+    font-size: 0.6rem; /* Adjust this value as needed for smaller screens */
+  }
+}

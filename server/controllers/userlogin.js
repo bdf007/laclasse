@@ -161,7 +161,6 @@ exports.userById = async (req, res, next, id) => {
 };
 
 exports.changeRoleById = async (req, res) => {
-  console.log("change role");
   try {
     const id = req.params.id;
     const { role } = req.body;
