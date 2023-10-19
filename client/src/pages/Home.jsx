@@ -23,7 +23,7 @@ const Home = () => {
           />
           <meta
             name="keyword"
-            content="french teacher, course, native speaker, stéphanie labbé, la classe de français, la classe"
+            content="french teacher, course, native speaker, stéphanie labbé, la classe de français, la classe, professeur de francais, stéphanie midelet, classe, francais, san diego, calfornie"
           />
         </Helmet>
         <div className="container-fluid" style={{ paddingBottom: "12rem" }}>
