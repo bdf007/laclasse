@@ -217,7 +217,7 @@ const BookAbout = () => {
         )}
 
         <div className="d-flex justify-content-center">
-          <Link to="/Bibliotheque">retour a la bibliothéque</Link>
+          <Link to="/bibliotheque">retour a la bibliothéque</Link>
         </div>
       </div>
     </div>

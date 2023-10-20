@@ -48,7 +48,6 @@ const Admin = () => {
         fetchAndSetClassNames(res.data);
       })
       .catch((error) => {
-        console.error(error);
         toast(error);
       });
 
@@ -87,7 +86,6 @@ const Admin = () => {
 
         setListOfUser(updatedUsers);
       } catch (error) {
-        console.error(error);
         toast(error);
       }
     };
@@ -162,7 +160,6 @@ const Admin = () => {
   };
 
   const updateUserRole = (id) => {
-    console.log("updateUserRole");
     // check if the selected role is user
     if (selectedRole === "user" || selectedRole === "oldstudent") {
       // if the selected role is user, check if the user has a class
@@ -389,11 +386,13 @@ const Admin = () => {
                               <select
                                 key={user._id}
                                 className="form-select"
+                                aria-label="Default select example"
                                 value={selectedRole}
                                 onChange={(e) =>
                                   setSelectedRole(e.target.value)
                                 }
                               >
+                                <option value="">Choisir le role</option>
                                 <option value="user">Utilisateur</option>
                                 <option value="student">Eleve</option>
                                 <option value="admin">Admin</option>
@@ -562,11 +561,16 @@ const Admin = () => {
                                   <li className="list-inline-item">
                                     <select
                                       className="form-select"
+                                      aria-label="Default select example"
                                       value={selectedRole}
                                       onChange={(e) =>
                                         setSelectedRole(e.target.value)
                                       }
                                     >
+                                      <option value="">
+                                        {" "}
+                                        Choisissez le role
+                                      </option>
                                       <option value="user">Utilisateur</option>
                                       <option value="student">Elève</option>
                                       <option value="admin">Admin</option>
