@@ -23,6 +23,7 @@ const Vinotheque = () => {
   const [literage, setLiterage] = useState("Bouteille - 0.75 l");
   const [comments, setComments] = useState("");
   const [listOfWines, setListOfWines] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [addNewWine, setAddNewWine] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchCastle, setSearchCastle] = useState(
@@ -70,6 +71,7 @@ const Vinotheque = () => {
   const [show, setShow] = useState(true);
 
   const getListOfWines = async () => {
+    setIsLoading(true);
     try {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/wines`
@@ -79,6 +81,7 @@ const Vinotheque = () => {
       console.log(error);
       toast.error("Erreur lors de la récupération des vins");
     }
+    setIsLoading(false);
   };
 
   const handleSearchCastle = (e) => {
@@ -388,6 +391,13 @@ const Vinotheque = () => {
       style={{ paddingTop: "5rem" }}
     >
       <h2>Vous n'avez pas accès à cette page</h2>
+    </div>
+  ) : isLoading ? (
+    <div
+      className="d-flex justify-content-center"
+      style={{ paddingTop: "5rem", paddingBottom: "15rem" }}
+    >
+      <h2>Chargement...</h2>
     </div>
   ) : (
     (user.role === "AdminVin" ||

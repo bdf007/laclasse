@@ -18,7 +18,7 @@ import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
 import AdminInfo from "./pages/AdminInfo";
 import ChatAdmin from "./pages/ChatAdmin";
-import BibliothequeBis from "./pages/BibliothequeBis";
+import Bibliotheque from "./pages/Bibliotheque";
 import BookAbout from "./pages/BookAbout";
 import Student from "./pages/Student";
 import User from "./pages/User";
@@ -54,11 +54,7 @@ function App() {
             {!user ? (
               <>
                 <Route exact path="/aboutpublic" element={<AboutPublic />} />
-                <Route
-                  exact
-                  path="/bibliotheque"
-                  element={<BibliothequeBis />}
-                />
+                <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route exact path="/BookAbout/:id" element={<BookAbout />} />
                 <Route exact path="/signup" element={<Signup />} />
                 <Route exact path="/login" element={<Login />} />
@@ -72,11 +68,7 @@ function App() {
                 <Route exact path="/AdminInfo" element={<AdminInfo />} />
                 <Route exact path="/chatadmin" element={<ChatAdmin />} />
                 <Route exact path="/contact" element={<Contact />} />
-                <Route
-                  exact
-                  path="/bibliotheque"
-                  element={<BibliothequeBis />}
-                />
+                <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route exact path="/BookAbout/:id" element={<BookAbout />} />
                 <Route exact path="/Vinotheque" element={<Vinotheque />} />
                 <Route
@@ -92,11 +84,7 @@ function App() {
               <>
                 <Route exact path="/User" element={<User />} />
                 <Route exact path="/contact" element={<Contact />} />
-                <Route
-                  exact
-                  path="/bibliotheque"
-                  element={<BibliothequeBis />}
-                />
+                <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route exact path="/BookAbout/:id" element={<BookAbout />} />
                 <Route path="*" element={<NotFound />} />
               </>
@@ -121,7 +109,7 @@ function App() {
                   <Route
                     exact
                     path="/bibliotheque"
-                    element={<BibliothequeBis />}
+                    element={<Bibliotheque />}
                   />
                   <Route exact path="/BookAbout/:id" element={<BookAbout />} />
                   <Route path="*" element={<NotFound />} />
