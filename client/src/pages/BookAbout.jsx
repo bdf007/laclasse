@@ -183,36 +183,35 @@ const BookAbout = () => {
             {(user.role === "student" || user.role === "user") && (
               <p>{book.statut}</p>
             )}
-            {user.role === "admin" ||
-              (user.role === "superadmin" && (
-                <>
-                  {book.statut === "disponible" ? (
-                    <p>{book.statut}</p>
-                  ) : (
-                    <p>
-                      emprunté par: {book.firstname} {book.lastname}
-                    </p>
-                  )}
-                  <button
-                    className="btn btn-warning"
-                    onClick={() =>
-                      startEditingBook(
-                        bookId,
-                        book.title,
-                        book.author,
-                        book.genre,
-                        book.description
-                      )
-                    }
-                  >
-                    Modifier
-                  </button>
+            {(user.role === "admin" || user.role === "superadmin") && (
+              <>
+                {book.statut === "disponible" ? (
+                  <p>{book.statut}</p>
+                ) : (
+                  <p>
+                    emprunté par: {book.firstname} {book.lastname}
+                  </p>
+                )}
+                <button
+                  className="btn btn-warning"
+                  onClick={() =>
+                    startEditingBook(
+                      bookId,
+                      book.title,
+                      book.author,
+                      book.genre,
+                      book.description
+                    )
+                  }
+                >
+                  Modifier
+                </button>
 
-                  <button className="btn btn-danger" onClick={deleteBook}>
-                    Supprimer
-                  </button>
-                </>
-              ))}
+                <button className="btn btn-danger" onClick={deleteBook}>
+                  Supprimer
+                </button>
+              </>
+            )}
           </div>
         )}
 
