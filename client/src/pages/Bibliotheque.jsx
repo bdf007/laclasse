@@ -4,6 +4,11 @@ import axios from "axios";
 import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
 
+//design
+import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
+
 const Bibliotheque = () => {
   const { user } = useContext(UserContext);
   const [title, setTitle] = useState("");
@@ -13,20 +18,27 @@ const Bibliotheque = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [listOfBooks, setListOfBooks] = useState([]);
   const [listOfUsers, setListOfUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState("");
-  const [searchAuthor, setSearchAuthor] = useState(
-    localStorage.getItem("searchAuthor") || ""
-  );
   const [searchTitle, setSearchTitle] = useState(
     localStorage.getItem("searchTitle") || ""
+  );
+  const [searchAuthor, setSearchAuthor] = useState(
+    localStorage.getItem("searchAuthor") || ""
   );
   const [searchGenre, setSearchGenre] = useState(
     localStorage.getItem("searchGenre") || ""
   );
-  //get the size of the window
-  const [width, setWidth] = useState(window.innerWidth);
-  const [show, setShow] = useState(true);
+  const [searchStatus, setSearchStatus] = useState(
+    localStorage.getItem("searchStatus") || ""
+  );
+  const [addNewBook, setAddNewBook] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
+  const [show, setShow] = useState(false);
+  const [width, setWidth] = useState(window.innerWidth);
+
+  // get the list of the users
   const getListOfUsers = async () => {
     try {
       const response = await axios.get(
@@ -40,7 +52,10 @@ const Bibliotheque = () => {
     }
   };
 
+  // get the list of the books
   const getListOfBooks = async () => {
+    setIsLoading(true);
+
     try {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/books`
@@ -71,8 +86,10 @@ const Bibliotheque = () => {
       console.log(error);
       toast.error("Erreur lors de la récupération des livres");
     }
+    setIsLoading(false);
   };
 
+  // assign a user to a book
   const assignUserToBook = async (bookId) => {
     try {
       let emprunteurValue = selectedUser;
@@ -173,6 +190,7 @@ const Bibliotheque = () => {
         setListOfBooks((prevBooks) => [...prevBooks, response.data]);
       };
       resetForm();
+      setAddNewBook(false);
     } catch (error) {
       toast.error("Erreur lors de l'ajout du livre");
     }
@@ -211,21 +229,28 @@ const Bibliotheque = () => {
     }
   };
 
+  const cancelEditing = () => {
+    setAddNewBook(false);
+    resetForm();
+  };
+
   const resetForm = () => {
     setTitle("");
     setAuthor("");
     setGenre("");
     setDescription("");
     setSelectedFile(null);
-    setSearchAuthor("");
+  };
+
+  const resetFilters = () => {
     setSearchTitle("");
+    setSearchAuthor("");
     setSearchGenre("");
-    // clear input file
-    document.getElementById("file").value = null;
-    document.getElementById("title").value = "";
-    document.getElementById("author").value = "";
-    document.getElementById("genre").value = "";
-    document.getElementById("description").value = "";
+    setSearchStatus("");
+    localStorage.removeItem("searchTitle");
+    localStorage.removeItem("searchAuthor");
+    localStorage.removeItem("searchGenre");
+    localStorage.removeItem("searchStatus");
   };
 
   const handleSearchAuthor = (e) => {
@@ -249,6 +274,13 @@ const Bibliotheque = () => {
     localStorage.setItem("searchGenre", value);
   };
 
+  const handleSearchStatus = (e) => {
+    e.preventDefault();
+    const value = e.target.value;
+    setSearchStatus(value);
+    localStorage.setItem("searchStatus", value);
+  };
+
   // check if the size of the window is a mobile size
   const handleResize = () => {
     const newWidth = window.innerWidth;
@@ -259,6 +291,7 @@ const Bibliotheque = () => {
       setShow(true);
     }
   };
+
   useEffect(() => {
     handleResize(); // Call it on initial render
     window.addEventListener("resize", handleResize); // Attach it to the resize event
@@ -279,77 +312,128 @@ const Bibliotheque = () => {
     //eslint-disable-next-line
   }, [setListOfBooks, setListOfUsers, user]);
 
-  return (
+  return isLoading ? (
+    <div
+      className="d-flex justify-content-center"
+      style={{ paddingBottom: "12rem", paddingTop: "5rem" }}
+    >
+      <h2>Chargement...</h2>
+    </div>
+  ) : (
     <div className="container " style={{ paddingBottom: "12rem" }}>
       <div className="row">
         <h1 className="mx-auto text-center">La bibliothéque de Stéphanie</h1>
 
-        <div className="table-responsive">
-          {/* Search input fields */}
-
-          {!user || user.role === "user" ? (
-            <table className="table table-striped table-bordered table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">titre</th>
-                  <th scope="col">auteur</th>
-                  <th scope="col">genre</th>
-                  {show === true && <th scope="col">résumé</th>}
-                  <th scope="col">couverture</th>
-                </tr>
-              </thead>
-              <tbody>
-                {show === true && (
-                  <tr className="search-fields">
-                    <td>
-                      <input
-                        type="text"
-                        value={searchTitle}
-                        placeholder="recherche par titre"
-                        onChange={handleSearchTitle}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={searchAuthor}
-                        placeholder="recherche par auteur"
-                        onChange={handleSearchAuthor}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={searchGenre}
-                        placeholder="recherche par genre"
-                        onChange={handleSearchGenre}
-                      />
-                    </td>
-                    {show === true && <td></td>}
-                    <td></td>
+        {(!user || user.role === "user") && (
+          <div>
+            {showSearch ? (
+              <div className="d-flex justify-content-center">
+                <CancelOutlinedIcon
+                  onClick={() => {
+                    setShowSearch(false);
+                    resetFilters();
+                  }}
+                  style={{ fontSize: "3rem", cursor: "pointer" }}
+                />
+                <div className="table-responsive">
+                  <table>
+                    <thead>
+                      <tr>
+                        <td colSpan="2" className="text-center">
+                          Recherche
+                        </td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="text-center">
+                          <input
+                            type="text"
+                            placeholder="Titre"
+                            className="form-control"
+                            value={searchTitle}
+                            onChange={handleSearchTitle}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            placeholder="Auteur"
+                            className="form-control"
+                            value={searchAuthor}
+                            onChange={handleSearchAuthor}
+                          />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <input
+                            type="text"
+                            placeholder="Genre"
+                            className="form-control"
+                            value={searchGenre}
+                            onChange={handleSearchGenre}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            placeholder="status"
+                            className="form-control"
+                            value={searchStatus}
+                            onChange={handleSearchStatus}
+                          />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="text-center">
+                          <button
+                            className="btn btn-warning"
+                            onClick={resetFilters}
+                          >
+                            Reset
+                          </button>
+                        </td>
+                        <td className="text-center">
+                          <button
+                            className="btn btn-danger"
+                            onClick={() => {
+                              setShowSearch(!showSearch);
+                              resetFilters();
+                            }}
+                          >
+                            annuler la recherche
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <SearchOutlinedIcon
+                  onClick={() => {
+                    setShowSearch(!showSearch);
+                  }}
+                  style={{ fontSize: "3rem", cursor: "pointer" }}
+                />
+              </div>
+            )}
+            <div className="table-responsive">
+              <table className="table table-striped table-bordered table-hover">
+                <thead>
+                  <tr className="text-center">
+                    <th scope="col">Couverture</th>
+                    <th scope="col">Titre</th>
+                    <th scope="col">Auteur</th>
+                    <th scope="col">genre</th>
+                    {show && <th scope="col">Résumé</th>}
                   </tr>
-                )}
-                {!listOfBooks || listOfBooks.length === 0 ? (
-                  <tr>
-                    {show === true ? (
-                      <td colSpan="8" className="text-center">
-                        Aucun livre pour le moment
-                      </td>
-                    ) : (
-                      <td colSpan="7" className="text-center">
-                        Aucun livre pour le moment
-                      </td>
-                    )}
-                  </tr>
-                ) : (
-                  filterdBooks.map((book) => (
+                </thead>
+                <tbody>
+                  {filterdBooks.map((book) => (
                     <tr key={book._id}>
-                      <th className="text-justify">{book.title}</th>
-                      <td className="text-justify">{book.author}</td>
-                      <td>{book.genre}</td>
-                      {show === true && (
-                        <td className="text-justify">{book.description}</td>
-                      )}
                       <td>
                         <Link to={`/BookAbout/${book._id}`}>
                           <img
@@ -360,236 +444,450 @@ const Bibliotheque = () => {
                           />
                         </Link>
                       </td>
+                      <td>{book.title}</td>
+                      <td>{book.author}</td>
+                      <td>{book.genre}</td>
+                      {show && <td>{book.description}</td>}
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          ) : (
-            <table className="table table-striped table-bordered table-hover">
-              <thead>
-                <tr className="">
-                  <th scope="col">titre</th>
-                  <th scope="col">auteur</th>
-                  <th scope="col">genre</th>
-                  {show === true && (
-                    <>
-                      <th scope="col">résumé</th>
-                      <th scope="col">disponibilité</th>
-                    </>
-                  )}
-                  <th scope="col">couverture</th>
-                  {show === true && <th scope="col">emprunteur</th>}
-                  {(user.role === "admin" || user.role === "superadmin") &&
-                    show === true && (
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {user && user.role === "student" && (
+          <div>
+            {showSearch ? (
+              <div className="d-flex justify-content-center">
+                <CancelOutlinedIcon
+                  onClick={() => {
+                    setShowSearch(false);
+                    resetFilters();
+                  }}
+                  style={{ fontSize: "3rem", cursor: "pointer" }}
+                />
+                <div className="table-responsive">
+                  <table>
+                    <thead>
+                      <tr>
+                        <td colSpan="2" className="text-center">
+                          Recherche
+                        </td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="text-center">
+                          <input
+                            type="text"
+                            placeholder="Titre"
+                            className="form-control"
+                            value={searchTitle}
+                            onChange={handleSearchTitle}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            placeholder="Auteur"
+                            className="form-control"
+                            value={searchAuthor}
+                            onChange={handleSearchAuthor}
+                          />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <input
+                            type="text"
+                            placeholder="Genre"
+                            className="form-control"
+                            value={searchGenre}
+                            onChange={handleSearchGenre}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            placeholder="status"
+                            className="form-control"
+                            value={searchStatus}
+                            onChange={handleSearchStatus}
+                          />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="text-center">
+                          <button
+                            className="btn btn-warning"
+                            onClick={resetFilters}
+                          >
+                            Reset
+                          </button>
+                        </td>
+                        <td className="text-center">
+                          <button
+                            className="btn btn-danger"
+                            onClick={() => {
+                              setShowSearch(!showSearch);
+                              resetFilters();
+                            }}
+                          >
+                            annuler la recherche
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <SearchOutlinedIcon
+                  onClick={() => {
+                    setShowSearch(!showSearch);
+                  }}
+                  style={{ fontSize: "3rem", cursor: "pointer" }}
+                />
+              </div>
+            )}
+            <div className="table-responsive">
+              <table className="table table-striped table-bordered table-hover">
+                <thead>
+                  <tr className="text-center">
+                    <th scope="col">Couverture</th>
+                    <th scope="col">Titre</th>
+                    <th scope="col">Auteur</th>
+                    <th scope="col">genre</th>
+                    {show && (
                       <>
-                        <th scope="col">action</th>
+                        {" "}
+                        <th scope="col">Résumé</th>
+                        <th scope="col">disponibilité</th>
+                        <th scope="col">emprunteur</th>
                       </>
                     )}
-                </tr>
-              </thead>
-              <tbody>
-                {show === true && (
-                  <tr className="search-fields">
-                    <td>
-                      <input
-                        type="text"
-                        value={searchTitle}
-                        placeholder="recherche par titre"
-                        onChange={handleSearchTitle}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={searchAuthor}
-                        placeholder="recherche par auteur"
-                        onChange={handleSearchAuthor}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={searchGenre}
-                        placeholder="recherche par genre"
-                        onChange={handleSearchGenre}
-                      />
-                    </td>
-                    <td></td>
-                    {show === true && <td></td>}
-                    <td></td>
-                    <td></td>
-                    {(user.role === "admin" || user.role === "superadmin") &&
-                      show === true && (
-                        <>
-                          <td></td>
-                        </>
-                      )}
                   </tr>
-                )}
-                {!listOfBooks || listOfBooks.length === 0 ? (
-                  <tr>
-                    {show === true ? (
-                      <td colSpan="8" className="text-center">
-                        Aucun livre pour le moment
-                      </td>
-                    ) : (
-                      <td colSpan="4" className="text-center">
-                        Aucun livre pour le moment
-                      </td>
-                    )}
-                  </tr>
-                ) : (
-                  filterdBooks.map((book) => (
+                </thead>
+                <tbody>
+                  {filterdBooks.map((book) => (
                     <tr key={book._id}>
-                      <th className="text-justify">{book.title}</th>
-                      <td className="text-justify">{book.author}</td>
-                      <td>{book.genre}</td>
-                      {show === true && (
-                        <td className="text-justify">{book.description}</td>
-                      )}
-                      {show === true && <td>{book.statut}</td>}
                       <td>
                         <Link to={`/BookAbout/${book._id}`}>
                           <img
                             src={book.imageData}
                             alt={book.title}
                             className="img-thumbnail"
+                            style={{ maxWidth: "200px", maxHeight: "200px" }}
                           />
                         </Link>
                       </td>
-                      {show === true &&
-                        (user.role === "student" ||
-                          user.role === "admin" ||
-                          user.role === "superadmin") && (
-                          <td>
-                            {book.firstname} {book.lastname}
-                          </td>
-                        )}
-                      {(user.role === "admin" || user.role === "superadmin") &&
-                        show === true && (
-                          <>
-                            <td>
-                              <button
-                                type="button"
-                                className="btn btn-danger"
-                                onClick={() => deleteBookById(book._id)}
-                              >
-                                supprimer
-                              </button>
-                              <br />
-                              <br />
-                              <select
-                                className="form-select"
-                                aria-label="Default select example"
-                                value={selectedUser}
-                                onChange={(e) =>
-                                  setSelectedUser(e.target.value)
-                                }
-                              >
-                                <option value="">Choisir un emprunteur</option>
-                                {listOfUsers.map((user) => (
-                                  <option key={user._id} value={user._id}>
-                                    {user.firstname} {user.lastname}
-                                  </option>
-                                ))}
-                                <option value="none">Aucun</option>
-                              </select>
-                              <button
-                                type="button"
-                                className="btn btn-primary"
-                                onClick={() => assignUserToBook(book._id)}
-                              >
-                                assigner
-                              </button>
-                            </td>
-                          </>
-                        )}
-                    </tr>
-                  ))
-                )}
-
-                {(user.role === "admin" || user.role === "superadmin") &&
-                  show === true && (
-                    <tr>
-                      {selectedFile ? (
+                      <td>{book.title}</td>
+                      <td>{book.author}</td>
+                      <td>{book.genre}</td>
+                      {show && (
                         <>
+                          <td>{book.description}</td>
+                          <td>{book.statut}</td>
                           <td>
-                            <input
-                              type="text"
-                              id="title"
-                              value={title}
-                              className="form-control"
-                              placeholder="titre"
-                              onChange={handleTitleChange}
-                            />
+                            {book.firstname && book.lastname
+                              ? `${book.firstname} ${book.lastname}`
+                              : "aucun"}
                           </td>
-                          <td>
-                            <input
-                              type="text"
-                              id="author"
-                              value={author}
-                              className="form-control"
-                              placeholder="auteur"
-                              onChange={handleAuthorChange}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="text"
-                              id="genre"
-                              value={genre}
-                              className="form-control"
-                              placeholder="genre"
-                              onChange={handleGenreChange}
-                            />
-                          </td>
-                          <td>
-                            <textarea
-                              type="text"
-                              id="description"
-                              value={description}
-                              placeholder="résumé"
-                              onChange={handleDescriptionChange}
-                            />
-                          </td>
-                          <td></td>
-                        </>
-                      ) : (
-                        <>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
                         </>
                       )}
-                      <td>
-                        <input
-                          type="file"
-                          id="file"
-                          accept="image/jpg, image/jpeg, image/png"
-                          className="form-control"
-                          placeholder="couverture"
-                          onChange={handleFileInputChange}
-                        />
-                      </td>
-                      <td></td>
-                      <td>
-                        <button
-                          type="button"
-                          className="btn btn-success"
-                          onClick={handleUploadBook}
-                        >
-                          Ajouter
-                        </button>
-                      </td>
                     </tr>
-                  )}
-              </tbody>
-            </table>
-          )}
-        </div>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {user && (user.role === "admin" || user.role === "superadmin") && (
+          <div>
+            <div className="col-12 col-md-6 mx-auto ">
+              <div className="d-flex justify-content-around">
+                {addNewBook ? (
+                  <div className="row">
+                    <CancelOutlinedIcon
+                      onClick={() => cancelEditing()}
+                      style={{ fontSize: "3rem", cursor: "pointer" }}
+                    />
+                    <form>
+                      {selectedFile && (
+                        <>
+                          <div className="form-group">
+                            <label htmlFor="title">Titre</label>
+                            <input
+                              id="title"
+                              type="text"
+                              placeholder="Titre"
+                              className="form-control"
+                              value={title}
+                              onChange={handleTitleChange}
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="author">Auteur</label>
+                            <input
+                              id="author"
+                              type="text"
+                              placeholder="Auteur"
+                              className="form-control"
+                              value={author}
+                              onChange={handleAuthorChange}
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="genre">Genre</label>
+                            <input
+                              id="genre"
+                              type="text"
+                              placeholder="Genre"
+                              className="form-control"
+                              value={genre}
+                              onChange={handleGenreChange}
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="description">Résumé</label>
+                            <textarea
+                              id="description"
+                              type="text"
+                              placeholder="Résumé"
+                              className="form-control"
+                              value={description}
+                              onChange={handleDescriptionChange}
+                            />
+                          </div>
+                        </>
+                      )}
+                      {!selectedFile && (
+                        <div className="form-group">
+                          <label htmlFor="image">Image</label>
+                          <input
+                            id="image"
+                            type="file"
+                            className="form-control"
+                            onChange={handleFileInputChange}
+                          />
+                        </div>
+                      )}
+                      <div className="d-flex justify-content-around">
+                        {selectedFile && (
+                          <button
+                            type="button"
+                            className="btn btn-primary"
+                            onClick={handleUploadBook}
+                          >
+                            Sauvegarder
+                          </button>
+                        )}
+                        <button
+                          className="btn btn-warning"
+                          onClick={() => cancelEditing()}
+                        >
+                          Annuler
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                ) : (
+                  !showSearch && (
+                    <div>
+                      <AddCircleOutlineOutlinedIcon
+                        onClick={() => {
+                          setAddNewBook(!addNewBook);
+                          setShowSearch(false);
+                        }}
+                        style={{ fontSize: "3rem", cursor: "pointer" }}
+                      />
+                    </div>
+                  )
+                )}
+                {showSearch ? (
+                  <div>
+                    <CancelOutlinedIcon
+                      onClick={() => {
+                        setShowSearch(false);
+                        resetFilters();
+                      }}
+                      style={{ fontSize: "3rem", cursor: "pointer" }}
+                    />
+                    <div className="table-responsive">
+                      <table>
+                        <thead>
+                          <tr>
+                            <td colSpan="2" className="text-center">
+                              Recherche
+                            </td>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td className="text-center">
+                              <input
+                                type="text"
+                                placeholder="Titre"
+                                className="form-control"
+                                value={searchTitle}
+                                onChange={handleSearchTitle}
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="text"
+                                placeholder="Auteur"
+                                className="form-control"
+                                value={searchAuthor}
+                                onChange={handleSearchAuthor}
+                              />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input
+                                type="text"
+                                placeholder="Genre"
+                                className="form-control"
+                                value={searchGenre}
+                                onChange={handleSearchGenre}
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="text"
+                                placeholder="status"
+                                className="form-control"
+                                value={searchStatus}
+                                onChange={handleSearchStatus}
+                              />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="text-center">
+                              <button
+                                className="btn btn-warning"
+                                onClick={resetFilters}
+                              >
+                                Reset
+                              </button>
+                            </td>
+                            <td className="text-center">
+                              <button
+                                className="btn btn-danger"
+                                onClick={() => {
+                                  setShowSearch(!showSearch);
+                                  resetFilters();
+                                }}
+                              >
+                                annuler la recherche
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  !addNewBook && (
+                    <div>
+                      <SearchOutlinedIcon
+                        onClick={() => {
+                          setShowSearch(!showSearch);
+                          cancelEditing();
+                        }}
+                        style={{ fontSize: "3rem", cursor: "pointer" }}
+                      />
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+            <div className="table-responsive">
+              <table className="table table-striped table-bordered table-hover">
+                <thead>
+                  <tr className="text-center">
+                    <th scope="col">Couverture</th>
+                    <th scope="col">Titre</th>
+                    <th scope="col">Auteur</th>
+                    <th scope="col">genre</th>
+                    {show && (
+                      <>
+                        <th scope="col">Résumé</th>
+                        <th scope="col">Action</th>
+                        <th scope="col">disponibilité</th>
+                        <th scope="col">emprunteur</th>
+                      </>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filterdBooks.map((book) => (
+                    <tr key={book._id}>
+                      <td>
+                        <Link to={`/BookAbout/${book._id}`}>
+                          <img
+                            src={book.imageData}
+                            alt={book.title}
+                            className="img-thumbnail"
+                            style={{ maxWidth: "200px", maxHeight: "200px" }}
+                          />
+                        </Link>
+                      </td>
+                      <td>{book.title}</td>
+                      <td>{book.author}</td>
+                      <td>{book.genre}</td>
+                      {show && (
+                        <>
+                          <td>{book.description}</td>
+
+                          <td>
+                            <button
+                              className="btn btn-danger"
+                              onClick={() => deleteBookById(book._id)}
+                            >
+                              Supprimer
+                            </button>
+                          </td>
+                          <td>{book.statut}</td>
+
+                          <td>
+                            {book.firstname} {book.lastname}
+                            <br />
+                            <select
+                              className="form-select"
+                              aria-label="Default select example"
+                              value={selectedUser}
+                              onChange={(e) => setSelectedUser(e.target.value)}
+                            >
+                              <option value="">Choisir un emprunteur</option>
+                              {listOfUsers.map((user) => (
+                                <option key={user._id} value={user._id}>
+                                  {user.firstname} {user.lastname}
+                                </option>
+                              ))}
+                              <option value="none">Aucun</option>
+                            </select>
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              onClick={() => assignUserToBook(book._id)}
+                            >
+                              assigner
+                            </button>
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
