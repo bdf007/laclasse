@@ -18,6 +18,7 @@ const Contact = () => {
       const res = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/contact`
       );
+      console.log(res.data);
       setListOfContact(res.data);
     } catch (error) {
       console.log(error);
@@ -194,6 +195,10 @@ const Contact = () => {
                       <h5 className="card-title">
                         {value.firstname} {value.lastname}
                       </h5>
+                      <p className="card-text">
+                        {new Date(value.date).toLocaleDateString("fr-FR")} à{" "}
+                        {new Date(value.date).toLocaleTimeString("fr-FR")}
+                      </p>
                       {value.classes && (
                         <h6 className="card-subtitle mb-2  bg-success text-white">
                           {value.classes}
