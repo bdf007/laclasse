@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import photoprofile from "../assets/photoprofilpublic.jpg";
+import photoprofile from "../assets/photoprofilpublic.webp";
 
 const AboutPublic = () => {
   const [classInfo, setClassInfo] = useState(null);

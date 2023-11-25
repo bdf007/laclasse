@@ -3,14 +3,14 @@ import { Helmet } from "react-helmet";
 
 // design
 // import "../cssFiles/homeCss.css";
-import acceuil from "../assets/acceuilwobg.png";
-import photoacceuil1 from "../assets/photoacceuil1.jpg";
-import photoacceuil2 from "../assets/photoacceuil2.jpg";
-import photoacceuil3 from "../assets/photoacceuil3.jpg";
-import photoacceuil4 from "../assets/photoacceuil4.jpg";
-import photoacceuil5 from "../assets/photoacceuil5.jpg";
-import photoacceuil6 from "../assets/photoacceuil6.jpg";
-import photoacceuil7 from "../assets/photoacceuil7.jpg";
+import acceuil from "../assets/acceuilwobg.webp";
+import photoacceuil1 from "../assets/photoacceuil1.webp";
+import photoacceuil2 from "../assets/photoacceuil2.webp";
+import photoacceuil3 from "../assets/photoacceuil3.webp";
+import photoacceuil4 from "../assets/photoacceuil4.webp";
+import photoacceuil5 from "../assets/photoacceuil5.webp";
+import photoacceuil6 from "../assets/photoacceuil6.webp";
+import photoacceuil7 from "../assets/photoacceuil7.webp";
 
 const Home = () => {
   return (
