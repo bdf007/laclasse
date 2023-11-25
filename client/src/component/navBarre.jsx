@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { UserContext } from "../context/UserContext";
-import logo from "../assets/logo.png";
+import logo from "../assets/logo.webp";
 
 // API functions
 import { logout, getUser } from "../api/user";
