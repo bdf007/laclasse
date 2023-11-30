@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import spin from "../assets/Spin.gif";
 
 const WineAbout = () => {
   const [wine, setWine] = useState(null);
@@ -113,7 +114,16 @@ const WineAbout = () => {
       className="d-flex justify-content-center"
       style={{ paddingTop: "5rem" }}
     >
-      <h2>Chargement...</h2>
+      <h2>
+        Chargement du vin
+        <span>
+          <img
+            src={spin}
+            alt="loading"
+            style={{ width: "3rem", height: "3rem" }}
+          />
+        </span>
+      </h2>
     </div>
   ) : (
     <div

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
 import { Link } from "react-router-dom";
+import spin from "../assets/Spin.gif";
 
 const BookAbout = () => {
   const { user } = useContext(UserContext);
@@ -76,11 +77,20 @@ const BookAbout = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setBook]);
   return !book ? (
-    <div
-      className="container"
-      style={{ paddingBottom: "12rem", paddingTop: "5rem" }}
-    >
-      <h2>Chargement...</h2>
+    <div className="container">
+      <div
+        className="d-flex justify-content-center"
+        style={{ paddingBottom: "12rem", paddingTop: "5rem" }}
+      >
+        <h1>Chargement Livre</h1>
+
+        <img
+          className="img-fluid"
+          src={spin}
+          alt="spin"
+          style={{ width: "3rem", height: "3rem" }}
+        />
+      </div>
     </div>
   ) : !user ? (
     <div

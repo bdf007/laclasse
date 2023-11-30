@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
+import spin from "../assets/Spin.gif";
 
 const Vinotheque = () => {
   const { user } = useContext(UserContext);
@@ -397,7 +398,16 @@ const Vinotheque = () => {
       className="d-flex justify-content-center"
       style={{ paddingTop: "5rem", paddingBottom: "15rem" }}
     >
-      <h2>Chargement...</h2>
+      <h2>
+        Chargement de la liste des vins
+        <span>
+          <img
+            src={spin}
+            alt="loading"
+            style={{ width: "3rem", height: "3rem" }}
+          />
+        </span>
+      </h2>
     </div>
   ) : (
     (user.role === "AdminVin" ||
