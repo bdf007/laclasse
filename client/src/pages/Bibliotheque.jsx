@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
+import spin from "../assets/Spin.gif";
 
 const Bibliotheque = () => {
   const { user } = useContext(UserContext);
@@ -313,11 +314,20 @@ const Bibliotheque = () => {
   }, [setListOfBooks, setListOfUsers, user]);
 
   return isLoading ? (
-    <div
-      className="d-flex justify-content-center"
-      style={{ paddingBottom: "12rem", paddingTop: "5rem" }}
-    >
-      <h2>Chargement...</h2>
+    <div className="container">
+      <div
+        className="d-flex justify-content-center"
+        style={{ paddingBottom: "12rem", paddingTop: "5rem" }}
+      >
+        <h2>Chargement de la Bibliothéque</h2>
+        <span>
+          <img
+            src={spin}
+            alt="loading"
+            style={{ width: "3rem", height: "3rem" }}
+          />
+        </span>
+      </div>
     </div>
   ) : (
     <div className="container " style={{ paddingBottom: "12rem" }}>
