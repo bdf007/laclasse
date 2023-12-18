@@ -166,30 +166,52 @@ const Bibliotheque = () => {
     setSelectedFile(file);
   };
 
-  const handleUploadBook = () => {
+  const handleUploadBook = async () => {
     try {
       const fileReader = new FileReader();
-      fileReader.readAsDataURL(selectedFile);
 
-      fileReader.onload = async () => {
-        const base64Data = fileReader.result;
+      const base64Data = await new Promise((resolve, reject) => {
+        fileReader.onload = () => resolve(fileReader.result);
+        fileReader.onerror = reject;
+        fileReader.readAsDataURL(selectedFile);
+      });
 
-        const bookData = {
-          title,
-          author,
-          genre,
-          description,
-          imageData: base64Data,
-        };
+      // Convert the base64 image data to an Image object
+      const image = new Image();
+      image.src = base64Data;
 
-        const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/api/book`,
-          bookData
-        );
-        getListOfBooks();
-        toast.success("Livre ajouté avec succès");
-        setListOfBooks((prevBooks) => [...prevBooks, response.data]);
+      await new Promise((resolve, reject) => {
+        image.onload = resolve;
+        image.onerror = reject;
+      });
+
+      // Create a canvas to draw the resized image
+      const canvas = document.createElement("canvas");
+      canvas.width = image.width;
+      canvas.height = image.height;
+
+      const context = canvas.getContext("2d");
+      context.drawImage(image, 0, 0);
+
+      // Convert the canvas content to base64 with WebP format
+      const base64WebpData = canvas.toDataURL("image/webp");
+
+      const bookData = {
+        title,
+        author,
+        genre,
+        description,
+        imageData: base64WebpData,
       };
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/book`,
+        bookData
+      );
+
+      getListOfBooks();
+      toast.success("Livre ajouté avec succès");
+      setListOfBooks((prevBooks) => [...prevBooks, response.data]);
       resetForm();
       setAddNewBook(false);
     } catch (error) {
