@@ -118,7 +118,7 @@ exports.getLoggedInUser = async (req, res) => {
 // get all the users with all the fields
 exports.getUsers = async (req, res) => {
   try {
-    const users = await User.find({});
+    const users = await User.find({}).select("-hashedPassword -salt");
     // replace the id of the class with the name of the class and dont show the id of the class
     for (let i = 0; i < users.length; i++) {
       if (!users[i].classes) continue;

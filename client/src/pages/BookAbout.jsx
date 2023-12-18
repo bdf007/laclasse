@@ -106,8 +106,28 @@ const BookAbout = () => {
         </div>
         <div className="col-6">
           <p>Auteur: {book.author}</p>
-          <p>Genre: {book.genre}</p>
-          <p>Résumé: {book.description}</p>
+          <p>
+            Genre:{" "}
+            {book.genre ? (
+              <span>{book.genre}</span>
+            ) : (
+              <span>
+                Aucun genre renseigné. Prendre contact avec stéphanie pour plus
+                d'infos.
+              </span>
+            )}
+          </p>
+          <p>
+            Résumé:{" "}
+            {book.description ? (
+              <span>{book.description}</span>
+            ) : (
+              <span>
+                pas de résumé pour le moment. Contactez stéphanie pour plus
+                d'infos
+              </span>
+            )}
+          </p>
           <p>{book.statut}</p>
 
           <div className="d-flex justify-content-center">

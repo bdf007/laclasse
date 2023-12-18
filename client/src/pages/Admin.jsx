@@ -12,6 +12,8 @@ import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 const Admin = () => {
   const { user, setUser } = useContext(UserContext);
   const [listOfUser, setListOfUser] = useState([]);
+  // get the list of the bookers
+  const [listOfBookers, setListOfBookers] = useState([]);
   // get the list of the classes
   const [listOfClass, setListOfClass] = useState([]);
   const [selectedClass, setSelectedClass] = useState({});
@@ -109,6 +111,7 @@ const Admin = () => {
         toast(err);
       }
     };
+    getAllBookers();
 
     fetchData();
   }, [setListOfUser, setListOfClass, setUser]);
@@ -129,6 +132,18 @@ const Admin = () => {
     fetchData();
   }, [setUser]);
 
+  const getAllBookers = async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/get-list-of-all-booker`,
+        { withCredentials: true }
+      );
+      setListOfBookers(res.data);
+    } catch (err) {
+      toast.error(err);
+    }
+  };
+
   // delete function for user
   const deleteUser = (id) => {
     try {
@@ -143,6 +158,16 @@ const Admin = () => {
       if (user.classes) {
         toast.error(
           "l'utilisateur a une classe assignée, merci de le retirer de la classe avant de le supprimer"
+        );
+        return;
+      }
+
+      // check if the user has a booking
+
+      const booker = listOfBookers.find((booker) => booker.emprunteur === id);
+      if (booker) {
+        toast.error(
+          "l'utilisateur a emprunté un livre merci de récupérer le livre avant de supprimer l'utilisateur"
         );
         return;
       }
@@ -272,33 +297,33 @@ const Admin = () => {
               </div>
               {viewMode === "table" ? (
                 <div className="row">
-                  {listOfUser.map((user) => (
-                    <div className="col-md-4" key={user._id}>
+                  {listOfUser.map((stud) => (
+                    <div className="col-md-4" key={stud._id}>
                       <div className="card m-2">
                         <div className="card-body">
-                          <h5 className="card-title">{user.firstname}</h5>
-                          <h5 className="card-title">{user.lastname}</h5>
+                          <h5 className="card-title">{stud.firstname}</h5>
+                          <h5 className="card-title">{stud.lastname}</h5>
 
-                          <p className="card-text">{user.email}</p>
-                          {user.role === "user" ? (
-                            <p className="card-text text-danger">{user.role}</p>
-                          ) : user.role === "oldstudent" ? (
+                          <p className="card-text">{stud.email}</p>
+                          {stud.role === "user" ? (
+                            <p className="card-text text-danger">{stud.role}</p>
+                          ) : stud.role === "oldstudent" ? (
                             <p className="card-text">Ancien élève</p>
-                          ) : user.role === "student" ? (
+                          ) : stud.role === "student" ? (
                             <p className="card-text">Elève</p>
                           ) : (
-                            (user.role === "admin" ||
-                              user.role === "superadmin") && (
-                              <p className="card-text">{user.role}</p>
+                            (stud.role === "admin" ||
+                              stud.role === "superadmin") && (
+                              <p className="card-text">{stud.role}</p>
                             )
                           )}
 
-                          {!user.classes ? (
+                          {!stud.classes ? (
                             <>
-                              {user.role === "oldstudent" ||
-                              user.role === "admin" ||
-                              user.role === "superadmin" ||
-                              user.role === "AdminVin" ? (
+                              {stud.role === "oldstudent" ||
+                              stud.role === "admin" ||
+                              stud.role === "superadmin" ||
+                              stud.role === "AdminVin" ? (
                                 <p> - </p>
                               ) : (
                                 <p className="card-text text-danger">
@@ -307,19 +332,19 @@ const Admin = () => {
                               )}
                             </>
                           ) : (
-                            <p className="card-text">{user.className}</p>
+                            <p className="card-text">{stud.className}</p>
                           )}
-                          {/* add a drop down menu of classes and update the user with the class selected */}
-                          {user.role === "oldstudent" ||
-                          user.role === "user" ||
-                          user.role === "admin" ||
-                          user.role === "superadmin" ||
-                          user.role === "AdminVin" ? (
-                            user.role === "oldstudent" ? (
+                          {/* add a drop down menu of classes and update the stud with the class selected */}
+                          {stud.role === "oldstudent" ||
+                          stud.role === "user" ||
+                          stud.role === "admin" ||
+                          stud.role === "superadmin" ||
+                          stud.role === "AdminVin" ? (
+                            stud.role === "oldstudent" ? (
                               <ul>
                                 <li>Ancien élève</li>
                               </ul>
-                            ) : user.role === "user" ? (
+                            ) : stud.role === "user" ? (
                               <ul>
                                 <li className="list-inline">
                                   changer le role de cet utilisateur afin de lui
@@ -340,11 +365,11 @@ const Admin = () => {
                                 <select
                                   className="form-select"
                                   aria-label="Default select example"
-                                  value={selectedClass[user._id] || ""}
+                                  value={selectedClass[stud._id] || ""}
                                   onChange={(e) => {
                                     setSelectedClass({
                                       ...selectedClass,
-                                      [user._id]: e.target.value,
+                                      [stud._id]: e.target.value,
                                     });
                                   }}
                                 >
@@ -361,18 +386,18 @@ const Admin = () => {
                                 <button
                                   className="btn btn-primary"
                                   onClick={() => {
-                                    if (selectedClass[user._id] === "none") {
+                                    if (selectedClass[stud._id] === "none") {
                                       // Handle the case where "null" is selected
-                                      removeClassFromUser(user._id); // Set selectedClass to null
+                                      removeClassFromUser(stud._id); // Set selectedClass to null
                                     } else {
                                       assignClassToUser(
-                                        user._id,
-                                        selectedClass[user._id]
+                                        stud._id,
+                                        selectedClass[stud._id]
                                       ); // Assign the selected class to the user
                                     }
                                   }}
                                 >
-                                  {selectedClass[user._id] === "none"
+                                  {selectedClass[stud._id] === "none"
                                     ? "Retirer la classe"
                                     : "Assigner une classe"}{" "}
                                   {/* Change button text based on selection */}
@@ -384,7 +409,7 @@ const Admin = () => {
                           <ul className="list-inline">
                             <li className="list-inline-item">
                               <select
-                                key={user._id}
+                                key={stud._id}
                                 className="form-select"
                                 aria-label="Default select example"
                                 value={selectedRole}
@@ -409,7 +434,7 @@ const Admin = () => {
                               <button
                                 className="btn btn-primary"
                                 onClick={() =>
-                                  updateUserRole(user._id, selectedRole)
+                                  updateUserRole(stud._id, selectedRole)
                                 }
                               >
                                 Modifier le role
@@ -419,12 +444,15 @@ const Admin = () => {
                           <br />
                           <br />
                           {/* add a button for delete user */}
-                          <button
-                            className="btn btn-danger"
-                            onClick={() => deleteUser(user._id)}
-                          >
-                            Supprimer l'utilisateur
-                          </button>
+                          {(stud.role !== "admin" ||
+                            stud.role !== "superadmin") && (
+                            <button
+                              className="btn btn-danger"
+                              onClick={() => deleteUser(stud._id)}
+                            >
+                              Supprimer l'utilisateur
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -446,33 +474,33 @@ const Admin = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {listOfUser.map((user) => (
-                        <tr key={user._id}>
-                          <td>{user.firstname}</td>
-                          <td>{user.lastname}</td>
-                          <td>{user.email}</td>
-                          {user.role === "user" ? (
+                      {listOfUser.map((stud) => (
+                        <tr key={stud._id}>
+                          <td>{stud.firstname}</td>
+                          <td>{stud.lastname}</td>
+                          <td>{stud.email}</td>
+                          {stud.role === "user" ? (
                             <td>
                               <span className="bg-danger text-white">
-                                {user.role}
+                                {stud.role}
                               </span>
                             </td>
                           ) : (
-                            user.role === "oldstudent" && <td>Ancien élève</td>
+                            stud.role === "oldstudent" && <td>Ancien élève</td>
                           )}
-                          {user.role === "student" ? (
+                          {stud.role === "student" ? (
                             <td>Eleve</td>
                           ) : (
-                            (user.role === "admin" ||
-                              user.role === "superadmin" ||
-                              user.role === "AdminVin") && <td>{user.role}</td>
+                            (stud.role === "admin" ||
+                              stud.role === "superadmin" ||
+                              stud.role === "AdminVin") && <td>{stud.role}</td>
                           )}
-                          {!user.classes ? (
+                          {!stud.classes ? (
                             <td>
-                              {user.role === "oldstudent" ||
-                              user.role === "admin" ||
-                              user.role === "superadmin" ||
-                              user.role === "AdminVin" ? (
+                              {stud.role === "oldstudent" ||
+                              stud.role === "admin" ||
+                              stud.role === "superadmin" ||
+                              stud.role === "AdminVin" ? (
                                 <span>-</span>
                               ) : (
                                 <span className="bg-danger text-white">
@@ -481,16 +509,16 @@ const Admin = () => {
                               )}
                             </td>
                           ) : (
-                            <td>{user.className}</td>
+                            <td>{stud.className}</td>
                           )}
-                          {user.role === "oldstudent" ||
-                          user.role === "user" ||
-                          user.role === "admin" ||
-                          user.role === "superadmin" ||
-                          user.role === "AdminVin" ? (
-                            user.role === "oldstudent" ? (
+                          {stud.role === "oldstudent" ||
+                          stud.role === "user" ||
+                          stud.role === "admin" ||
+                          stud.role === "superadmin" ||
+                          stud.role === "AdminVin" ? (
+                            stud.role === "oldstudent" ? (
                               <td>Ancien élève</td>
-                            ) : user.role === "user" ? (
+                            ) : stud.role === "user" ? (
                               <td>
                                 changer le role de cet utilisateur afin de lui
                                 attribuer une classe
@@ -508,11 +536,11 @@ const Admin = () => {
                                   <select
                                     className="form-select"
                                     aria-label="Default select example"
-                                    value={selectedClass[user._id] || ""}
+                                    value={selectedClass[stud._id] || ""}
                                     onChange={(e) => {
                                       setSelectedClass({
                                         ...selectedClass,
-                                        [user._id]: e.target.value,
+                                        [stud._id]: e.target.value,
                                       });
                                     }}
                                   >
@@ -532,18 +560,18 @@ const Admin = () => {
                                   <button
                                     className="btn btn-primary"
                                     onClick={() => {
-                                      if (selectedClass[user._id] === "none") {
+                                      if (selectedClass[stud._id] === "none") {
                                         // Handle the case where "null" is selected
-                                        removeClassFromUser(user._id); // Set selectedClass to null
+                                        removeClassFromUser(stud._id); // Set selectedClass to null
                                       } else {
                                         assignClassToUser(
-                                          user._id,
-                                          selectedClass[user._id]
+                                          stud._id,
+                                          selectedClass[stud._id]
                                         ); // Assign the selected class to the user
                                       }
                                     }}
                                   >
-                                    {selectedClass[user._id] === "none"
+                                    {selectedClass[stud._id] === "none"
                                       ? "Retirer la classe"
                                       : "Assigner une classe"}{" "}
                                     {/* Change button text based on selection */}
@@ -554,7 +582,7 @@ const Admin = () => {
                           )}
                           <td>
                             <ul className="list-inline">
-                              {user.role === "superadmin" ? (
+                              {stud.role === "superadmin" ? (
                                 <li>ne peut etre modifié</li>
                               ) : (
                                 <>
@@ -590,7 +618,7 @@ const Admin = () => {
                                     <button
                                       className="btn btn-primary"
                                       onClick={() =>
-                                        updateUserRole(user._id, selectedRole)
+                                        updateUserRole(stud._id, selectedRole)
                                       }
                                     >
                                       Modifier le role
@@ -601,16 +629,19 @@ const Admin = () => {
                             </ul>
                           </td>
                           <td>
-                            <button
-                              className="btn btn-danger"
-                              onClick={() => deleteUser(user._id)}
-                              disabled={
-                                user.role === "admin" ||
-                                user.role === "superadmin"
-                              }
-                            >
-                              Supprimer l'utilisateur
-                            </button>
+                            {stud.role !== "admin" &&
+                              stud.role !== "superadmin" && (
+                                <button
+                                  className="btn btn-danger"
+                                  onClick={() => deleteUser(stud._id)}
+                                  disabled={
+                                    stud.role === "admin" ||
+                                    stud.role === "superadmin"
+                                  }
+                                >
+                                  Supprimer l'utilisateur
+                                </button>
+                              )}
                           </td>
                           {/* ... (other table data) */}
                         </tr>

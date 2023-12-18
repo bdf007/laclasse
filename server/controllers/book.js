@@ -20,6 +20,15 @@ exports.getBooks = async (req, res) => {
   }
 };
 
+exports.getBooksWithoutImageData = async (req, res) => {
+  try {
+    const books = await Book.find({}).select("-imageData");
+    res.status(200).json(books);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 exports.deleteBookById = async (req, res) => {
   try {
     const id = req.params.id;
@@ -88,7 +97,19 @@ exports.getBookById = async (req, res) => {
 exports.getAllBookForAUSser = async (req, res) => {
   try {
     const id = req.params.id;
-    const books = await Book.find({ emprunteur: id });
+    const books = await Book.find({ emprunteur: id }).select("title");
+    res.status(200).json(books);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.getListOfAllBooker = async (req, res) => {
+  try {
+    // get the books with emprrunteur not null
+    const books = await Book.find({ emprunteur: { $ne: null } }).select(
+      "emprunteur"
+    );
     res.status(200).json(books);
   } catch (error) {
     console.log(error);
