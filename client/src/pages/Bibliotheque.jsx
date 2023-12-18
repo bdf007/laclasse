@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import spin from "../assets/Spin.gif";
 
 const Bibliotheque = () => {
@@ -45,7 +46,6 @@ const Bibliotheque = () => {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/users`
       );
-
       setListOfUsers(response.data);
     } catch (error) {
       console.log(error);
@@ -59,7 +59,7 @@ const Bibliotheque = () => {
 
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/books`
+        `${process.env.REACT_APP_API_URL}/api/books/noimage`
       );
 
       // Create an array of promises to fetch user data for all books
@@ -282,6 +282,11 @@ const Bibliotheque = () => {
     localStorage.setItem("searchStatus", value);
   };
 
+  // Scroll to the top of the page
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   // check if the size of the window is a mobile size
   const handleResize = () => {
     const newWidth = window.innerWidth;
@@ -305,6 +310,7 @@ const Bibliotheque = () => {
 
   useEffect(() => {
     getListOfBooks();
+    resetFilters();
     if (!user) {
       return;
     } else if (user.role === "admin" || user.role === "superadmin") {
@@ -421,7 +427,7 @@ const Bibliotheque = () => {
                 </div>
               </div>
             ) : (
-              <div>
+              <div className="d-flex justify-content-around">
                 <SearchOutlinedIcon
                   onClick={() => {
                     setShowSearch(!showSearch);
@@ -434,28 +440,38 @@ const Bibliotheque = () => {
               <table className="table table-striped table-bordered table-hover">
                 <thead>
                   <tr className="text-center">
-                    <th scope="col">Couverture</th>
-                    <th scope="col">Titre</th>
-                    <th scope="col">Auteur</th>
-                    <th scope="col">genre</th>
+                    {/* <th scope="col">Couverture</th> */}
+                    <th scope="col">
+                      <p className="text-bold">Titre</p>
+                      {!show && <p className="fst-italic">Auteur</p>}
+                    </th>
+                    {show && <th scope="col">Auteur</th>}
+                    <th scope="col">
+                      <p>genre</p>
+                    </th>
                     {show && <th scope="col">Résumé</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {filterdBooks.map((book) => (
                     <tr key={book._id}>
-                      <td>
-                        <Link to={`/BookAbout/${book._id}`}>
+                      {/* <td>
+                       
                           <img
                             src={book.imageData}
                             alt={book.title}
                             className="img-thumbnail"
                             style={{ maxWidth: "200px", maxHeight: "200px" }}
                           />
-                        </Link>
+                       
+                      </td> */}
+
+                      <td>
+                        {" "}
+                        <Link to={`/BookAbout/${book._id}`}>{book.title} </Link>
+                        {!show && <p>par {book.author}</p>}
                       </td>
-                      <td>{book.title}</td>
-                      <td>{book.author}</td>
+                      {show && <td>{book.author}</td>}
                       <td>{book.genre}</td>
                       {show && <td>{book.description}</td>}
                     </tr>
@@ -553,7 +569,7 @@ const Bibliotheque = () => {
                 </div>
               </div>
             ) : (
-              <div>
+              <div className="d-flex justify-content-around">
                 <SearchOutlinedIcon
                   onClick={() => {
                     setShowSearch(!showSearch);
@@ -566,10 +582,16 @@ const Bibliotheque = () => {
               <table className="table table-striped table-bordered table-hover">
                 <thead>
                   <tr className="text-center">
-                    <th scope="col">Couverture</th>
-                    <th scope="col">Titre</th>
-                    <th scope="col">Auteur</th>
-                    <th scope="col">genre</th>
+                    {/* <th scope="col">Couverture</th> */}
+                    <th scope="col">
+                      <p className="text-bold">Titre</p>
+                      {!show && <p className="fst-italic">Auteur</p>}
+                    </th>
+                    {show && <th scope="col">Auteur</th>}
+                    <th scope="col">
+                      <p>genre</p>
+                      {!show && <p className="fst-italic">emprunteur</p>}
+                    </th>
                     {show && (
                       <>
                         {" "}
@@ -583,19 +605,32 @@ const Bibliotheque = () => {
                 <tbody>
                   {filterdBooks.map((book) => (
                     <tr key={book._id}>
-                      <td>
-                        <Link to={`/BookAbout/${book._id}`}>
+                      {/* <td>
+                       
                           <img
                             src={book.imageData}
                             alt={book.title}
                             className="img-thumbnail"
                             style={{ maxWidth: "200px", maxHeight: "200px" }}
                           />
-                        </Link>
+                       
+                      </td> */}
+                      <td>
+                        {" "}
+                        <Link to={`/BookAbout/${book._id}`}>{book.title} </Link>
+                        {!show && <p>par {book.author}</p>}
                       </td>
-                      <td>{book.title}</td>
-                      <td>{book.author}</td>
-                      <td>{book.genre}</td>
+                      {show && <td>{book.author}</td>}
+                      <td>
+                        <p>{book.genre}</p>
+                        {!show && (
+                          <p>
+                            {book.firstname && book.lastname
+                              ? `${book.firstname} ${book.lastname}`
+                              : "aucun"}
+                          </p>
+                        )}
+                      </td>
                       {show && (
                         <>
                           <td>{book.description}</td>
@@ -803,7 +838,7 @@ const Bibliotheque = () => {
                   </div>
                 ) : (
                   !addNewBook && (
-                    <div>
+                    <div className="d-flex justify-content-around">
                       <SearchOutlinedIcon
                         onClick={() => {
                           setShowSearch(!showSearch);
@@ -820,10 +855,16 @@ const Bibliotheque = () => {
               <table className="table table-striped table-bordered table-hover">
                 <thead>
                   <tr className="text-center">
-                    <th scope="col">Couverture</th>
-                    <th scope="col">Titre</th>
-                    <th scope="col">Auteur</th>
-                    <th scope="col">genre</th>
+                    {/* <th scope="col">Couverture</th> */}
+                    <th scope="col">
+                      <p className="text-bold">Titre</p>
+                      {!show && <p className="fst-italic">Auteur</p>}
+                    </th>
+                    {show && <th scope="col">Auteur</th>}
+                    <th scope="col">
+                      <p>genre</p>
+                      {!show && <p className="fst-italic">emprunteur</p>}
+                    </th>
                     {show && (
                       <>
                         <th scope="col">Résumé</th>
@@ -837,19 +878,52 @@ const Bibliotheque = () => {
                 <tbody>
                   {filterdBooks.map((book) => (
                     <tr key={book._id}>
-                      <td>
-                        <Link to={`/BookAbout/${book._id}`}>
+                      {/* <td>
+                       
                           <img
                             src={book.imageData}
                             alt={book.title}
                             className="img-thumbnail"
                             style={{ maxWidth: "200px", maxHeight: "200px" }}
                           />
-                        </Link>
+                       
+                      </td> */}
+                      <td>
+                        {" "}
+                        <Link to={`/BookAbout/${book._id}`}>{book.title} </Link>
+                        {!show && <p>par {book.author}</p>}
                       </td>
-                      <td>{book.title}</td>
-                      <td>{book.author}</td>
-                      <td>{book.genre}</td>
+                      {show && <td>{book.author}</td>}
+                      <td>
+                        <p>{book.genre}</p>
+                        {!show && (
+                          <p>
+                            {book.firstname} {book.lastname}
+                            <br />
+                            <select
+                              className="form-select"
+                              aria-label="Default select example"
+                              value={selectedUser}
+                              onChange={(e) => setSelectedUser(e.target.value)}
+                            >
+                              <option value="">Choisir un emprunteur</option>
+                              {listOfUsers.map((user) => (
+                                <option key={user._id} value={user._id}>
+                                  {user.firstname} {user.lastname}
+                                </option>
+                              ))}
+                              <option value="none">Aucun</option>
+                            </select>
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              onClick={() => assignUserToBook(book._id)}
+                            >
+                              assigner
+                            </button>
+                          </p>
+                        )}
+                      </td>
                       {show && (
                         <>
                           <td>{book.description}</td>
@@ -899,6 +973,9 @@ const Bibliotheque = () => {
           </div>
         )}
       </div>
+      <button className="scroll-to-top" onClick={scrollToTop}>
+        <ArrowUpwardIcon />
+      </button>
     </div>
   );
 };

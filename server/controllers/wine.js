@@ -19,6 +19,15 @@ exports.getWines = async (req, res) => {
   }
 };
 
+exports.getWinesWithoutImageData = async (req, res) => {
+  try {
+    const wines = await Wine.find({}).select("-imageData");
+    res.status(200).json(wines);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 exports.getWineById = async (req, res) => {
   try {
     const id = req.params.id;

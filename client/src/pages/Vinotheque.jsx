@@ -75,7 +75,7 @@ const Vinotheque = () => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/wines`
+        `${process.env.REACT_APP_API_URL}/api/wines/noimage`
       );
       setListOfWines(response.data);
     } catch (error) {
@@ -777,7 +777,7 @@ const Vinotheque = () => {
           <table className="table table-striped table-bordered table-hover">
             <thead>
               <tr className="text-center">
-                <th scope="col">Etiquette</th>
+                {/* <th scope="col">Etiquette</th> */}
                 <th scope="col">Nom</th>
                 <th scope="col">année</th>
                 <th scope="col">Région</th>
@@ -787,18 +787,22 @@ const Vinotheque = () => {
             </thead>
             <tbody>
               {filteredWines.map((wine) => (
-                <tr key={wine._id}>
-                  <td>
-                    <Link to={`/BouteilleDeVin/${wine._id}`}>
+                <tr key={wine._id} className="text-center">
+                  {/* <td>
+                    
                       <img
                         src={wine.pictureData}
                         alt={wine.nomDuChateau}
                         className="img-thumbnail img-fluid"
                         style={{ maxHeight: "10rem" }}
                       />
+                    
+                  </td> */}
+                  <td>
+                    <Link to={`/BouteilleDeVin/${wine._id}`}>
+                      {wine.nomDuChateau}
                     </Link>
                   </td>
-                  <td>{wine.nomDuChateau}</td>
                   <td>{wine.year}</td>
                   <td>{wine.region}</td>
 

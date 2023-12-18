@@ -558,34 +558,31 @@ const Student = () => {
                   <p className="fw-bold">Mon prochain cours :</p>
                   <pre>{user.nextClass}</pre>
                 </div>
-                {listOfBooks.length > 0 ? (
-                  <div>
-                    <p>
-                      vous avez emprunté{" "}
-                      <span className="text-primary">
-                        {" "}
-                        {listOfBooks.length}{" "}
-                      </span>
-                      livre(s)
-                    </p>
+              </>
+            )}
+            {listOfBooks.length > 0 ? (
+              <div>
+                <p>
+                  vous avez emprunté{" "}
+                  <span className="text-primary"> {listOfBooks.length} </span>
+                  livre(s)
+                </p>
 
-                    {listOfBooks.map((book) => (
-                      <p key={book._id} className="fst-italic fw-light">
-                        {book.title}
-                      </p>
-                    ))}
-                  </div>
-                ) : (
-                  <p>vous n'avez pas encore emprunté de livre</p>
-                )}
+                {listOfBooks.map((book) => (
+                  <p key={book._id} className="fst-italic fw-light">
+                    {book.title}
+                  </p>
+                ))}
+              </div>
+            ) : (
+              <p>vous n'avez pas encore emprunté de livre</p>
+            )}
 
-                {!user.courseFiles ? (
-                  <p>Vous n'avez pas encore de fichiers de cours</p>
-                ) : (
-                  <>
-                    <DocumentDisplay />
-                  </>
-                )}
+            {!user.courseFiles ? (
+              user.classes && <p>Vous n'avez pas encore de fichiers de cours</p>
+            ) : (
+              <>
+                <DocumentDisplay />
               </>
             )}
           </div>
