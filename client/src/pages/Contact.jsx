@@ -128,7 +128,7 @@ const Contact = () => {
           {!user ? (
             !isLoading ? (
               <form
-                action="https://formsubmit.co/bdf007@gmail.com"
+                action="https://formsubmit.co/stephanie.midelet@gmail.com"
                 method="POST"
               >
                 <input type="hidden" name="_subject" value={subject} />
@@ -271,7 +271,7 @@ const Contact = () => {
             (user.role === "user" || "student") &&
             (!isLoading ? (
               <form
-                action="https://formsubmit.co/bdf007@gmail.com"
+                action="https://formsubmit.co/stephanie.midelet@gmail.com"
                 method="POST"
               >
                 <input type="hidden" name="_subject" value={subject} />
