@@ -196,13 +196,31 @@ const Bibliotheque = () => {
         image.onerror = reject;
       });
 
+      // Set the maximum width or height for the resized image
+      const maxWidth = 800;
+      const maxHeight = 600;
+
+      let newWidth = image.width;
+      let newHeight = image.height;
+
+      // Resize the image while maintaining the aspect ratio
+      if (image.width > maxWidth) {
+        newWidth = maxWidth;
+        newHeight = (image.height * maxWidth) / image.width;
+      }
+
+      if (newHeight > maxHeight) {
+        newHeight = maxHeight;
+        newWidth = (image.width * maxHeight) / image.height;
+      }
+
       // Create a canvas to draw the resized image
       const canvas = document.createElement("canvas");
-      canvas.width = image.width;
-      canvas.height = image.height;
+      canvas.width = newWidth;
+      canvas.height = newHeight;
 
       const context = canvas.getContext("2d");
-      context.drawImage(image, 0, 0);
+      context.drawImage(image, 0, 0, newWidth, newHeight);
 
       // Convert the canvas content to base64 with WebP format
       const base64WebpData = canvas.toDataURL("image/webp");
