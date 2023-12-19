@@ -39,7 +39,6 @@ const bookSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
-  salt: String,
 });
 
 module.exports = mongoose.model("Book", bookSchema);
