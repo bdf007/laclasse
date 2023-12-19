@@ -19,14 +19,12 @@ const Vinotheque = () => {
   const [typeDeVin, setTypeDeVin] = useState("");
   const [whereIFindIt, setWhereIFindIt] = useState("");
   const [price, setPrice] = useState(0);
-  const [selectedFile, setSelectedFile] = useState(null);
   const [quantity, setQuantity] = useState(0);
   const [literage, setLiterage] = useState("Bouteille - 0.75 l");
   const [comments, setComments] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
   const [listOfWines, setListOfWines] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [addNewWine, setAddNewWine] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
   const [searchCastle, setSearchCastle] = useState(
     localStorage.getItem("searchCastle") || ""
   );
@@ -66,6 +64,8 @@ const Vinotheque = () => {
   const [searchAddedAt, setSearchAddedAt] = useState(
     localStorage.getItem("searchAddedAt") || ""
   );
+  const [addNewWine, setAddNewWine] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   //get the size of the window
   const [width, setWidth] = useState(window.innerWidth);
   // eslint-disable-next-line
@@ -83,70 +83,6 @@ const Vinotheque = () => {
       toast.error("Erreur lors de la récupération des vins");
     }
     setIsLoading(false);
-  };
-
-  const handleSearchCastle = (e) => {
-    setSearchCastle(e.target.value);
-    localStorage.setItem("searchCastle", e.target.value);
-  };
-
-  const handleSearchYear = (e) => {
-    setSearchYear(e.target.value);
-    localStorage.setItem("searchYear", e.target.value);
-  };
-
-  const handleSearchRegion = (e) => {
-    setSearchRegion(e.target.value);
-    localStorage.setItem("searchRegion", e.target.value);
-  };
-
-  const handleSearchCountry = (e) => {
-    setSearchCountry(e.target.value);
-    localStorage.setItem("searchCountry", e.target.value);
-  };
-
-  const handleSearchType = (e) => {
-    setSearchType(e.target.value);
-    localStorage.setItem("searchType", e.target.value);
-  };
-
-  const handleSearchWhereIFindIt = (e) => {
-    setSearchWhereIFindIt(e.target.value);
-    localStorage.setItem("searchWhereIFindIt", e.target.value);
-  };
-
-  const handleSearchPriceMin = (e) => {
-    setSearchPriceMin(e.target.value);
-    localStorage.setItem("searchPriceMin", e.target.value);
-  };
-  const handleSearchPriceMax = (e) => {
-    setSearchPriceMax(e.target.value);
-    localStorage.setItem("searchPriceMax", e.target.value);
-  };
-
-  const handleSearchQuantityMin = (e) => {
-    setSearchQuantityMin(e.target.value);
-    localStorage.setItem("searchQuantityMin", e.target.value);
-  };
-
-  const handleSearchQuantityMax = (e) => {
-    setSearchQuantityMax(e.target.value);
-    localStorage.setItem("searchQuantityMax", e.target.value);
-  };
-
-  const handleSearchLiterage = (e) => {
-    setSearchLiterage(e.target.value);
-    localStorage.setItem("searchLiterage", e.target.value);
-  };
-
-  const handleSearchComments = (e) => {
-    setSearchComments(e.target.value);
-    localStorage.setItem("searchComments", e.target.value);
-  };
-
-  const handleSearchAddedAt = (e) => {
-    setSearchAddedAt(e.target.value);
-    localStorage.setItem("searchAddedAt", e.target.value);
   };
 
   const handleNomDuChateau = (e) => {
@@ -194,95 +130,82 @@ const Vinotheque = () => {
     setSelectedFile(file);
   };
 
-  const handleUploadWine = () => {
+  const handleUploadWine = async (e) => {
+    e.preventDefault();
     try {
       const fileReader = new FileReader();
-      fileReader.readAsDataURL(selectedFile);
 
-      fileReader.onload = async () => {
-        const base64Data = fileReader.result;
+      const base64Data = await new Promise((resolve, reject) => {
+        fileReader.onload = () => resolve(fileReader.result);
+        fileReader.onerror = reject;
+        fileReader.readAsDataURL(selectedFile);
+      });
 
-        const wineData = {
-          nomDuChateau,
-          year,
-          region,
-          country,
-          typeDeVin,
-          whereIFindIt,
-          price,
-          quantity,
-          literage,
-          comments,
-          pictureData: base64Data,
-        };
+      // convert the base64 image data to an Image object
+      const image = new Image();
+      image.src = base64Data;
 
-        const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/api/wine`,
-          wineData
-        );
-        getListOfWines();
-        toast.success("Vin ajouté avec succès");
-        setListOfWines((prevWines) => [...prevWines, response.data]);
+      await new Promise((resolve, reject) => {
+        image.onload = resolve;
+        image.onerror = reject;
+      });
+
+      // Set the maximum width or height for the resized image
+      const maxWidth = 800;
+      const maxHeight = 600;
+
+      let newWidth = image.width;
+      let newHeight = image.height;
+
+      // Resize the image while maintaining the aspect ratio
+      if (image.width > maxWidth) {
+        newWidth = maxWidth;
+        newHeight = (image.height * maxWidth) / image.width;
+      }
+
+      if (newHeight > maxHeight) {
+        newHeight = maxHeight;
+        newWidth = (image.width * maxHeight) / image.height;
+      }
+
+      // create a canvas to draw the resized image
+      const canvas = document.createElement("canvas");
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+
+      const context = canvas.getContext("2d");
+      context.drawImage(image, 0, 0, newWidth, newHeight);
+
+      // convert the canvas content to base64 with WebP format
+      const base64WebpData = canvas.toDataURL("image/webp");
+
+      const wineData = {
+        nomDuChateau,
+        year,
+        region,
+        country,
+        typeDeVin,
+        whereIFindIt,
+        price,
+        quantity,
+        literage,
+        comments,
+        pictureData: base64WebpData,
       };
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/wine`,
+        wineData
+      );
+
+      getListOfWines();
+      toast.success("Vin ajouté avec succès");
+      setListOfWines((prevWines) => [...prevWines, response.data]);
       resetForm();
+      setAddNewWine(false);
     } catch (error) {
       toast.error("Erreur lors de l'ajout du vin");
     }
-  };
-
-  const deleteWineById = async (id) => {
-    try {
-      // check if quantity is 0
-      const wine = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/wine/${id}`
-      );
-      if (wine.data.quantity > 0) {
-        toast.error("Vous possédez encore des bouteilles de ce vin");
-        return;
-      }
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/wine/${id}`);
-      toast.success("Vin supprimé avec succès");
-      setListOfWines(listOfWines.filter((wine) => wine._id !== id));
-    } catch (error) {
-      toast.error("Erreur lors de la suppression du vin");
-    }
-  };
-
-  const cancelEditing = () => {
-    setAddNewWine(false);
-    resetForm();
-  };
-
-  const resetForm = () => {
-    setAddNewWine(false);
-    setNomDuChateau("");
-    setYear("");
-    setRegion("");
-    setCountry("");
-    setTypeDeVin("");
-    setWhereIFindIt("");
-    setPrice("");
-    setQuantity("");
-    setLiterage("Bouteille - 0.75 l");
-    setComments("");
-    setSelectedFile(null);
-    resetFilter();
-  };
-
-  const resetFilter = () => {
-    setSearchCastle("");
-    setSearchYear("");
-    setSearchRegion("");
-    setSearchCountry("");
-    setSearchType("");
-    setSearchWhereIFindIt("");
-    setSearchPriceMin("");
-    setSearchPriceMax("");
-    setSearchQuantityMin("");
-    setSearchQuantityMax("");
-    setSearchLiterage("");
-    setSearchComments("");
-    setSearchAddedAt("");
   };
 
   // Filter condition that checks if the properties exist before calling toLowerCase()
@@ -354,7 +277,163 @@ const Vinotheque = () => {
     );
   });
 
-  // Now you can map the filteredWines to display them in the table
+  const deleteWineById = async (id) => {
+    try {
+      // check if quantity is 0
+      const wine = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/wine/${id}`
+      );
+      if (wine.data.quantity > 0) {
+        toast.error("Vous possédez encore des bouteilles de ce vin");
+        return;
+      }
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/wine/${id}`);
+      toast.success("Vin supprimé avec succès");
+      setListOfWines(listOfWines.filter((wine) => wine._id !== id));
+    } catch (error) {
+      toast.error("Erreur lors de la suppression du vin");
+    }
+  };
+
+  const cancelEditing = () => {
+    setAddNewWine(false);
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setAddNewWine(false);
+    setNomDuChateau("");
+    setYear("");
+    setRegion("");
+    setCountry("");
+    setTypeDeVin("");
+    setWhereIFindIt("");
+    setPrice("");
+    setQuantity("");
+    setLiterage("Bouteille - 0.75 l");
+    setComments("");
+    setSelectedFile(null);
+    // resetFilter();
+  };
+
+  const resetFilter = () => {
+    setSearchCastle("");
+    setSearchYear("");
+    setSearchRegion("");
+    setSearchCountry("");
+    setSearchType("");
+    setSearchWhereIFindIt("");
+    setSearchPriceMin("");
+    setSearchPriceMax("");
+    setSearchQuantityMin("");
+    setSearchQuantityMax("");
+    setSearchLiterage("");
+    setSearchComments("");
+    setSearchAddedAt("");
+    localStorage.removeItem("searchCastle");
+    localStorage.removeItem("searchYear");
+    localStorage.removeItem("searchRegion");
+    localStorage.removeItem("searchCountry");
+    localStorage.removeItem("searchType");
+    localStorage.removeItem("searchWhereIFindIt");
+    localStorage.removeItem("searchPriceMin");
+    localStorage.removeItem("searchPriceMax");
+    localStorage.removeItem("searchQuantityMin");
+    localStorage.removeItem("searchQuantityMax");
+    localStorage.removeItem("searchLiterage");
+    localStorage.removeItem("searchComments");
+    localStorage.removeItem("searchAddedAt");
+  };
+
+  const handleSearchCastle = (e) => {
+    e.preventDefault();
+    const value = e.target.value;
+    setSearchCastle(value);
+    localStorage.setItem("searchCastle", value);
+  };
+
+  const handleSearchYear = (e) => {
+    e.preventDefault();
+    const value = e.target.value;
+    setSearchYear(value);
+    localStorage.setItem("searchYear", value);
+  };
+
+  const handleSearchRegion = (e) => {
+    e.preventDefault();
+    const value = e.target.value;
+    setSearchRegion(value);
+    localStorage.setItem("searchRegion", value);
+  };
+
+  const handleSearchCountry = (e) => {
+    e.preventDefault();
+    const value = e.target.value;
+    setSearchCountry(value);
+    localStorage.setItem("searchCountry", value);
+  };
+
+  const handleSearchType = (e) => {
+    e.preventDefault();
+    const value = e.target.value;
+    setSearchType(value);
+    localStorage.setItem("searchType", value);
+  };
+
+  const handleSearchWhereIFindIt = (e) => {
+    e.preventDefault();
+    const value = e.target.value;
+    setSearchWhereIFindIt(value);
+    localStorage.setItem("searchWhereIFindIt", value);
+  };
+
+  const handleSearchPriceMin = (e) => {
+    e.preventDefault();
+    const value = e.target.value;
+    setSearchPriceMin(value);
+    localStorage.setItem("searchPriceMin", value);
+  };
+  const handleSearchPriceMax = (e) => {
+    e.preventDefault();
+    const value = e.target.value;
+    setSearchPriceMax(value);
+    localStorage.setItem("searchPriceMax", value);
+  };
+
+  const handleSearchQuantityMin = (e) => {
+    e.preventDefault();
+    const value = e.target.value;
+    setSearchQuantityMin(value);
+    localStorage.setItem("searchQuantityMin", value);
+  };
+
+  const handleSearchQuantityMax = (e) => {
+    e.preventDefault();
+    const value = e.target.value;
+    setSearchQuantityMax(value);
+    localStorage.setItem("searchQuantityMax", value);
+  };
+
+  const handleSearchLiterage = (e) => {
+    e.preventDefault();
+    const value = e.target.value;
+    setSearchLiterage(value);
+    localStorage.setItem("searchLiterage", value);
+  };
+
+  const handleSearchComments = (e) => {
+    e.preventDefault();
+    const value = e.target.value;
+    setSearchComments(value);
+    localStorage.setItem("searchComments", value);
+  };
+
+  const handleSearchAddedAt = (e) => {
+    e.preventDefault();
+    const value = e.target.value;
+    setSearchAddedAt(value);
+    localStorage.setItem("searchAddedAt", value);
+  };
 
   // check if the size of the window is a mobile size
   const handleResize = () => {
@@ -377,29 +456,27 @@ const Vinotheque = () => {
   }, [width]);
 
   useEffect(() => {
-    resetFilter();
-    getListOfWines();
+    if (!user) {
+      return;
+    } else if (
+      user.role === "admin" ||
+      user.role === "superadmin" ||
+      user.role === "AdminVin"
+    ) {
+      getListOfWines();
+      resetFilter();
+    }
 
     //eslint-disable-next-line
-  }, [setListOfWines]);
+  }, [setListOfWines, user]);
 
-  return !user ||
-    user.role === "user" ||
-    user.role === "student" ||
-    user.role === "oldstudent" ? (
-    <div
-      className="d-flex justify-content-center"
-      style={{ paddingTop: "5rem" }}
-    >
-      <h2>Vous n'avez pas accès à cette page</h2>
-    </div>
-  ) : isLoading ? (
-    <div
-      className="d-flex justify-content-center"
-      style={{ paddingTop: "5rem", paddingBottom: "15rem" }}
-    >
-      <h2>
-        Chargement de la liste des vins
+  return isLoading ? (
+    <div className="container">
+      <div
+        className="d-flex justify-content-center"
+        style={{ paddingBottom: "12rem", paddingTop: "5rem" }}
+      >
+        <h2>Chargement de la Vinothèque</h2>
         <span>
           <img
             src={spin}
@@ -407,16 +484,16 @@ const Vinotheque = () => {
             style={{ width: "3rem", height: "3rem" }}
           />
         </span>
-      </h2>
+      </div>
     </div>
   ) : (
-    (user.role === "AdminVin" ||
-      user.role === "superadmin" ||
-      user.role === "admin") && (
-      <div className="container " style={{ paddingBottom: "12rem" }}>
-        <div className="row">
-          <h1 className="mx-auto text-center">La cave d'alexis</h1>
-          <div>
+    <div className="container " style={{ paddingBottom: "12rem" }}>
+      <div className="row">
+        <h1 className="mx-auto text-center">La cave d'alexis</h1>
+        {user &&
+          (user.role === "admin" ||
+            user.role === "superadmin" ||
+            user.role === "AdminVin") && (
             <div className="col-12 col-md-6 mx-auto ">
               <div className="d-flex justify-content-around">
                 {addNewWine ? (
@@ -770,14 +847,13 @@ const Vinotheque = () => {
                 )}
               </div>
             </div>
-          </div>
-        </div>
+          )}
+
         <div className="table-responsive">
           {/* Search input fields */}
           <table className="table table-striped table-bordered table-hover">
             <thead>
               <tr className="text-center">
-                {/* <th scope="col">Etiquette</th> */}
                 <th scope="col">Nom</th>
                 <th scope="col">année</th>
                 <th scope="col">Région</th>
@@ -788,16 +864,6 @@ const Vinotheque = () => {
             <tbody>
               {filteredWines.map((wine) => (
                 <tr key={wine._id} className="text-center">
-                  {/* <td>
-                    
-                      <img
-                        src={wine.pictureData}
-                        alt={wine.nomDuChateau}
-                        className="img-thumbnail img-fluid"
-                        style={{ maxHeight: "10rem" }}
-                      />
-                    
-                  </td> */}
                   <td>
                     <Link to={`/BouteilleDeVin/${wine._id}`}>
                       {wine.nomDuChateau}
@@ -820,7 +886,7 @@ const Vinotheque = () => {
           </table>
         </div>
       </div>
-    )
+    </div>
   );
 };
 

@@ -62,6 +62,17 @@ const Bibliotheque = () => {
         `${process.env.REACT_APP_API_URL}/api/books/noimage`
       );
 
+      // sort the book by author
+      response.data.sort((a, b) => {
+        if (a.author < b.author) {
+          return -1;
+        }
+        if (a.author > b.author) {
+          return 1;
+        }
+        return 0;
+      });
+
       // Create an array of promises to fetch user data for all books
       const fetchUserPromises = await response.data.map((book) => {
         if (book.statut === "emprunté") {
