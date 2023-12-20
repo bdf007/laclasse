@@ -63,6 +63,26 @@ main {
 .scroll-to-top:hover {
   background-color: #0056b3;
 }
+.homeTable {
+  width: 100%;
+}
+
+.tdHome {
+  width: 50%;
+}
+
+@media (max-width: 600px) {
+  .homeTable {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .tdHome {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
 
 @media screen and (max-width: 768px) {
   .description {

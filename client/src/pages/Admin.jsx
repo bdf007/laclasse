@@ -4,6 +4,8 @@ import axios from "axios";
 import { getUser } from "../api/user";
 import { toast } from "react-toastify";
 import Class from "../component/class";
+import HomeComponent from "../component/homeComponent";
+import LoadPhoto from "../component/loadPhoto";
 
 //design
 import FormatListBulletedOutlinedIcon from "@mui/icons-material/FormatListBulletedOutlined";
@@ -652,6 +654,19 @@ const Admin = () => {
               )}
             </div>
           </div>
+          <table className="homeTable">
+            <tbody>
+              <tr>
+                <td className="tdHome">
+                  {" "}
+                  <HomeComponent />{" "}
+                </td>
+                <td className="tdHome">
+                  <LoadPhoto />
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       )}
     </>
