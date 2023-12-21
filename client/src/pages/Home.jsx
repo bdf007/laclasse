@@ -30,7 +30,11 @@ const Home = () => {
           <div className="row">
             <div className="col-md-6" style={{ borderLeft: "1px solid black" }}>
               <div style={{ marginTop: "5rem", paddingTop: "5rem" }}>
-                <img className="img-fluid" src={acceuil} alt="acceuil" />
+                <img
+                  className="img-fluid"
+                  src={acceuil}
+                  alt="acceuil classe français stéphanie labbé midelet californie san-diego"
+                />
               </div>
             </div>
             <div className="col-md-6 pe-none">
@@ -42,7 +46,7 @@ const Home = () => {
                         <img
                           className="img-thumbnail "
                           src={photoacceuil1}
-                          alt=""
+                          alt="acceuil classe français stéphanie labbé midelet californie san-diego"
                         />
                       </td>
                       <td></td>
@@ -50,7 +54,7 @@ const Home = () => {
                         <img
                           className="img-thumbnail"
                           src={photoacceuil5}
-                          alt=""
+                          alt="acceuil classe français stéphanie labbé midelet californie san-diego"
                         />
                       </td>
                     </tr>
@@ -59,21 +63,21 @@ const Home = () => {
                         <img
                           className="img-thumbnail"
                           src={photoacceuil2}
-                          alt=""
+                          alt="acceuil classe français stéphanie labbé midelet californie san-diego"
                         />
                       </td>
                       <td>
                         <img
                           className="img-thumbnail"
                           src={photoacceuil4}
-                          alt=""
+                          alt="acceuil classe français stéphanie labbé midelet californie san-diego"
                         />
                       </td>
                       <td>
                         <img
                           className="img-thumbnail"
                           src={photoacceuil6}
-                          alt=""
+                          alt="acceuil classe français stéphanie labbé midelet californie san-diego"
                         />
                       </td>
                     </tr>
@@ -82,7 +86,7 @@ const Home = () => {
                         <img
                           className="img-thumbnail"
                           src={photoacceuil3}
-                          alt=""
+                          alt="acceuil classe français stéphanie labbé midelet californie san-diego"
                         />
                       </td>
                       <td></td>
@@ -90,7 +94,7 @@ const Home = () => {
                         <img
                           className="img-thumbnail"
                           src={photoacceuil7}
-                          alt=""
+                          alt="acceuil classe français stéphanie labbé midelet californie san-diego"
                         />
                       </td>
                     </tr>
