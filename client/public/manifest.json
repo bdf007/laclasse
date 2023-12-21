@@ -3,18 +3,18 @@
   "name": "La classe de français",
   "icons": [
     {
-      "src": "logowobg.webp",
+      "src": "logowobg.png",
       "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/webp"
+      "type": "image/png"
     },
     {
-      "src": "logowobg.webp",
-      "type": "image/webp",
+      "src": "logowobg.png",
+      "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "logowobg.webp",
-      "type": "image/webp",
+      "src": "logowobg.png",
+      "type": "image/png",
       "sizes": "512x512"
     }
   ],
