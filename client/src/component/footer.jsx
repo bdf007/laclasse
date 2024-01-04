@@ -182,7 +182,7 @@ const Footer = () => {
             Mis en ligne avec Docker, Caprover et OVH
           </p>
 
-          <p className="text-center">© 2023, All rights reserved</p>
+          <p className="text-center">© 2024, All rights reserved</p>
         </div>
       </div>
     </footer>
