@@ -99,6 +99,11 @@ const NavBarre = () => {
                     Connexion
                   </Link>
                 </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/review">
+                    Avis
+                  </Link>
+                </li>
               </>
             ) : (
               <>

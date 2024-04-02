@@ -39,6 +39,10 @@ main {
   justify-content: center;
   text-align: center;
 }
+.carousel {
+  background-color: #a497f7;
+}
+
 .description {
   font-size: 1.8rem;
   white-space: pre-line;
