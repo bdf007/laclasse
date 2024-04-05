@@ -78,7 +78,8 @@ function App() {
                   path="/BouteilleDeVin/:id"
                   element={<WineAbout />}
                 />
-                <Route path="*" element={<NotFound />} />
+                <Route exact path="/review" element={<ReviewComponent />} />
+
                 <Route path="*" element={<NotFound />} />
               </>
             ) : // if user is user
@@ -88,6 +89,8 @@ function App() {
                 <Route exact path="/contact" element={<Contact />} />
                 <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route exact path="/BookAbout/:id" element={<BookAbout />} />
+                <Route exact path="/review" element={<ReviewComponent />} />
+
                 <Route path="*" element={<NotFound />} />
               </>
             ) : // if user is vinotheque
@@ -114,6 +117,8 @@ function App() {
                     element={<Bibliotheque />}
                   />
                   <Route exact path="/BookAbout/:id" element={<BookAbout />} />
+                  <Route exact path="/review" element={<ReviewComponent />} />
+
                   <Route path="*" element={<NotFound />} />
                 </>
               )

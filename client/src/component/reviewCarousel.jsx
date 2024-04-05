@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Slider from "react-slick";
 import { Typography } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const ReviewCarousel = () => {
   const [reviews, setReviews] = useState([]);
-  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -23,45 +25,75 @@ const ReviewCarousel = () => {
     fetchReviews();
   }, []);
 
-  const handleIndicatorClick = (index) => {
-    setActiveIndex(index);
+  if (reviews.length === 1) {
+    const review = reviews[0];
+    return (
+      <div className="carousel">
+        <Typography variant="h6">{review.firstname}</Typography>
+        <Typography variant="h5">
+          <blockquote style={{ fontStyle: "italic" }}>
+            "{review.message}"
+          </blockquote>
+        </Typography>
+
+        <div className="star-rating">
+          {[...Array(5)].map((_, index) => (
+            <React.Fragment key={index}>
+              {index < review.star ? (
+                <StarIcon sx={{ color: "yellow", fontSize: 24 }} />
+              ) : (
+                <StarBorderIcon sx={{ color: "inherit", fontSize: 24 }} />
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 2000,
   };
 
-  return (
-    <div
-      id="carouselIndicators"
-      className="carousel slide"
-      data-bs-ride="carousel"
-      data-bs-interval="2000"
-    >
-      {/* <div className="carousel-indicators">
-        {reviews.map((_, index) => (
-          <button
-            key={index}
-            type="button"
-            data-bs-target="#carouselIndicators"
-            data-bs-slide-to={index}
-            className={`indicator ${index === activeIndex ? "active" : ""}`}
-            aria-current={index === activeIndex ? "true" : "false"}
-            onClick={() => handleIndicatorClick(index)}
-          ></button>
-        ))}
-      </div> */}
-      <div className="carousel-inner">
-        {reviews.map((review, index) => (
-          <div
-            key={review._id}
-            className={`carousel-item${index === activeIndex ? " active" : ""}`}
-          >
-            <Typography variant="h6">
-              {review.firstname} {review.lastname}
-            </Typography>
-            <Typography variant="body1">
-              <pre>{review.message}</pre>
-            </Typography>
-            {review.classes && (
-              <Typography variant="body2">Classes: {review.classes}</Typography>
+  return reviews.length === 1 ? (
+    <div className="carousel">
+      <Typography variant="h6">{reviews[0].firstname}</Typography>
+      <Typography variant="h5">
+        <blockquote style={{ fontStyle: "italic" }}>
+          "{reviews[0].message}"
+        </blockquote>
+      </Typography>
+
+      <div className="star-rating">
+        {[...Array(5)].map((_, index) => (
+          <React.Fragment key={index}>
+            {index < reviews[0].star ? (
+              <StarIcon sx={{ color: "yellow", fontSize: 24 }} />
+            ) : (
+              <StarBorderIcon sx={{ color: "inherit", fontSize: 24 }} />
             )}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  ) : (
+    <div className="carousel">
+      <Slider {...settings}>
+        {reviews.map((review) => (
+          <div key={review._id} className="carousel-item">
+            <Typography variant="h6">{review.firstname}</Typography>
+            <Typography variant="h5">
+              <blockquote style={{ fontStyle: "italic" }}>
+                "{review.message}"
+              </blockquote>
+            </Typography>
+
             <div className="star-rating">
               {[...Array(5)].map((_, index) => (
                 <React.Fragment key={index}>
@@ -75,35 +107,7 @@ const ReviewCarousel = () => {
             </div>
           </div>
         ))}
-      </div>
-      {/* <button
-        className="carousel-control-prev"
-        type="button"
-        data-bs-target="#carouselIndicators"
-        data-bs-slide="prev"
-        onClick={() =>
-          setActiveIndex((prevIndex) =>
-            prevIndex === 0 ? reviews.length - 1 : prevIndex - 1
-          )
-        }
-      >
-        <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span className="visually-hidden">Previous</span>
-      </button>
-      <button
-        className="carousel-control-next"
-        type="button"
-        data-bs-target="#carouselIndicators"
-        data-bs-slide="next"
-        onClick={() =>
-          setActiveIndex((prevIndex) =>
-            prevIndex === reviews.length - 1 ? 0 : prevIndex + 1
-          )
-        }
-      >
-        <span className="carousel-control-next-icon" aria-hidden="true"></span>
-        <span className="visually-hidden">Next</span>
-      </button> */}
+      </Slider>
     </div>
   );
 };

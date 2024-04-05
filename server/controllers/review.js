@@ -3,7 +3,35 @@ const mongoose = require("mongoose");
 
 exports.getReview = async (req, res) => {
   try {
-    const review = await Review.find({});
+    const reviews = await Review.find({});
+    // Calculate average stars from all reviews validated
+    const reviewsValidated = reviews.filter(
+      (review) => review.validation === true
+    );
+    const average =
+      reviewsValidated.reduce((acc, review) => acc + review.star, 0) /
+      reviewsValidated.length;
+
+    // Create an object with reviews and averageStars
+    const responseData = {
+      reviews: reviews,
+      averageStars: average,
+    };
+
+    res.json(responseData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
+
+//  get review by email of the user
+exports.getReviewByEmail = async (req, res) => {
+  try {
+    const email = req.params.email;
+    const review = await Review.find({ email: email });
     res.json(review);
   } catch (error) {
     console.error(error);
@@ -15,7 +43,7 @@ exports.getReview = async (req, res) => {
 
 exports.getReviewVisibleAndValidated = async (req, res) => {
   try {
-    const review = await Review.find({ visible: true, validate: true });
+    const review = await Review.find({ visible: true, validation: true });
     res.json(review);
   } catch (error) {
     console.error(error);
@@ -27,6 +55,14 @@ exports.getReviewVisibleAndValidated = async (req, res) => {
 
 exports.postReview = async (req, res) => {
   try {
+    // check if the email is already used
+    const email = req.body.email;
+    const reviewByEmail = await Review.find({ email: email });
+    if (reviewByEmail.length > 0) {
+      return res.status(400).json({
+        error: "Email already used",
+      });
+    }
     const review = new Review(req.body);
     await review.save();
     await res.json(review);
@@ -116,7 +152,7 @@ exports.validateReviewById = async (req, res) => {
     // Update the validation
     await Review.findByIdAndUpdate(
       id,
-      { validate: req.body.validate },
+      { validation: req.body.validation },
       { new: true }
     );
     res.json(review);

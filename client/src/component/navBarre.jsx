@@ -139,6 +139,11 @@ const NavBarre = () => {
                         Gestion des messages de chat
                       </Link>
                     </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/review">
+                        Gestion des Avis
+                      </Link>
+                    </li>
                   </>
                 )}
 
@@ -159,6 +164,11 @@ const NavBarre = () => {
                         Contacter mon professeur
                       </Link>
                     </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/review">
+                        Avis
+                      </Link>
+                    </li>
                   </>
                 )}
                 {user.role === "user" && (
@@ -176,6 +186,11 @@ const NavBarre = () => {
                     <li className="nav-item">
                       <Link className="nav-link" to="/contact">
                         Contact le professeur
+                      </Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/review">
+                        Avis
                       </Link>
                     </li>
                   </>

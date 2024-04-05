@@ -40,7 +40,11 @@ main {
   text-align: center;
 }
 .carousel {
+  width: 100vw;
   background-color: #a497f7;
+  margin: 0;
+  padding: 0 10rem;
+  color: white;
 }
 
 .description {
@@ -68,9 +72,22 @@ main {
   background-color: #0056b3;
 }
 
+.form-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-check-label {
+  margin: 0 2rem;
+}
+
 @media screen and (max-width: 768px) {
   .description {
     font-size: 1.5rem;
     white-space: pre-line;
+  }
+  .carousel {
+    padding: 0 2rem;
   }
 }

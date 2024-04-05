@@ -29,8 +29,6 @@ const Home = () => {
           />
         </Helmet>
         <div className="container-fluid" style={{ paddingBottom: "12rem" }}>
-          <ReviewCarousel />
-
           <div className="row">
             <div className="col-md-6" style={{ borderLeft: "1px solid black" }}>
               <div style={{ marginTop: "5rem", paddingTop: "5rem" }}>
@@ -107,6 +105,7 @@ const Home = () => {
               </div>
             </div>
           </div>
+          <ReviewCarousel />
         </div>
       </div>
     </>
