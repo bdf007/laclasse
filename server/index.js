@@ -22,6 +22,8 @@ const courseFileRoutes = require("./routes/courseFile");
 const commentRoutes = require("./routes/comment");
 // get the wine routes for connection
 const wineRoutes = require("./routes/wine");
+// get the review routes for connection
+const reviewRoutes = require("./routes/review");
 
 // middleware
 app.use(json({ limit: "10mb" }));
@@ -55,6 +57,8 @@ app.use("/api/", courseFileRoutes);
 app.use("/api/", commentRoutes);
 // use the wine routes for connection
 app.use("/api/", wineRoutes);
+// use the review routes for connection
+app.use("/api/", reviewRoutes);
 
 // Serve the React app
 app.get("/*", (req, res) => {

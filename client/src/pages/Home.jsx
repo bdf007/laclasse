@@ -1,6 +1,8 @@
 import React from "react";
 import { Helmet } from "react-helmet";
 
+import ReviewCarousel from "../component/reviewCarousel";
+
 // design
 // import "../cssFiles/homeCss.css";
 import acceuil from "../assets/acceuilwobg.webp";
@@ -103,6 +105,7 @@ const Home = () => {
               </div>
             </div>
           </div>
+          <ReviewCarousel />
         </div>
       </div>
     </>

@@ -25,6 +25,7 @@ import User from "./pages/User";
 import NotFound from "./pages/NotFound";
 import Vinotheque from "./pages/Vinotheque";
 import WineAbout from "./pages/WineAbout";
+import ReviewComponent from "./pages/Review";
 
 import Footer from "./component/footer";
 
@@ -59,6 +60,7 @@ function App() {
                 <Route exact path="/signup" element={<Signup />} />
                 <Route exact path="/login" element={<Login />} />
                 <Route exact path="/contact" element={<Contact />} />
+                <Route exact path="/review" element={<ReviewComponent />} />
                 <Route path="*" element={<NotFound />} />
               </>
             ) : // check if user is admin
@@ -76,7 +78,8 @@ function App() {
                   path="/BouteilleDeVin/:id"
                   element={<WineAbout />}
                 />
-                <Route path="*" element={<NotFound />} />
+                <Route exact path="/review" element={<ReviewComponent />} />
+
                 <Route path="*" element={<NotFound />} />
               </>
             ) : // if user is user
@@ -86,6 +89,8 @@ function App() {
                 <Route exact path="/contact" element={<Contact />} />
                 <Route exact path="/bibliotheque" element={<Bibliotheque />} />
                 <Route exact path="/BookAbout/:id" element={<BookAbout />} />
+                <Route exact path="/review" element={<ReviewComponent />} />
+
                 <Route path="*" element={<NotFound />} />
               </>
             ) : // if user is vinotheque
@@ -112,6 +117,8 @@ function App() {
                     element={<Bibliotheque />}
                   />
                   <Route exact path="/BookAbout/:id" element={<BookAbout />} />
+                  <Route exact path="/review" element={<ReviewComponent />} />
+
                   <Route path="*" element={<NotFound />} />
                 </>
               )
