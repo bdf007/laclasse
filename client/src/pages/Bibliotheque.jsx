@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
+import PopupBook from "../component/popupBook";
 
 //design
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
@@ -21,6 +21,8 @@ const Bibliotheque = () => {
   const [listOfBooks, setListOfBooks] = useState([]);
   const [listOfUsers, setListOfUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(null);
   const [selectedUser, setSelectedUser] = useState("");
   const [searchTitle, setSearchTitle] = useState(
     localStorage.getItem("searchTitle") || ""
@@ -99,6 +101,26 @@ const Bibliotheque = () => {
       toast.error("Erreur lors de la récupération des livres");
     }
     setIsLoading(false);
+  };
+
+  const openBookPopup = async (bookId) => {
+    try {
+      bookId = bookId._id;
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/book/${bookId}`
+      );
+      setSelectedBook(response.data);
+      setIsPopupOpen(true);
+    } catch (error) {
+      console.log(error);
+      toast.error("Erreur lors de la récupération du livre");
+    }
+  };
+
+  // close the popup
+  const closeBookPopup = () => {
+    setSelectedBook(null);
+    setIsPopupOpen(false);
   };
 
   // assign a user to a book
@@ -349,6 +371,10 @@ const Bibliotheque = () => {
     }
   };
 
+  const handleBookUpdate = () => {
+    getListOfBooks();
+  };
+
   useEffect(() => {
     handleResize(); // Call it on initial render
     window.addEventListener("resize", handleResize); // Attach it to the resize event
@@ -517,11 +543,21 @@ const Bibliotheque = () => {
                        
                       </td> */}
 
-                      <td>
+                      <th>
                         {" "}
-                        <Link to={`/BookAbout/${book._id}`}>{book.title} </Link>
-                        {!show && <p>par {book.author}</p>}
-                      </td>
+                        <span
+                          className="text-wrap"
+                          onClick={() => openBookPopup(book)}
+                          style={{ cursor: "pointer" }}
+                        >
+                          <h6 className="text-decoration-underline">
+                            {book.title}
+                          </h6>
+                        </span>
+                        {!show && book.author && (
+                          <p className="fst-italic">par {book.author}</p>
+                        )}
+                      </th>
                       {show && <td>{book.author}</td>}
                       <td>{book.genre}</td>
                       {show && <td>{book.description}</td>}
@@ -666,11 +702,21 @@ const Bibliotheque = () => {
                           />
                        
                       </td> */}
-                      <td>
+                      <th>
                         {" "}
-                        <Link to={`/BookAbout/${book._id}`}>{book.title} </Link>
-                        {!show && <p>par {book.author}</p>}
-                      </td>
+                        <span
+                          className="text-wrap"
+                          onClick={() => openBookPopup(book)}
+                          style={{ cursor: "pointer" }}
+                        >
+                          <h6 className="text-decoration-underline">
+                            {book.title}
+                          </h6>
+                        </span>
+                        {!show && book.author && (
+                          <p className="fst-italic">par {book.author}</p>
+                        )}
+                      </th>
                       {show && <td>{book.author}</td>}
                       <td>
                         <p>{book.genre}</p>
@@ -939,11 +985,21 @@ const Bibliotheque = () => {
                           />
                        
                       </td> */}
-                      <td>
+                      <th>
                         {" "}
-                        <Link to={`/BookAbout/${book._id}`}>{book.title} </Link>
-                        {!show && <p>par {book.author}</p>}
-                      </td>
+                        <span
+                          className="text-wrap"
+                          onClick={() => openBookPopup(book)}
+                          style={{ cursor: "pointer" }}
+                        >
+                          <h6 className="text-decoration-underline">
+                            {book.title}
+                          </h6>
+                        </span>
+                        {!show && book.author && (
+                          <p className="fst-italic">par {book.author}</p>
+                        )}
+                      </th>
                       {show && <td>{book.author}</td>}
                       <td>
                         <p>{book.genre}</p>
@@ -1027,6 +1083,14 @@ const Bibliotheque = () => {
       <button className="scroll-to-top" onClick={scrollToTop}>
         <ArrowUpwardIcon />
       </button>
+      {isPopupOpen && selectedBook && (
+        <PopupBook
+          book={selectedBook}
+          onClose={closeBookPopup}
+          user={user}
+          onUpdate={handleBookUpdate}
+        />
+      )}
     </div>
   );
 };
