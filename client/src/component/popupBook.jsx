@@ -104,15 +104,19 @@ const PopupBook = ({ book, onClose, user, onUpdate }) => {
         {editing === true &&
         (user.role === "admin" || user.role === "superadmin") ? (
           <div>
-            <div className="d-flex justify-content-center">
-              <h2>
+            <div className="form-group d-flex justify-content-between">
+              <label
+                className="mb-0 fw-bolder text-decoration-underline"
+                style={{ whiteSpace: "nowrap" }}
+              >
                 Titre :
-                <input
-                  type="text"
-                  value={updatedTitle}
-                  onChange={(e) => setUpdatedTitle(e.target.value)}
-                />
-              </h2>
+              </label>
+              <input
+                className="flex-grow-1 ml-2"
+                type="text"
+                value={updatedTitle}
+                onChange={(e) => setUpdatedTitle(e.target.value)}
+              />
             </div>
             <div className="d-flex justify-content-center">
               <p className="d-flex justify-content-center">
