@@ -1,5 +1,5 @@
 # production environment
-FROM node:18.18.2
+FROM node:20-alpine
 # Create app directory
 RUN mkdir /usr/src/app
 WORKDIR /usr/src/app
@@ -30,7 +30,7 @@ ENV FRONTEND_URL=${FRONTEND_URL}
 ARG FRONTEND_URL=${FRONTEND_URL}
 
 COPY ./ /usr/src/app
-RUN npm install -g npm
+
 # Create front app
 RUN cd ./client && npm i && npm run build
 # RUN mkdir -p ./client/dist/src && cp -r ./client/src/assets ./client/dist/src
