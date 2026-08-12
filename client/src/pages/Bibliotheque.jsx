@@ -3,6 +3,7 @@ import axios from "axios";
 import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
 import PopupBook from "../component/popupBook";
+import ImagePickerWithCrop from "../component/ImagePickerWithCrop";
 
 //design
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
@@ -10,6 +11,22 @@ import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import spin from "../assets/Spin.gif";
+
+const getBookImageUrl = (id) =>
+  `${process.env.REACT_APP_API_URL}/api/book/image/${id}`;
+
+const BookThumbnail = ({ book }) => (
+  <img
+    loading="lazy"
+    src={getBookImageUrl(book._id)}
+    alt={book.title}
+    className="img-thumbnail rounded d-block mx-auto mb-1"
+    style={{ maxWidth: "70px", maxHeight: "90px" }}
+    onError={(e) => {
+      e.target.style.display = "none";
+    }}
+  />
+);
 
 const Bibliotheque = () => {
   const { user } = useContext(UserContext);
@@ -23,18 +40,18 @@ const Bibliotheque = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
-  const [selectedUser, setSelectedUser] = useState("");
+  const [selectedUser, setSelectedUser] = useState({});
   const [searchTitle, setSearchTitle] = useState(
-    localStorage.getItem("searchTitle") || ""
+    localStorage.getItem("searchTitle") || "",
   );
   const [searchAuthor, setSearchAuthor] = useState(
-    localStorage.getItem("searchAuthor") || ""
+    localStorage.getItem("searchAuthor") || "",
   );
   const [searchGenre, setSearchGenre] = useState(
-    localStorage.getItem("searchGenre") || ""
+    localStorage.getItem("searchGenre") || "",
   );
   const [searchStatus, setSearchStatus] = useState(
-    localStorage.getItem("searchStatus") || ""
+    localStorage.getItem("searchStatus") || "",
   );
   const [addNewBook, setAddNewBook] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -46,7 +63,7 @@ const Bibliotheque = () => {
   const getListOfUsers = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/users`
+        `${process.env.REACT_APP_API_URL}/api/users`,
       );
       setListOfUsers(response.data);
     } catch (error) {
@@ -61,7 +78,7 @@ const Bibliotheque = () => {
 
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/books/noimage`
+        `${process.env.REACT_APP_API_URL}/api/books/noimage`,
       );
 
       // sort the book by author
@@ -107,7 +124,7 @@ const Bibliotheque = () => {
     try {
       bookId = bookId._id;
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/book/${bookId}`
+        `${process.env.REACT_APP_API_URL}/api/book/${bookId}`,
       );
       setSelectedBook(response.data);
       setIsPopupOpen(true);
@@ -126,13 +143,14 @@ const Bibliotheque = () => {
   // assign a user to a book
   const assignUserToBook = async (bookId) => {
     try {
-      let emprunteurValue = selectedUser;
+      const chosenUser = selectedUser[bookId] || "";
+      let emprunteurValue = chosenUser;
 
       // Get the book to update
       const book = listOfBooks.find((book) => book._id === bookId);
 
-      // Check if selectedUser is "aucun" and set emprunteurValue to null
-      if (selectedUser === "none") {
+      // Check if chosenUser is "aucun" and set emprunteurValue to null
+      if (chosenUser === "none") {
         emprunteurValue = null;
         book.statut = "disponible";
         book.firstname = null;
@@ -148,12 +166,14 @@ const Bibliotheque = () => {
             toast.success("emprunteur assigné avec succès");
             // get the response from the server and update the book in the state
             getListOfBooks();
-            setSelectedUser("");
+            setSelectedUser((prev) => ({ ...prev, [bookId]: "" }));
           });
       } else {
-        // Get the info of the selectedUser
+        // Get the info of the chosenUser (route protégée : withCredentials nécessaire)
         await axios
-          .get(`${process.env.REACT_APP_API_URL}/api/user/${selectedUser}`)
+          .get(`${process.env.REACT_APP_API_URL}/api/user/${chosenUser}`, {
+            withCredentials: true,
+          })
           .then((res) => {
             book.firstname = res.data.firstname;
             book.lastname = res.data.lastname;
@@ -170,7 +190,7 @@ const Bibliotheque = () => {
             toast.success("emprunteur assigné avec succès");
             // get the response from the server and update the book in the state
             getListOfBooks();
-            setSelectedUser("");
+            setSelectedUser((prev) => ({ ...prev, [bookId]: "" }));
           });
       }
     } catch (error) {
@@ -192,11 +212,6 @@ const Bibliotheque = () => {
 
   const handleDescriptionChange = (e) => {
     setDescription(e.target.value);
-  };
-
-  const handleFileInputChange = (e) => {
-    const file = e.target.files[0];
-    setSelectedFile(file);
   };
 
   const handleUploadBook = async () => {
@@ -257,7 +272,7 @@ const Bibliotheque = () => {
 
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/book`,
-        bookData
+        bookData,
       );
 
       getListOfBooks();
@@ -517,7 +532,6 @@ const Bibliotheque = () => {
               <table className="table table-striped table-bordered table-hover">
                 <thead>
                   <tr className="text-center">
-                    {/* <th scope="col">Couverture</th> */}
                     <th scope="col">
                       <p className="text-bold">Titre</p>
                       {!show && <p className="fst-italic">Auteur</p>}
@@ -532,17 +546,6 @@ const Bibliotheque = () => {
                 <tbody>
                   {filterdBooks.map((book) => (
                     <tr key={book._id}>
-                      {/* <td>
-                       
-                          <img
-                            src={book.imageData}
-                            alt={book.title}
-                            className="img-thumbnail"
-                            style={{ maxWidth: "200px", maxHeight: "200px" }}
-                          />
-                       
-                      </td> */}
-
                       <th>
                         {" "}
                         <span
@@ -550,6 +553,7 @@ const Bibliotheque = () => {
                           onClick={() => openBookPopup(book)}
                           style={{ cursor: "pointer" }}
                         >
+                          <BookThumbnail book={book} />
                           <h6 className="text-decoration-underline">
                             {book.title}
                           </h6>
@@ -669,7 +673,6 @@ const Bibliotheque = () => {
               <table className="table table-striped table-bordered table-hover">
                 <thead>
                   <tr className="text-center">
-                    {/* <th scope="col">Couverture</th> */}
                     <th scope="col">
                       <p className="text-bold">Titre</p>
                       {!show && <p className="fst-italic">Auteur</p>}
@@ -692,16 +695,6 @@ const Bibliotheque = () => {
                 <tbody>
                   {filterdBooks.map((book) => (
                     <tr key={book._id}>
-                      {/* <td>
-                       
-                          <img
-                            src={book.imageData}
-                            alt={book.title}
-                            className="img-thumbnail"
-                            style={{ maxWidth: "200px", maxHeight: "200px" }}
-                          />
-                       
-                      </td> */}
                       <th>
                         {" "}
                         <span
@@ -709,6 +702,7 @@ const Bibliotheque = () => {
                           onClick={() => openBookPopup(book)}
                           style={{ cursor: "pointer" }}
                         >
+                          <BookThumbnail book={book} />
                           <h6 className="text-decoration-underline">
                             {book.title}
                           </h6>
@@ -806,17 +800,13 @@ const Bibliotheque = () => {
                           </div>
                         </>
                       )}
-                      {!selectedFile && (
-                        <div className="form-group">
-                          <label htmlFor="image">Image</label>
-                          <input
-                            id="image"
-                            type="file"
-                            className="form-control"
-                            onChange={handleFileInputChange}
-                          />
-                        </div>
-                      )}
+                      <div className="form-group">
+                        <label>Couverture</label>
+                        <ImagePickerWithCrop
+                          inputIdPrefix="book-cover"
+                          onFileReady={setSelectedFile}
+                        />
+                      </div>
                       <div className="d-flex justify-content-around">
                         {selectedFile && (
                           <button
@@ -952,7 +942,6 @@ const Bibliotheque = () => {
               <table className="table table-striped table-bordered table-hover">
                 <thead>
                   <tr className="text-center">
-                    {/* <th scope="col">Couverture</th> */}
                     <th scope="col">
                       <p className="text-bold">Titre</p>
                       {!show && <p className="fst-italic">Auteur</p>}
@@ -975,16 +964,6 @@ const Bibliotheque = () => {
                 <tbody>
                   {filterdBooks.map((book) => (
                     <tr key={book._id}>
-                      {/* <td>
-                       
-                          <img
-                            src={book.imageData}
-                            alt={book.title}
-                            className="img-thumbnail"
-                            style={{ maxWidth: "200px", maxHeight: "200px" }}
-                          />
-                       
-                      </td> */}
                       <th>
                         {" "}
                         <span
@@ -992,6 +971,7 @@ const Bibliotheque = () => {
                           onClick={() => openBookPopup(book)}
                           style={{ cursor: "pointer" }}
                         >
+                          <BookThumbnail book={book} />
                           <h6 className="text-decoration-underline">
                             {book.title}
                           </h6>
@@ -1010,8 +990,13 @@ const Bibliotheque = () => {
                             <select
                               className="form-select"
                               aria-label="Default select example"
-                              value={selectedUser}
-                              onChange={(e) => setSelectedUser(e.target.value)}
+                              value={selectedUser[book._id] || ""}
+                              onChange={(e) =>
+                                setSelectedUser((prev) => ({
+                                  ...prev,
+                                  [book._id]: e.target.value,
+                                }))
+                              }
                             >
                               <option value="">Choisir un emprunteur</option>
                               {listOfUsers.map((user) => (
@@ -1051,8 +1036,13 @@ const Bibliotheque = () => {
                             <select
                               className="form-select"
                               aria-label="Default select example"
-                              value={selectedUser}
-                              onChange={(e) => setSelectedUser(e.target.value)}
+                              value={selectedUser[book._id] || ""}
+                              onChange={(e) =>
+                                setSelectedUser((prev) => ({
+                                  ...prev,
+                                  [book._id]: e.target.value,
+                                }))
+                              }
                             >
                               <option value="">Choisir un emprunteur</option>
                               {listOfUsers.map((user) => (

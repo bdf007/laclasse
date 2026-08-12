@@ -19,8 +19,13 @@ const bookSchema = new mongoose.Schema({
     trim: true,
   },
   imageData: {
+    // Legacy : Base64, uniquement pour les entrées pas encore migrées vers pCloud
     type: String,
     trim: true,
+  },
+  pcloudFileId: {
+    // Nouveau : identifiant du fichier stocké sur pCloud
+    type: Number,
   },
   statut: {
     type: String,

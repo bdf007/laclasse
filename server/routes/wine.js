@@ -9,6 +9,7 @@ const {
   getWineById,
   deleteWineById,
   updateWineById,
+  getWineImage,
 } = require("../controllers/wine");
 
 // api routes
@@ -18,5 +19,8 @@ router.get("/wines/noimage", getWinesWithoutImageData);
 router.get("/wine/:id", getWineById);
 router.delete("/wine/:id", deleteWineById);
 router.put("/wine/:id", updateWineById);
+
+// GET route for the image proxy (public, no auth needed)
+router.get("/wine/image/:id", getWineImage);
 
 module.exports = router;

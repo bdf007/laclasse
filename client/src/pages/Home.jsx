@@ -4,7 +4,6 @@ import { Helmet } from "react-helmet";
 import ReviewCarousel from "../component/reviewCarousel";
 
 // design
-// import "../cssFiles/homeCss.css";
 import acceuil from "../assets/acceuilwobg.webp";
 import photoacceuil1 from "../assets/photoacceuil1.webp";
 import photoacceuil2 from "../assets/photoacceuil2.webp";

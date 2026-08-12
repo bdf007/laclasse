@@ -8,9 +8,11 @@ const PopupBook = ({ book, onClose, user, onUpdate }) => {
   const [updatedTitle, setUpdatedTitle] = useState(book.title);
   const [updatedAuthor, setUpdatedAuthor] = useState(book.author);
   const [updatedDescription, setUpdatedDescription] = useState(
-    book.description
+    book.description,
   );
   const [updatedGenre, setUpdatedGenre] = useState(book.genre);
+
+  const bookImageUrl = `${process.env.REACT_APP_API_URL}/api/book/image/${book._id}`;
 
   const updateBook = async () => {
     try {
@@ -62,9 +64,12 @@ const PopupBook = ({ book, onClose, user, onUpdate }) => {
         <div>
           <h2 className="text-center">{book.title}</h2>
           <img
-            src={book.imageData}
+            src={bookImageUrl}
             alt={book.title}
             className="img-fluid rounded mx-auto d-block"
+            onError={(e) => {
+              e.target.style.display = "none";
+            }}
           />
         </div>
         <p>
@@ -121,9 +126,12 @@ const PopupBook = ({ book, onClose, user, onUpdate }) => {
             <div className="d-flex justify-content-center">
               <p className="d-flex justify-content-center">
                 <img
-                  src={book.imageData}
+                  src={bookImageUrl}
                   alt={book.title}
                   className="img-fluid rounded mx-auto d-block"
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                  }}
                 />
               </p>
             </div>
@@ -132,9 +140,12 @@ const PopupBook = ({ book, onClose, user, onUpdate }) => {
           <div>
             <h2 className="text-center">{book.title}</h2>
             <img
-              src={book.imageData}
+              src={bookImageUrl}
               alt={book.title}
               className="img-fluid rounded mx-auto d-block"
+              onError={(e) => {
+                e.target.style.display = "none";
+              }}
             />
           </div>
         )}
