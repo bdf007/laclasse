@@ -6,7 +6,6 @@ const path = require("path");
 const cors = require("cors");
 require("dotenv").config();
 const cookieParser = require("cookie-parser");
-const expressValidator = require("express-validator");
 
 // get the user routes for connection
 const userRoutes = require("./routes/userlogin");
@@ -31,14 +30,29 @@ app.use(
   cors({
     origin: process.env.FRONTEND_URL.split(",") ?? "http://localhost:3000",
     credentials: true,
-  })
+  }),
 );
 app.use(urlencoded({ limit: "10mb", extended: false }));
 app.use(cookieParser());
-app.use(expressValidator());
 
 //db connection
 connection();
+
+// Correctif léger pour GHSA-wgrm-67xf-hhpq (pdfjs-dist / @react-pdf-viewer/core,
+// projet archivé, plus de correctif à venir) : bloque spécifiquement eval()/
+// new Function(), le seul vecteur d'exploitation de cette faille, sans
+// restreindre le reste (scripts externes, workers, styles).
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "script-src 'self' 'unsafe-inline' https:; " +
+      "worker-src 'self' https:; " +
+      "style-src 'self' 'unsafe-inline' https:; " +
+      "img-src 'self' data: https:; " +
+      "connect-src 'self' https:;",
+  );
+  next();
+});
 
 app.use(express.static(path.join(__dirname, "..", "client", "build")));
 

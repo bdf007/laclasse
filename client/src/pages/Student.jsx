@@ -4,6 +4,7 @@ import { UserContext } from "../context/UserContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Worker } from "@react-pdf-viewer/core";
+import pdfjsPackage from "pdfjs-dist/package.json";
 import { getUser } from "../api/user";
 import { logout } from "../api/user";
 
@@ -234,7 +235,9 @@ const Student = () => {
   }, [setUser, getAllBooksFromAUser]);
 
   return (
-    <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js">
+    <Worker
+      workerUrl={`https://unpkg.com/pdfjs-dist@${pdfjsPackage.version}/build/pdf.worker.js`}
+    >
       <div className="container text-center" style={{ paddingBottom: "12rem" }}>
         <h1>Bienvenue {user.firstname}</h1>
         <div className="row">

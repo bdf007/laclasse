@@ -25,6 +25,7 @@ const TARGETS = [
   {
     model: User,
     base64Field: "profilePictureData",
+    pcloudField: "profilePicturePcloudId",
     subfolder: "photos-profil",
     prefix: "profile",
     label: "Photos de profil",
@@ -33,6 +34,7 @@ const TARGETS = [
   {
     model: Book,
     base64Field: "imageData",
+    pcloudField: "pcloudFileId",
     subfolder: "bibliotheque",
     prefix: "book",
     label: "Bibliothèque",
@@ -41,6 +43,7 @@ const TARGETS = [
   {
     model: Wine,
     base64Field: "pictureData",
+    pcloudField: "pcloudFileId",
     subfolder: "vinotheque",
     prefix: "wine",
     label: "Vinothèque",
@@ -50,12 +53,20 @@ const TARGETS = [
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function migrateCollection({ model, base64Field, subfolder, prefix, label, nameOf }) {
+async function migrateCollection({
+  model,
+  base64Field,
+  pcloudField,
+  subfolder,
+  prefix,
+  label,
+  nameOf,
+}) {
   console.log(`\n=== ${label} ===`);
 
   const query = {
     [base64Field]: { $exists: true, $ne: null },
-    $or: [{ pcloudFileId: { $exists: false } }, { pcloudFileId: null }],
+    $or: [{ [pcloudField]: { $exists: false } }, { [pcloudField]: null }],
   };
 
   const toMigrate = await model.find(query);
@@ -75,10 +86,10 @@ async function migrateCollection({ model, base64Field, subfolder, prefix, label,
       const fileid = await uploadBase64Image(
         doc[base64Field],
         `${prefix}-${doc._id}.webp`,
-        subfolder
+        subfolder,
       );
 
-      doc.pcloudFileId = fileid;
+      doc[pcloudField] = fileid;
       doc[base64Field] = undefined;
       await doc.save();
 
