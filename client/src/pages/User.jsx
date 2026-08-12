@@ -1,5 +1,5 @@
 import React from "react";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useCallback } from "react";
 import { UserContext } from "../context/UserContext";
 import axios from "axios";
 import { getUser } from "../api/user";
@@ -9,19 +9,20 @@ const User = () => {
   const { user, setUser } = useContext(UserContext);
   const [listOfBooks, setListOfBooks] = useState([]);
 
-  const getAllBooksFromAUser = async () => {
+  const getAllBooksFromAUser = useCallback(async () => {
     try {
       const userID = user._id;
       const res = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/get-all-books-from-a-user/${userID}`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       console.log("books", res.data);
       setListOfBooks(res.data);
     } catch (err) {
       toast.error(err);
     }
-  };
+  }, [user?._id]);
+
   // get the info of the user logged in
   useEffect(() => {
     const fetchData = async () => {
@@ -36,7 +37,7 @@ const User = () => {
     };
     getAllBooksFromAUser();
     fetchData();
-  }, [setUser, setListOfBooks]);
+  }, [setUser, getAllBooksFromAUser]);
   return (
     <div className="container text-center" style={{ paddingBottom: "12rem" }}>
       <h1>welcome {user.firstname}</h1>
