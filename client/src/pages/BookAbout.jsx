@@ -16,11 +16,12 @@ const BookAbout = () => {
 
   // Get bookId from URL
   const bookId = window.location.pathname.split("/")[2];
+  const bookImageUrl = `${process.env.REACT_APP_API_URL}/api/book/image/${bookId}`;
 
   const getBookById = async () => {
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/book/${bookId}`
+        `${process.env.REACT_APP_API_URL}/api/book/${bookId}`,
       );
 
       setBook(res.data);
@@ -38,7 +39,7 @@ const BookAbout = () => {
           author: updatedAuthor,
           genre: updatedGenre,
           description: updatedDescription,
-        }
+        },
       );
       setEditing(false);
       getBookById();
@@ -52,7 +53,7 @@ const BookAbout = () => {
       // check the statut of the book before deleting it
       if (book.statut === "disponible") {
         await axios.delete(
-          `${process.env.REACT_APP_API_URL}/api/book/${bookId}`
+          `${process.env.REACT_APP_API_URL}/api/book/${bookId}`,
         );
         window.location.href = "/Bibliotheque";
       } else {
@@ -102,7 +103,14 @@ const BookAbout = () => {
       </div>
       <div className="row">
         <div className="col-6">
-          <img src={book.imageData} alt={book.title} className="img-fluid" />
+          <img
+            src={bookImageUrl}
+            alt={book.title}
+            className="img-fluid"
+            onError={(e) => {
+              e.target.style.display = "none";
+            }}
+          />
         </div>
         <div className="col-6">
           <p>Auteur: {book.author}</p>
@@ -159,7 +167,14 @@ const BookAbout = () => {
       )}
       <div className="row">
         <div className="col-6">
-          <img src={book.imageData} alt={book.title} className="img-fluid" />
+          <img
+            src={bookImageUrl}
+            alt={book.title}
+            className="img-fluid"
+            onError={(e) => {
+              e.target.style.display = "none";
+            }}
+          />
         </div>
         {editing && (user.role === "admin" || user.role === "superadmin") ? (
           <div className="col-6">
@@ -250,7 +265,7 @@ const BookAbout = () => {
                       book.title,
                       book.author,
                       book.genre,
-                      book.description
+                      book.description,
                     )
                   }
                 >

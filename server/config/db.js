@@ -7,9 +7,15 @@ module.exports = async function connection() {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     };
+
+    if (!process.env.MONGO_URI) {
+      throw new Error("MongoDB URI not configured");
+    }
+
     await mongoose.connect(process.env.MONGO_URI, connectionParams);
-    console.log("Connected to database");
+    console.log("Connected to database"); // Version optimisée
   } catch (error) {
-    console.log("Could not connect to database", error);
+    console.error("Could not connect to database:", error.message);
+    throw error; // Rejette l'erreur pour une gestion externe
   }
 };

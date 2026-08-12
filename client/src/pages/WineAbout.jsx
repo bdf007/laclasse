@@ -27,7 +27,7 @@ const WineAbout = () => {
   const getWine = async () => {
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/wine/${wineId}`
+        `${process.env.REACT_APP_API_URL}/api/wine/${wineId}`,
       );
 
       setWine(res.data);
@@ -51,7 +51,7 @@ const WineAbout = () => {
           quantity: updatedQuantity,
           literage: updatedLiterage,
           comments: updatedComments,
-        }
+        },
       );
       setEditing(false);
       getWine();
@@ -88,7 +88,7 @@ const WineAbout = () => {
     price,
     quantity,
     literage,
-    comments
+    comments,
   ) => {
     setEditing(true);
     setEditingWineId(wineId);
@@ -149,9 +149,12 @@ const WineAbout = () => {
       <div className="row">
         <div className="col-6">
           <img
-            src={wine.pictureData}
+            src={`${process.env.REACT_APP_API_URL}/api/wine/image/${wineId}`}
             alt={wine.nomDuChateau}
             className="img-fluid"
+            onError={(e) => {
+              e.target.style.display = "none";
+            }}
           />
         </div>
         {editing ? (
@@ -283,7 +286,7 @@ const WineAbout = () => {
                   wine.price,
                   wine.quantity,
                   wine.literage,
-                  wine.comments
+                  wine.comments,
                 )
               }
             >

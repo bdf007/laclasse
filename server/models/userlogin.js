@@ -48,6 +48,8 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Class",
     },
+    profilePicturePcloudId: { type: Number, default: null },
+    // Legacy : Base64, gardé le temps de migrer les photos existantes vers pCloud
     profilePictureData: {
       type: String,
       trim: true,
@@ -55,7 +57,7 @@ const userSchema = new mongoose.Schema(
 
     salt: String,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // virtual field

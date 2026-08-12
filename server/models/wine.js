@@ -31,8 +31,13 @@ const wineSchema = new mongoose.Schema({
     trim: true,
   },
   pictureData: {
+    // Legacy : Base64, uniquement pour les entrées pas encore migrées vers pCloud
     type: String,
     trim: true,
+  },
+  pcloudFileId: {
+    // Nouveau : identifiant du fichier stocké sur pCloud
+    type: Number,
   },
   quantity: {
     type: Number,

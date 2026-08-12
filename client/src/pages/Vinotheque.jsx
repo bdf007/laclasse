@@ -3,12 +3,29 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
+import ImagePickerWithCrop from "../component/ImagePickerWithCrop";
 
 //design
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import spin from "../assets/Spin.gif";
+
+const getWineImageUrl = (id) =>
+  `${process.env.REACT_APP_API_URL}/api/wine/image/${id}`;
+
+const WineThumbnail = ({ wine }) => (
+  <img
+    loading="lazy"
+    src={getWineImageUrl(wine._id)}
+    alt={wine.nomDuChateau}
+    className="img-thumbnail rounded d-block mx-auto"
+    style={{ maxWidth: "60px", maxHeight: "90px" }}
+    onError={(e) => {
+      e.target.style.display = "none";
+    }}
+  />
+);
 
 const Vinotheque = () => {
   const { user } = useContext(UserContext);
@@ -26,43 +43,43 @@ const Vinotheque = () => {
   const [listOfWines, setListOfWines] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchCastle, setSearchCastle] = useState(
-    localStorage.getItem("searchCastle") || ""
+    localStorage.getItem("searchCastle") || "",
   );
   const [searchYear, setSearchYear] = useState(
-    localStorage.getItem("searchYear") || ""
+    localStorage.getItem("searchYear") || "",
   );
   const [searchRegion, setSearchRegion] = useState(
-    localStorage.getItem("searchRegion") || ""
+    localStorage.getItem("searchRegion") || "",
   );
   const [searchCountry, setSearchCountry] = useState(
-    localStorage.getItem("searchCountry") || ""
+    localStorage.getItem("searchCountry") || "",
   );
   const [searchType, setSearchType] = useState(
-    localStorage.getItem("searchType") || ""
+    localStorage.getItem("searchType") || "",
   );
   const [searchWhereIFindIt, setSearchWhereIFindIt] = useState(
-    localStorage.getItem("searchWhereIFindIt") || ""
+    localStorage.getItem("searchWhereIFindIt") || "",
   );
   const [searchPriceMin, setSearchPriceMin] = useState(
-    localStorage.getItem("searchPriceMin") || ""
+    localStorage.getItem("searchPriceMin") || "",
   );
   const [searchPriceMax, setSearchPriceMax] = useState(
-    localStorage.getItem("searchPriceMax") || ""
+    localStorage.getItem("searchPriceMax") || "",
   );
   const [searchQuantityMin, setSearchQuantityMin] = useState(
-    localStorage.getItem("searchQuantityMin") || ""
+    localStorage.getItem("searchQuantityMin") || "",
   );
   const [searchQuantityMax, setSearchQuantityMax] = useState(
-    localStorage.getItem("searchQuantityMax") || ""
+    localStorage.getItem("searchQuantityMax") || "",
   );
   const [searchLiterage, setSearchLiterage] = useState(
-    localStorage.getItem("searchLiterage") || ""
+    localStorage.getItem("searchLiterage") || "",
   );
   const [searchComments, setSearchComments] = useState(
-    localStorage.getItem("searchComments") || ""
+    localStorage.getItem("searchComments") || "",
   );
   const [searchAddedAt, setSearchAddedAt] = useState(
-    localStorage.getItem("searchAddedAt") || ""
+    localStorage.getItem("searchAddedAt") || "",
   );
   const [addNewWine, setAddNewWine] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -75,7 +92,7 @@ const Vinotheque = () => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/wines/noimage`
+        `${process.env.REACT_APP_API_URL}/api/wines/noimage`,
       );
       setListOfWines(response.data);
     } catch (error) {
@@ -123,11 +140,6 @@ const Vinotheque = () => {
 
   const handleComments = (e) => {
     setComments(e.target.value);
-  };
-
-  const handleFileInputChange = (e) => {
-    const file = e.target.files[0];
-    setSelectedFile(file);
   };
 
   const handleUploadWine = async (e) => {
@@ -195,7 +207,7 @@ const Vinotheque = () => {
 
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/wine`,
-        wineData
+        wineData,
       );
 
       getListOfWines();
@@ -281,7 +293,7 @@ const Vinotheque = () => {
     try {
       // check if quantity is 0
       const wine = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/wine/${id}`
+        `${process.env.REACT_APP_API_URL}/api/wine/${id}`,
       );
       if (wine.data.quantity > 0) {
         toast.error("Vous possédez encore des bouteilles de ce vin");
@@ -635,12 +647,10 @@ const Vinotheque = () => {
                         </>
                       )}
                       <div className="form-group">
-                        <label htmlFor="file">Etiquette</label>
-                        <input
-                          type="file"
-                          className="form-control-file"
-                          id="file"
-                          onChange={handleFileInputChange}
+                        <label>Etiquette</label>
+                        <ImagePickerWithCrop
+                          inputIdPrefix="wine-cover"
+                          onFileReady={setSelectedFile}
                         />
                       </div>
                       <div className="d-flex justify-content-around">
@@ -854,6 +864,7 @@ const Vinotheque = () => {
           <table className="table table-striped table-bordered table-hover">
             <thead>
               <tr className="text-center">
+                <th scope="col">Etiquette</th>
                 <th scope="col">Nom</th>
                 <th scope="col">année</th>
                 <th scope="col">Région</th>
@@ -864,6 +875,9 @@ const Vinotheque = () => {
             <tbody>
               {filteredWines.map((wine) => (
                 <tr key={wine._id} className="text-center">
+                  <td>
+                    <WineThumbnail wine={wine} />
+                  </td>
                   <td>
                     <Link to={`/BouteilleDeVin/${wine._id}`}>
                       {wine.nomDuChateau}

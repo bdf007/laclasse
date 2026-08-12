@@ -38,7 +38,8 @@ function App() {
     const unsubscribe = getUser()
       .then((res) => {
         if (res.error) toast(res.error);
-        else setUser(res.firstname, res.role);
+        else setUser(res); // Corrigé : setUser ne prend qu'un seul argument,
+        // (res.firstname, res.role) passait un objet incomplet en silence
       })
       .catch((err) => toast(err));
 

@@ -22,6 +22,14 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import profilpicture from "../assets/profilpicture.png";
 
+const readFileAsBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
 const AdminInfo = () => {
   const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
@@ -33,11 +41,17 @@ const AdminInfo = () => {
   const [confirmUpdatedPassword, setConfirmUpdatedPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [updatedProfilePicture, setUpdatedProfilePicture] = useState(null);
+  const [profilePicturePreviewUrl, setProfilePicturePreviewUrl] =
+    useState(null);
 
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingProfilPicture, setIsEditingProfilPicture] = useState(false);
 
   const [isPasswordModified, setIsPasswordModified] = useState(false);
+
+  const profilePhotoUrl = user?._id
+    ? `${process.env.REACT_APP_API_URL}/api/user/${user._id}/photo`
+    : null;
 
   // password validation
   let hasSixChar = updatedPassword && updatedPassword.length >= 6;
@@ -74,7 +88,11 @@ const AdminInfo = () => {
   };
 
   const handleUpdatedProfilePicture = (e) => {
-    setUpdatedProfilePicture(e.target.files[0]);
+    const file = e.target.files[0];
+    setUpdatedProfilePicture(file);
+
+    if (profilePicturePreviewUrl) URL.revokeObjectURL(profilePicturePreviewUrl);
+    setProfilePicturePreviewUrl(file ? URL.createObjectURL(file) : null);
   };
 
   const handleShowPassword = () => {
@@ -103,13 +121,26 @@ const AdminInfo = () => {
           firstname: updatedFirstname,
           lastname: updatedLastname,
           email: updatedEmail,
-          newPassword: updatedPassword,
+          newPassword: updatedPassword || undefined,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
       toast.success("profil mis à jour avec succès");
       setIsEditing(false);
-      handleLogout(e);
+
+      if (updatedPassword) {
+        // Mot de passe changé : reconnexion nécessaire par sécurité
+        handleLogout(e);
+      } else {
+        // Sinon, pas besoin de déconnecter : on rafraîchit juste les infos
+        try {
+          const res = await getUser();
+          if (res.error) toast(res.error);
+          else setUser(res);
+        } catch (err) {
+          toast(err);
+        }
+      }
     } catch (err) {
       toast.error(err);
     }
@@ -118,38 +149,43 @@ const AdminInfo = () => {
   const handleUpdateProfilePicture = async () => {
     try {
       const userId = user._id;
-      // if the user has not selected a new profile picture, set the profile picture to null
+
       if (!updatedProfilePicture) {
+        // Pas de nouveau fichier choisi -> on retire la photo actuelle
         await axios.post(
           `${process.env.REACT_APP_API_URL}/api/update-profile-photo/${userId}`,
-          {
-            profilePictureData: null,
-          },
-          { withCredentials: true }
+          { removePhoto: true },
+          { withCredentials: true },
         );
       } else {
-        const fileReader = new FileReader();
-        fileReader.readAsDataURL(updatedProfilePicture);
+        // Attend réellement la lecture + l'envoi avant de continuer
+        // (avant, la navigation pouvait se déclencher avant la fin de l'upload)
+        const base64Data = await readFileAsBase64(updatedProfilePicture);
 
-        fileReader.onload = async () => {
-          const base64Data = fileReader.result;
-
-          await axios.post(
-            `${process.env.REACT_APP_API_URL}/api/update-profile-photo/${userId}`,
-            {
-              profilePictureData: base64Data,
-            },
-            { withCredentials: true }
-          );
-        };
+        await axios.post(
+          `${process.env.REACT_APP_API_URL}/api/update-profile-photo/${userId}`,
+          { photoData: base64Data },
+          { withCredentials: true },
+        );
       }
+
       toast.success("photo de profil mise à jour avec succès");
       setIsEditingProfilPicture(false);
       setUpdatedProfilePicture(null);
-      // set user to null
-      setUser(null);
-      // redirect to login page
-      navigate("/login");
+      if (profilePicturePreviewUrl) {
+        URL.revokeObjectURL(profilePicturePreviewUrl);
+        setProfilePicturePreviewUrl(null);
+      }
+
+      // Pas besoin de déconnecter pour une simple photo : on rafraîchit
+      // juste les infos utilisateur (hasProfilePicture) en place.
+      try {
+        const res = await getUser();
+        if (res.error) toast(res.error);
+        else setUser(res);
+      } catch (err) {
+        toast(err);
+      }
     } catch (err) {
       toast.error(err);
     }
@@ -194,8 +230,17 @@ const AdminInfo = () => {
                 Si aucun fichier n'est choisi, l'image par défaut remplacera la
                 photo actuel
               </p>
-              <p>en cas de modifications, vous devrez vous reconnecter</p>
             </div>
+            {profilePicturePreviewUrl && (
+              <div className="d-flex justify-content-center mb-3">
+                <img
+                  src={profilePicturePreviewUrl}
+                  alt="Aperçu"
+                  className="rounded-circle img-thumbnail"
+                  style={{ width: "200px" }}
+                />
+              </div>
+            )}
             <input
               type="file"
               accept="image/*"
@@ -213,12 +258,19 @@ const AdminInfo = () => {
               size="small"
               variant="contained"
               color="warning"
-              onClick={() => setIsEditingProfilPicture(false)}
+              onClick={() => {
+                setIsEditingProfilPicture(false);
+                setUpdatedProfilePicture(null);
+                if (profilePicturePreviewUrl) {
+                  URL.revokeObjectURL(profilePicturePreviewUrl);
+                  setProfilePicturePreviewUrl(null);
+                }
+              }}
             >
               annuler
             </Button>
           </>
-        ) : !user.profilePictureData ? (
+        ) : !user.hasProfilePicture ? (
           <>
             <table className="table" style={{ width: "50rem" }}>
               <tbody>
@@ -280,8 +332,8 @@ const AdminInfo = () => {
                   <td className=" bg-transparent align-middle">
                     <div className="d-flex justify-content-center">
                       <img
-                        src={user.profilePictureData}
-                        alt={(user.firstname, user.lastname)}
+                        src={profilePhotoUrl}
+                        alt={`${user.firstname} ${user.lastname}`}
                         className="rounded-circle img-thumbnail col-md-6 float-md-start mb-3 ms-md-3"
                         style={{ width: "200px" }}
                       />
@@ -369,10 +421,11 @@ const AdminInfo = () => {
                 className="form-control mb-3"
               >
                 <InputLabel htmlFor="outlined-adornment-password">
-                  Password
+                  Nouveau mot de passe (optionnel)
                 </InputLabel>
                 <OutlinedInput
-                  label="Password"
+                  label="Nouveau mot de passe (optionnel)"
+                  autoComplete="new-password"
                   type={
                     isPasswordModified
                       ? showPassword
@@ -504,16 +557,16 @@ const AdminInfo = () => {
               color="primary"
               disabled={
                 !updatedEmail ||
-                !updatedPassword ||
-                !confirmUpdatedPassword ||
                 !updatedFirstname ||
                 !updatedLastname ||
-                updatedPassword !== confirmUpdatedPassword ||
-                !hasSixChar ||
-                !hasLowerChar ||
-                !hasUpperChar ||
-                !hasNumber ||
-                !hasSpecialChar
+                (updatedPassword &&
+                  (!confirmUpdatedPassword ||
+                    updatedPassword !== confirmUpdatedPassword ||
+                    !hasSixChar ||
+                    !hasLowerChar ||
+                    !hasUpperChar ||
+                    !hasNumber ||
+                    !hasSpecialChar))
               }
               onClick={handleUpdateUser}
             >

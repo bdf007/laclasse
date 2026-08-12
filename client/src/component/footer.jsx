@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 import { UserContext } from "../context/UserContext";
 
 import "../App.css";
-import "../cssFiles/Footercss.css";
 
 // API functions
 import { logout, getUser } from "../api/user";
@@ -182,7 +181,7 @@ const Footer = () => {
             Mis en ligne avec Docker, Caprover et OVH
           </p>
 
-          <p className="text-center">© 2025, All rights reserved</p>
+          <p className="text-center">© 2026, All rights reserved</p>
         </div>
       </div>
     </footer>

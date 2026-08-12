@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -13,16 +13,20 @@ function Class() {
   const [updatedClassName, setUpdatedClassName] = useState(""); // New class name for update
   const [updatedClassAbout, setUpdatedClassAbout] = useState(""); // New class about for update
   const [updatedClassNextCourse, setUpdatedClassNextCourse] = useState(""); // New class nextCourse for update
-  const [listOfCourseFile, setListOfCourseFile] = useState([]); // New class nextCourse for update
   // eslint-disable-next-line
   const [courseFileTitle, setCourseFileTitle] = useState({}); // New class nextCourse for update
   const [classCourseTitles, setClassCourseTitles] = useState({});
   const [courseFileData, setCourseFileData] = useState(null);
   const [stopEditingName, setStopEditingName] = useState(false);
   const [stopEditingCourse, setStopEditingCourse] = useState(false);
-  // const [classId, setClassId] = useState(""); // New class nextCourse for update
   const [viewMode, setViewMode] = useState("cards");
   const [width, setWidth] = useState(window.innerWidth);
+
+  // Un ref par classe (au lieu d'un id="..." dupliqué sur chaque input
+  // de la liste, qui faisait que getElementById ciblait toujours le
+  // premier trouvé dans le DOM, pas forcément celui utilisé).
+  const fileInputRefs = useRef({});
+  const titleInputRefs = useRef({});
 
   const handleResize = () => {
     const newWidth = window.innerWidth;
@@ -46,18 +50,23 @@ function Class() {
 
   useEffect(() => {
     fetchClasses();
+    // eslint-disable-next-line
   }, []);
 
   const fetchClasses = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/classes`
+        `${process.env.REACT_APP_API_URL}/api/classes`,
       );
       const allClasses = response.data;
 
       for (let i = 0; i < allClasses.length; i++) {
+        // withCredentials ajouté : cette route est protégée par
+        // authMiddleware, sans ça le cookie JWT n'était jamais envoyé
+        // et la requête finissait en 403.
         const courseFilesResponse = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/courseFilesByClass/${allClasses[i]._id}`
+          `${process.env.REACT_APP_API_URL}/api/courseFilesByClass/${allClasses[i]._id}`,
+          { withCredentials: true },
         );
 
         allClasses[i].courseFiles = courseFilesResponse.data;
@@ -126,12 +135,10 @@ function Class() {
       });
   };
 
-  //add course files
-
   const deleteClass = async (classId) => {
     // check if the class as no students
     const response = await axios.get(
-      `${process.env.REACT_APP_API_URL}/api/users`
+      `${process.env.REACT_APP_API_URL}/api/users`,
     );
     const users = response.data;
 
@@ -144,40 +151,27 @@ function Class() {
 
     // check if the class as no course files
     const courseFilesResponse = await axios.get(
-      `${process.env.REACT_APP_API_URL}/api/courseFilesByClass/${classId}`
+      `${process.env.REACT_APP_API_URL}/api/courseFilesByClass/${classId}`,
+      { withCredentials: true },
     );
     const courseFiles = courseFilesResponse.data;
 
     if (courseFiles.length > 0) {
       toast.error(
-        "La classe a des fichiers de cours, Supprimer d'abord les fichiers de cours avant de supprimer la classe"
+        "La classe a des fichiers de cours, Supprimer d'abord les fichiers de cours avant de supprimer la classe",
       );
       return;
     }
 
     // delete the class
-
     axios
       .delete(`${process.env.REACT_APP_API_URL}/api/class/${classId}`)
       .then(() => {
         fetchClasses(); // Refresh the class list
-        getCourseFiles(classId);
       })
       .catch((error) => {
         console.error(error);
       });
-  };
-
-  // get course files list by class id
-  const getCourseFiles = async (classId) => {
-    const response = await axios.get(
-      `${process.env.REACT_APP_API_URL}/api/courseFiles/`
-    );
-    const courseFiles = response.data;
-    const courseFilesInClass = courseFiles.filter(
-      (courseFile) => courseFile.classId === classId
-    );
-    setListOfCourseFile(courseFilesInClass);
   };
 
   const handleCourseTitle = (e, classId) => {
@@ -194,49 +188,50 @@ function Class() {
     setCourseFileData(file);
   };
 
+  // Réécrit : upload en multipart/form-data vers la vraie route
+  // (/admin/classes/:classId/courseFiles), plus de Base64 dans le JSON.
   const handleUploadCourseFile = async (classId) => {
     try {
-      const fileReader = new FileReader();
-      fileReader.readAsDataURL(courseFileData);
+      const formData = new FormData();
+      formData.append("courseFile", courseFileData);
+      formData.append("courseFileTitle", classCourseTitles[classId] || "");
 
-      fileReader.onload = async () => {
-        const base64Data = fileReader.result;
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/admin/classes/${classId}/courseFiles`,
+        formData,
+        { withCredentials: true },
+      );
 
-        const courseFileData = {
-          courseFileTitle: classCourseTitles[classId],
-          courseFileData: base64Data,
-          classId,
-        };
-
-        const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/api/courseFile`,
-          courseFileData
-        );
-        toast.success("fichier ajouté avec succès");
-        setListOfCourseFile((prev) => [...prev, response.data]);
-        console.warn(listOfCourseFile);
-
-        resetFormFile();
-
-        window.location.reload();
-      };
+      toast.success("fichier ajouté avec succès");
+      resetFormFile(classId);
+      fetchClasses(); // Refresh the class list (remplace l'ancien window.location.reload())
     } catch (error) {
       toast.error(
-        "erreur lors de l'ajout du fichier, veuillez réessayer ou contacter le super administrateur"
+        "erreur lors de l'ajout du fichier, veuillez réessayer ou contacter le super administrateur",
       );
     }
   };
-  const resetFormFile = () => {
+
+  const resetFormFile = (classId) => {
     setCourseFileTitle({});
     setCourseFileData(null);
-    // clear the input field
-    document.getElementById("courseFileTitle").value = "";
-    document.getElementById("courseFileData").value = null;
+    setClassCourseTitles((prev) => ({ ...prev, [classId]: "" }));
+    if (titleInputRefs.current[classId]) {
+      titleInputRefs.current[classId].value = "";
+    }
+    if (fileInputRefs.current[classId]) {
+      fileInputRefs.current[classId].value = null;
+    }
   };
 
+  // Réécrit : route corrigée (/admin/courseFiles/:fileId au lieu de
+  // /courseFile/:id), + withCredentials (route admin protégée).
   const deleteCourseFile = async (courseFileId) => {
     axios
-      .delete(`${process.env.REACT_APP_API_URL}/api/courseFile/${courseFileId}`)
+      .delete(
+        `${process.env.REACT_APP_API_URL}/api/admin/courseFiles/${courseFileId}`,
+        { withCredentials: true },
+      )
       .then(() => {
         fetchClasses(); // Refresh the class list
       })
@@ -245,28 +240,22 @@ function Class() {
       });
   };
 
-  const loadFromBase64 = (base64) => {
-    const base64toBlob = (data) => {
-      // Cut the prefix `data:application/pdf;base64` from the raw base64
-      const base64WithoutPrefix = data.substr(
-        "data:application/pdf;base64,".length
+  // Nouveau : remplace loadFromBase64. Le fichier n'existe plus en Base64
+  // nulle part, on le télécharge (authentifié) au moment du clic, puis on
+  // l'ouvre dans un nouvel onglet.
+  const openCourseFile = async (courseFileId) => {
+    try {
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/courseFiles/${courseFileId}/download`,
+        { responseType: "blob", withCredentials: true },
       );
-
-      const bytes = atob(base64WithoutPrefix);
-      let length = bytes.length;
-      let out = new Uint8Array(length);
-
-      while (length--) {
-        out[length] = bytes.charCodeAt(length);
-      }
-
-      return new Blob([out], { type: "application/pdf" });
-    };
-
-    const blob = base64toBlob(base64);
-    const blobUrl = URL.createObjectURL(blob);
-
-    return blobUrl;
+      const url = URL.createObjectURL(res.data);
+      window.open(url, "_blank", "noopener,noreferrer");
+      // Laisse le temps au nouvel onglet de charger avant de libérer l'URL
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (error) {
+      toast.error("Erreur lors du chargement du fichier");
+    }
   };
 
   const handleTextareaEnter = (e) => {
@@ -296,8 +285,6 @@ function Class() {
       </button>
       {viewMode === "table" ? (
         <div className="row">
-          {/* Add class form */}
-
           {/* List all classes */}
           <h1 className="text-center">Liste des classes</h1>
           <div className="row">
@@ -401,7 +388,7 @@ function Class() {
                                 classe._id,
                                 classe.name,
                                 classe.about,
-                                classe.nextCourse
+                                classe.nextCourse,
                               )
                             }
                           >
@@ -433,15 +420,13 @@ function Class() {
                                 className="list-group-item bg-transparent"
                               >
                                 <div className="d-flex justify-content-between">
-                                  <a
-                                    href={loadFromBase64(course.courseFileData)}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-start"
-                                    // style={{ width: "10rem" }}
+                                  <button
+                                    type="button"
+                                    className="btn btn-link text-start p-0"
+                                    onClick={() => openCourseFile(course._id)}
                                   >
                                     {course.courseFileTitle}
-                                  </a>
+                                  </button>
                                   <button
                                     onClick={() => deleteCourseFile(course._id)}
                                     className="btn btn-danger"
@@ -455,27 +440,32 @@ function Class() {
                           {classe.name === "public" ? null : (
                             <>
                               <li className="list-group-item d-flex justify-content-between bg-transparent">
-                                {courseFileData && (
+                                {courseFileData ? (
                                   <input
                                     type="text"
-                                    id="courseFileTitle"
                                     placeholder="Nom du fichier"
                                     value={classCourseTitles[classe._id] || ""}
                                     onChange={(e) =>
                                       handleCourseTitle(e, classe._id)
                                     }
+                                    ref={(el) =>
+                                      (titleInputRefs.current[classe._id] = el)
+                                    }
+                                  />
+                                ) : (
+                                  <input
+                                    type="file"
+                                    accept="application/pdf"
+                                    className="btn btn-primary"
+                                    onChange={handleCourseFile}
+                                    ref={(el) =>
+                                      (fileInputRefs.current[classe._id] = el)
+                                    }
                                   />
                                 )}
-                                <input
-                                  type="file"
-                                  id="courseFileData"
-                                  accept="application/pdf"
-                                  className="btn btn-primary"
-                                  onChange={handleCourseFile}
-                                />
                               </li>
                               {courseFileData && (
-                                <li className="list-group-item d-flex justify-content-center bg-transparent">
+                                <li className="list-group-item d-flex justify-content-center gap-2 bg-transparent">
                                   <button
                                     onClick={() =>
                                       handleUploadCourseFile(classe._id)
@@ -483,6 +473,12 @@ function Class() {
                                     className="btn btn-primary"
                                   >
                                     Ajouter un fichier
+                                  </button>
+                                  <button
+                                    onClick={() => resetFormFile(classe._id)}
+                                    className="btn btn-warning"
+                                  >
+                                    Annuler
                                   </button>
                                 </li>
                               )}
@@ -600,7 +596,7 @@ function Class() {
                               classe._id,
                               classe.name,
                               classe.about,
-                              classe.nextCourse
+                              classe.nextCourse,
                             )
                           }
                           className="btn btn-warning"
@@ -632,14 +628,13 @@ function Class() {
                             className="list-group-item bg-transparent"
                           >
                             <div className="d-flex justify-content-between">
-                              <a
-                                href={loadFromBase64(course.courseFileData)}
-                                target="_blank"
-                                rel="noreferrer"
-                                // style={{ width: "10rem" }}
+                              <button
+                                type="button"
+                                className="btn btn-link text-start p-0"
+                                onClick={() => openCourseFile(course._id)}
                               >
                                 {course.courseFileTitle}
-                              </a>
+                              </button>
                               <button
                                 onClick={() => deleteCourseFile(course._id)}
                                 className="btn btn-danger"
@@ -656,27 +651,32 @@ function Class() {
                             className="list-group-item d-flex justify-content-between bg-transparent"
                             key={classe._id}
                           >
-                            {courseFileData && (
+                            {courseFileData ? (
                               <input
                                 type="text"
-                                id="courseFileTitle"
                                 placeholder="nom du fichier"
                                 value={classCourseTitles[classe._id] || ""}
                                 onChange={(e) =>
                                   handleCourseTitle(e, classe._id)
                                 }
+                                ref={(el) =>
+                                  (titleInputRefs.current[classe._id] = el)
+                                }
+                              />
+                            ) : (
+                              <input
+                                type="file"
+                                accept="application/pdf"
+                                onChange={handleCourseFile}
+                                className="btn btn-primary"
+                                ref={(el) =>
+                                  (fileInputRefs.current[classe._id] = el)
+                                }
                               />
                             )}
-                            <input
-                              type="file"
-                              id="courseFileData"
-                              accept="application/pdf"
-                              onChange={handleCourseFile}
-                              className="btn btn-primary"
-                            />
                           </li>
                           {courseFileData && (
-                            <li className="list-group-item d-flex justify-content-center bg-transparent">
+                            <li className="list-group-item d-flex justify-content-center gap-2 bg-transparent">
                               <button
                                 onClick={() =>
                                   handleUploadCourseFile(classe._id)
@@ -684,6 +684,12 @@ function Class() {
                                 className="btn btn-primary"
                               >
                                 Ajouter un fichier
+                              </button>
+                              <button
+                                onClick={() => resetFormFile(classe._id)}
+                                className="btn btn-warning"
+                              >
+                                Annuler
                               </button>
                             </li>
                           )}
@@ -720,7 +726,6 @@ function Class() {
         </table>
       )}
     </div>
-    // </Worker>
   );
 }
 
