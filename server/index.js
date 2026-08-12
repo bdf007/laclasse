@@ -49,7 +49,7 @@ app.use((req, res, next) => {
       "worker-src 'self' https:; " +
       "style-src 'self' 'unsafe-inline' https:; " +
       "img-src 'self' data: https:; " +
-      "connect-src 'self' https:;",
+      "connect-src 'self' https: blob:;",
   );
   next();
 });
