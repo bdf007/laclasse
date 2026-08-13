@@ -28,7 +28,7 @@ async function getCroppedImageFile(imageSrc, croppedAreaPixels, fileName) {
     0,
     0,
     croppedAreaPixels.width,
-    croppedAreaPixels.height
+    croppedAreaPixels.height,
   );
 
   return new Promise((resolve, reject) => {
@@ -41,7 +41,7 @@ async function getCroppedImageFile(imageSrc, croppedAreaPixels, fileName) {
         resolve(new File([blob], fileName, { type: "image/jpeg" }));
       },
       "image/jpeg",
-      0.92
+      0.92,
     );
   });
 }
@@ -63,7 +63,11 @@ const ASPECT_OPTIONS = [
  * inputIdPrefix : à personnaliser si plusieurs instances existent sur la
  * même page en même temps (évite les id HTML en double).
  */
-const ImagePickerWithCrop = ({ onFileReady, inputIdPrefix = "image-picker" }) => {
+const ImagePickerWithCrop = ({
+  onFileReady,
+  inputIdPrefix = "image-picker",
+  resetAfterReady = false,
+}) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
@@ -102,12 +106,23 @@ const ImagePickerWithCrop = ({ onFileReady, inputIdPrefix = "image-picker" }) =>
       const croppedFile = await getCroppedImageFile(
         rawPreviewUrl,
         croppedAreaPixels,
-        rawFile.name.replace(/\.[^/.]+$/, "") + ".jpg"
+        rawFile.name.replace(/\.[^/.]+$/, "") + ".jpg",
       );
       if (previewUrl) URL.revokeObjectURL(previewUrl);
-      setSelectedFile(croppedFile);
-      setPreviewUrl(URL.createObjectURL(croppedFile));
-      onFileReady(croppedFile);
+
+      if (resetAfterReady) {
+        // Le fichier est envoyé directement (pas d'étape de soumission
+        // séparée côté parent) -- on repart sur un sélecteur vide, prêt
+        // pour la prochaine photo.
+        onFileReady(croppedFile);
+        setSelectedFile(null);
+        setPreviewUrl(null);
+      } else {
+        setSelectedFile(croppedFile);
+        setPreviewUrl(URL.createObjectURL(croppedFile));
+        onFileReady(croppedFile);
+      }
+
       cancelCropping();
     } catch (err) {
       console.error(err);
@@ -162,10 +177,18 @@ const ImagePickerWithCrop = ({ onFileReady, inputIdPrefix = "image-picker" }) =>
             aria-label="Zoom"
           />
           <div className="image-picker-crop-actions">
-            <button type="button" className="btn btn-success" onClick={confirmCrop}>
+            <button
+              type="button"
+              className="btn btn-success"
+              onClick={confirmCrop}
+            >
               Valider le cadrage
             </button>
-            <button type="button" className="btn btn-warning" onClick={cancelCropping}>
+            <button
+              type="button"
+              className="btn btn-warning"
+              onClick={cancelCropping}
+            >
               Annuler
             </button>
           </div>

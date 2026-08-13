@@ -37,9 +37,9 @@ function App() {
   useEffect(() => {
     const unsubscribe = getUser()
       .then((res) => {
-        if (res.error) toast(res.error);
-        else setUser(res); // Corrigé : setUser ne prend qu'un seul argument,
-        // (res.firstname, res.role) passait un objet incomplet en silence
+        // Pas de toast ici : l'absence de connexion est un état normal
+        // pour un visiteur anonyme, pas une erreur à signaler.
+        if (!res.error) setUser(res);
       })
       .catch((err) => toast(err));
 

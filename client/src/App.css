@@ -239,6 +239,94 @@ textarea {
 }
 
 /* ==========================================================================
+   Photos d'accueil (grille flexible + gestion admin)
+   ========================================================================== */
+
+.home-photo-add-section {
+  border: 1px dashed #a497f7;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background: rgba(164, 151, 247, 0.06);
+}
+
+.home-photo-columns {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 0.75rem;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.home-photo-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.75rem;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.home-photo-item {
+  position: relative;
+}
+
+.home-photo-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.home-photo-hidden img {
+  opacity: 0.35;
+}
+
+.home-photo-actions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.home-photo-action-btn {
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.home-photo-action-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.home-photo-action-delete {
+  background: rgba(220, 53, 69, 0.9);
+}
+
+.home-photo-action-delete:hover {
+  background: #dc3545;
+}
+
+@media screen and (max-width: 600px) {
+  .home-photo-columns {
+    max-width: 100%;
+  }
+}
+
+/* ==========================================================================
    Media queries
    ========================================================================== */
 

@@ -25,7 +25,7 @@ const Review = () => {
     const fetchReviews = async () => {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/review`
+          `${process.env.REACT_APP_API_URL}/api/review`,
         );
 
         // Set reviews in state
@@ -46,7 +46,7 @@ const Review = () => {
   useEffect(() => {
     // Calculate reviewsValidated whenever reviews state changes
     const validatedReviews = reviews.filter(
-      (review) => review.validation === true
+      (review) => review.validation === true,
     );
     setReviewsValidated(validatedReviews);
   }, [reviews]);
@@ -81,11 +81,11 @@ const Review = () => {
       .then(() => {
         setReviews((prevReviews) => {
           const updatedReviews = prevReviews.map((review) =>
-            review._id === id ? { ...review, validation: value } : review
+            review._id === id ? { ...review, validation: value } : review,
           );
 
           const validatedReviews = updatedReviews.filter(
-            (review) => review.validation === true
+            (review) => review.validation === true,
           );
           const average =
             validatedReviews.reduce((acc, review) => acc + review.star, 0) /
@@ -109,8 +109,8 @@ const Review = () => {
       .then(() => {
         setReviews((prevReviews) =>
           prevReviews.map((review) =>
-            review._id === id ? { ...review, visible: value } : review
-          )
+            review._id === id ? { ...review, visible: value } : review,
+          ),
         );
       })
       .catch((error) => {
@@ -176,7 +176,7 @@ const Review = () => {
           star,
           validation: false,
           visible: false,
-        }
+        },
       )
       .then((response) => {
         toast.success("Review updated");
@@ -184,7 +184,7 @@ const Review = () => {
           const updatedReviews = prevReviews.map((review) =>
             review._id === userReview._id
               ? { ...review, ...response.data }
-              : review
+              : review,
           );
           return updatedReviews;
         });
@@ -201,7 +201,7 @@ const Review = () => {
       .then(() => {
         toast.success("Review deleted");
         setReviews((prevReviews) =>
-          prevReviews.filter((review) => review._id !== id)
+          prevReviews.filter((review) => review._id !== id),
         );
         setFirstname("");
         setLastname("");
@@ -381,7 +381,15 @@ const Review = () => {
                     <h5 className="card-title">Prénom : {review.firstname}</h5>
                     <h5 className="card-title">Nom : {review.lastname}</h5>
                     <p className="card-text">Email : {review.email}</p>
-                    <pre className="card-text">Avis : {review.message}</pre>
+                    <pre
+                      className="card-text"
+                      style={{
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
+                      }}
+                    >
+                      Avis : {review.message}
+                    </pre>
                     <p className="card-text">
                       <StarIcon sx={{ fontSize: 24, color: "yellow" }} /> :{" "}
                       {review.star}
