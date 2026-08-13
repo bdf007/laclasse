@@ -23,6 +23,8 @@ const commentRoutes = require("./routes/comment");
 const wineRoutes = require("./routes/wine");
 // get the review routes for connection
 const reviewRoutes = require("./routes/review");
+// get the home photo routes for connection
+const homePhotoRoutes = require("./routes/homePhoto");
 
 // middleware
 app.use(json({ limit: "10mb" }));
@@ -34,9 +36,6 @@ app.use(
 );
 app.use(urlencoded({ limit: "10mb", extended: false }));
 app.use(cookieParser());
-
-//db connection
-connection();
 
 // Correctif léger pour GHSA-wgrm-67xf-hhpq (pdfjs-dist / @react-pdf-viewer/core,
 // projet archivé, plus de correctif à venir) : bloque spécifiquement eval()/
@@ -73,6 +72,8 @@ app.use("/api/", commentRoutes);
 app.use("/api/", wineRoutes);
 // use the review routes for connection
 app.use("/api/", reviewRoutes);
+// use the home photo routes for connection
+app.use("/api/", homePhotoRoutes);
 
 // Serve the React app
 app.get("/*", (req, res) => {
@@ -82,7 +83,16 @@ app.get("/*", (req, res) => {
 // Port
 const port = process.env.PORT || 8000;
 
-// listen to port
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+// Le serveur n'accepte des requêtes qu'une fois la connexion MongoDB
+// réellement établie -- évite les requêtes prises en course avant que
+// la base soit prête (timeout de buffering Mongoose).
+connection()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Server listening on port ${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Impossible de démarrer le serveur :", err.message);
+    process.exit(1);
+  });

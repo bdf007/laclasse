@@ -74,6 +74,7 @@ export const getUser = async () => {
       nextClass,
       courseFiles,
       hasProfilePicture,
+      error,
     } = data;
     return {
       _id,
@@ -86,6 +87,7 @@ export const getUser = async () => {
       nextClass,
       courseFiles,
       hasProfilePicture,
+      error,
     };
   } catch (error) {
     throw new Error("Please login to continue.");

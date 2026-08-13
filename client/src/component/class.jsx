@@ -5,8 +5,9 @@ import { toast } from "react-toastify";
 //design
 import FormatListBulletedOutlinedIcon from "@mui/icons-material/FormatListBulletedOutlined";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import ConfirmModal from "./confirmModal";
 
-function Class() {
+function Class({ onClassesChange }) {
   const [listOfClass, setListOfClass] = useState([]);
   const [newClassName, setNewClassName] = useState(""); // New class name input state
   const [editingClassId, setEditingClassId] = useState(""); // State to track the class being edited
@@ -16,10 +17,10 @@ function Class() {
   // eslint-disable-next-line
   const [courseFileTitle, setCourseFileTitle] = useState({}); // New class nextCourse for update
   const [classCourseTitles, setClassCourseTitles] = useState({});
-  const [courseFileData, setCourseFileData] = useState(null);
+  const [pendingUpload, setPendingUpload] = useState(null); // { classId, file }
   const [stopEditingName, setStopEditingName] = useState(false);
   const [stopEditingCourse, setStopEditingCourse] = useState(false);
-  const [viewMode, setViewMode] = useState("cards");
+  const [viewMode, setViewMode] = useState("table");
   const [width, setWidth] = useState(window.innerWidth);
 
   // Un ref par classe (au lieu d'un id="..." dupliqué sur chaque input
@@ -28,13 +29,18 @@ function Class() {
   const fileInputRefs = useRef({});
   const titleInputRefs = useRef({});
 
+  // Popup de confirmation générique, réutilisée pour toutes les suppressions
+  const [confirmAction, setConfirmAction] = useState(null);
+  const requestConfirm = (message, onConfirm) =>
+    setConfirmAction({ message, onConfirm });
+
   const handleResize = () => {
     const newWidth = window.innerWidth;
     setWidth(newWidth);
     if (newWidth < 1200) {
-      setViewMode("table");
-    } else {
       setViewMode("cards");
+    } else {
+      setViewMode("table");
     }
   };
 
@@ -73,6 +79,10 @@ function Class() {
       }
 
       setListOfClass(allClasses);
+      // Prévient le parent (Admin.jsx) que la liste a changé -- sinon sa
+      // propre liste (utilisée pour la déroulante d'assignation) ne se
+      // met jamais à jour tant que la page n'est pas rechargée.
+      onClassesChange?.(allClasses);
     } catch (error) {
       console.error(error);
     }
@@ -135,14 +145,20 @@ function Class() {
       });
   };
 
-  const deleteClass = async (classId) => {
+  const deleteClass = async (classe) => {
+    const classId = classe._id;
+
     // check if the class as no students
     const response = await axios.get(
       `${process.env.REACT_APP_API_URL}/api/users`,
     );
     const users = response.data;
 
-    const studentsInClass = users.some((user) => user.classes === classId);
+    // Comparaison sur le NOM de la classe : /api/users renvoie déjà le nom
+    // résolu dans user.classes, pas l'ID brut -- comparer contre classId
+    // ne correspondait jamais, la vérification était donc toujours
+    // silencieusement contournée.
+    const studentsInClass = users.some((user) => user.classes === classe.name);
 
     if (studentsInClass) {
       toast.error("La classe a des étudiants, vous ne pouvez pas la supprimer");
@@ -163,15 +179,19 @@ function Class() {
       return;
     }
 
-    // delete the class
-    axios
-      .delete(`${process.env.REACT_APP_API_URL}/api/class/${classId}`)
-      .then(() => {
-        fetchClasses(); // Refresh the class list
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    // Toutes les vérifications sont passées : on ne demande la
+    // confirmation qu'à ce stade, pas avant (sinon le modal s'ouvre même
+    // pour une suppression qui va de toute façon être refusée).
+    requestConfirm(`Supprimer la classe "${classe.name}" ?`, () => {
+      axios
+        .delete(`${process.env.REACT_APP_API_URL}/api/class/${classId}`)
+        .then(() => {
+          fetchClasses(); // Refresh the class list
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    });
   };
 
   const handleCourseTitle = (e, classId) => {
@@ -183,9 +203,9 @@ function Class() {
     });
   };
 
-  const handleCourseFile = (e) => {
+  const handleCourseFile = (e, classId) => {
     const file = e.target.files[0];
-    setCourseFileData(file);
+    setPendingUpload({ classId, file });
   };
 
   // Réécrit : upload en multipart/form-data vers la vraie route
@@ -193,7 +213,7 @@ function Class() {
   const handleUploadCourseFile = async (classId) => {
     try {
       const formData = new FormData();
-      formData.append("courseFile", courseFileData);
+      formData.append("courseFile", pendingUpload.file);
       formData.append("courseFileTitle", classCourseTitles[classId] || "");
 
       await axios.post(
@@ -214,7 +234,7 @@ function Class() {
 
   const resetFormFile = (classId) => {
     setCourseFileTitle({});
-    setCourseFileData(null);
+    setPendingUpload(null);
     setClassCourseTitles((prev) => ({ ...prev, [classId]: "" }));
     if (titleInputRefs.current[classId]) {
       titleInputRefs.current[classId].value = "";
@@ -266,32 +286,59 @@ function Class() {
   };
 
   // Toggle between cards and table view
+  const isNarrow = width < 1200; // même seuil que la bascule automatique
   const toggleViewMode = () => {
+    if (isNarrow) return; // pas de tableau forcé sur mobile, illisible
     setViewMode(viewMode === "cards" ? "table" : "cards");
   };
 
+  // Extrait : le sélecteur de fichier PDF (input natif caché + bouton
+  // stylé) réutilisé dans les deux vues. L'input natif déborde de son
+  // conteneur sur mobile selon le navigateur -- on le cache et on affiche
+  // un vrai bouton à la place, comme pour le sélecteur de photos.
+  const renderFilePicker = (classe) => (
+    <div className="course-file-picker">
+      <input
+        type="file"
+        id={`courseFileData-${classe._id}`}
+        accept="application/pdf"
+        className="image-picker-input"
+        onChange={(e) => handleCourseFile(e, classe._id)}
+        ref={(el) => (fileInputRefs.current[classe._id] = el)}
+      />
+      <label
+        htmlFor={`courseFileData-${classe._id}`}
+        className="btn btn-primary"
+      >
+        Choisir un PDF
+      </label>
+    </div>
+  );
+
   return (
     <div className="text-center">
-      <button
-        className="btn btn-primary"
-        onClick={toggleViewMode}
-        style={{ float: "right" }}
-      >
-        {viewMode === "cards" ? (
-          <DashboardOutlinedIcon />
-        ) : (
-          <FormatListBulletedOutlinedIcon />
-        )}
-      </button>
-      {viewMode === "table" ? (
-        <div className="row">
+      {!isNarrow && (
+        <button
+          className="btn btn-primary"
+          onClick={toggleViewMode}
+          style={{ float: "right" }}
+        >
+          {viewMode === "cards" ? (
+            <FormatListBulletedOutlinedIcon />
+          ) : (
+            <DashboardOutlinedIcon />
+          )}
+        </button>
+      )}
+      {viewMode === "cards" ? (
+        <div>
           {/* List all classes */}
           <h1 className="text-center">Liste des classes</h1>
           <div className="row">
             {listOfClass.length > 0 ? (
               listOfClass.map((classe) => (
                 <div className="col-md-4" key={classe._id}>
-                  <div className="card m-2">
+                  <div className="card mx-1 my-2 mx-md-2">
                     <div className="card-body">
                       {editingClassId === classe._id ? (
                         <div>
@@ -341,18 +388,20 @@ function Class() {
                             </>
                           )}
                           <br />
-                          <button
-                            onClick={() => updateClass(classe._id)}
-                            className="btn btn-success"
-                          >
-                            Sauvegarder
-                          </button>
-                          <button
-                            onClick={cancelEditing}
-                            className="btn btn-danger"
-                          >
-                            Annuler les modifications
-                          </button>
+                          <div className="d-flex flex-wrap justify-content-center gap-2 mt-2">
+                            <button
+                              onClick={() => updateClass(classe._id)}
+                              className="btn btn-success"
+                            >
+                              Sauvegarder
+                            </button>
+                            <button
+                              onClick={cancelEditing}
+                              className="btn btn-danger"
+                            >
+                              Annuler les modifications
+                            </button>
+                          </div>
                         </div>
                       ) : (
                         <>
@@ -366,7 +415,14 @@ function Class() {
                                 Pas d'à propos
                               </span>
                             ) : (
-                              <pre>{classe.about}</pre>
+                              <pre
+                                style={{
+                                  whiteSpace: "pre-wrap",
+                                  wordBreak: "break-word",
+                                }}
+                              >
+                                {classe.about}
+                              </pre>
                             )}
                           </div>
                           <div className="card-text">
@@ -376,32 +432,41 @@ function Class() {
                                 Pas d'informations
                               </span>
                             ) : (
-                              <pre>{classe.nextCourse}</pre>
+                              <pre
+                                style={{
+                                  whiteSpace: "pre-wrap",
+                                  wordBreak: "break-word",
+                                }}
+                              >
+                                {classe.nextCourse}
+                              </pre>
                             )}
                           </div>
 
                           <br />
-                          <button
-                            className="btn btn-warning"
-                            onClick={() =>
-                              startEditing(
-                                classe._id,
-                                classe.name,
-                                classe.about,
-                                classe.nextCourse,
-                              )
-                            }
-                          >
-                            Modifier la classe
-                          </button>
-                          {classe.name === "public" ? null : (
+                          <div className="d-flex flex-wrap justify-content-center gap-2">
                             <button
-                              onClick={() => deleteClass(classe._id)}
-                              className="btn btn-danger"
+                              className="btn btn-warning"
+                              onClick={() =>
+                                startEditing(
+                                  classe._id,
+                                  classe.name,
+                                  classe.about,
+                                  classe.nextCourse,
+                                )
+                              }
                             >
-                              Supprimer la classe
+                              Modifier la classe
                             </button>
-                          )}
+                            {classe.name === "public" ? null : (
+                              <button
+                                onClick={() => deleteClass(classe)}
+                                className="btn btn-danger"
+                              >
+                                Supprimer la classe
+                              </button>
+                            )}
+                          </div>
                         </>
                       )}
                       <br />
@@ -419,7 +484,7 @@ function Class() {
                                 key={course._id}
                                 className="list-group-item bg-transparent"
                               >
-                                <div className="d-flex justify-content-between">
+                                <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
                                   <button
                                     type="button"
                                     className="btn btn-link text-start p-0"
@@ -428,7 +493,12 @@ function Class() {
                                     {course.courseFileTitle}
                                   </button>
                                   <button
-                                    onClick={() => deleteCourseFile(course._id)}
+                                    onClick={() =>
+                                      requestConfirm(
+                                        `Supprimer le fichier "${course.courseFileTitle}" ?`,
+                                        () => deleteCourseFile(course._id),
+                                      )
+                                    }
                                     className="btn btn-danger"
                                   >
                                     Supprimer le fichier
@@ -439,11 +509,12 @@ function Class() {
                           )}
                           {classe.name === "public" ? null : (
                             <>
-                              <li className="list-group-item d-flex justify-content-between bg-transparent">
-                                {courseFileData ? (
+                              <li className="list-group-item d-flex flex-wrap justify-content-center gap-2 bg-transparent">
+                                {pendingUpload?.classId === classe._id ? (
                                   <input
                                     type="text"
                                     placeholder="Nom du fichier"
+                                    className="form-control"
                                     value={classCourseTitles[classe._id] || ""}
                                     onChange={(e) =>
                                       handleCourseTitle(e, classe._id)
@@ -453,19 +524,11 @@ function Class() {
                                     }
                                   />
                                 ) : (
-                                  <input
-                                    type="file"
-                                    accept="application/pdf"
-                                    className="btn btn-primary"
-                                    onChange={handleCourseFile}
-                                    ref={(el) =>
-                                      (fileInputRefs.current[classe._id] = el)
-                                    }
-                                  />
+                                  renderFilePicker(classe)
                                 )}
                               </li>
-                              {courseFileData && (
-                                <li className="list-group-item d-flex justify-content-center gap-2 bg-transparent">
+                              {pendingUpload?.classId === classe._id && (
+                                <li className="list-group-item d-flex flex-wrap justify-content-center gap-2 bg-transparent">
                                   <button
                                     onClick={() =>
                                       handleUploadCourseFile(classe._id)
@@ -494,16 +557,17 @@ function Class() {
               <p>Loading classes...</p>
             )}
             <div className="col-md-4">
-              <div className="card m-2">
+              <div className="card mx-1 my-2 mx-md-2">
                 <div className="card-body">
                   <h5 className="card-title">Ajouter une nouvelle classe</h5>
                   <input
                     type="text"
                     placeholder="Nouvelle Classe"
+                    className="form-control mb-2"
                     value={newClassName}
                     onChange={(e) => setNewClassName(e.target.value)}
                   />
-                  <button onClick={createClass}>
+                  <button onClick={createClass} className="btn btn-primary">
                     Créer une nouvelle classe
                   </button>
                 </div>
@@ -552,7 +616,14 @@ function Class() {
                         Pas d'à propos
                       </span>
                     ) : (
-                      <pre>{classe.about}</pre>
+                      <pre
+                        style={{
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {classe.about}
+                      </pre>
                     )}
                   </td>
                   <td>
@@ -569,12 +640,19 @@ function Class() {
                         Pas d'informations
                       </span>
                     ) : (
-                      <pre>{classe.nextCourse}</pre>
+                      <pre
+                        style={{
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {classe.nextCourse}
+                      </pre>
                     )}
                   </td>
                   <td>
                     {editingClassId === classe._id ? (
-                      <div>
+                      <div className="d-flex flex-wrap gap-2">
                         <button
                           onClick={() => updateClass(classe._id)}
                           className="btn btn-success"
@@ -589,7 +667,7 @@ function Class() {
                         </button>
                       </div>
                     ) : (
-                      <div>
+                      <div className="d-flex flex-wrap gap-2">
                         <button
                           onClick={() =>
                             startEditing(
@@ -605,7 +683,7 @@ function Class() {
                         </button>
                         {classe.name === "public" ? null : (
                           <button
-                            onClick={() => deleteClass(classe._id)}
+                            onClick={() => deleteClass(classe)}
                             className="btn btn-danger"
                           >
                             Supprimer la classe
@@ -627,7 +705,7 @@ function Class() {
                             key={course._id}
                             className="list-group-item bg-transparent"
                           >
-                            <div className="d-flex justify-content-between">
+                            <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
                               <button
                                 type="button"
                                 className="btn btn-link text-start p-0"
@@ -636,7 +714,12 @@ function Class() {
                                 {course.courseFileTitle}
                               </button>
                               <button
-                                onClick={() => deleteCourseFile(course._id)}
+                                onClick={() =>
+                                  requestConfirm(
+                                    `Supprimer le fichier "${course.courseFileTitle}" ?`,
+                                    () => deleteCourseFile(course._id),
+                                  )
+                                }
                                 className="btn btn-danger"
                               >
                                 Supprimer le fichier
@@ -648,13 +731,14 @@ function Class() {
                       {classe.name === "public" ? null : (
                         <>
                           <li
-                            className="list-group-item d-flex justify-content-between bg-transparent"
+                            className="list-group-item d-flex flex-wrap justify-content-center gap-2 bg-transparent"
                             key={classe._id}
                           >
-                            {courseFileData ? (
+                            {pendingUpload?.classId === classe._id ? (
                               <input
                                 type="text"
                                 placeholder="nom du fichier"
+                                className="form-control"
                                 value={classCourseTitles[classe._id] || ""}
                                 onChange={(e) =>
                                   handleCourseTitle(e, classe._id)
@@ -664,19 +748,11 @@ function Class() {
                                 }
                               />
                             ) : (
-                              <input
-                                type="file"
-                                accept="application/pdf"
-                                onChange={handleCourseFile}
-                                className="btn btn-primary"
-                                ref={(el) =>
-                                  (fileInputRefs.current[classe._id] = el)
-                                }
-                              />
+                              renderFilePicker(classe)
                             )}
                           </li>
-                          {courseFileData && (
-                            <li className="list-group-item d-flex justify-content-center gap-2 bg-transparent">
+                          {pendingUpload?.classId === classe._id && (
+                            <li className="list-group-item d-flex flex-wrap justify-content-center gap-2 bg-transparent">
                               <button
                                 onClick={() =>
                                   handleUploadCourseFile(classe._id)
@@ -724,6 +800,17 @@ function Class() {
             </tr>
           </tbody>
         </table>
+      )}
+
+      {confirmAction && (
+        <ConfirmModal
+          message={confirmAction.message}
+          onConfirm={() => {
+            confirmAction.onConfirm();
+            setConfirmAction(null);
+          }}
+          onCancel={() => setConfirmAction(null)}
+        />
       )}
     </div>
   );

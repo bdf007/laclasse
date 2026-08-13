@@ -28,8 +28,9 @@ const Footer = () => {
     const fetchData = async () => {
       try {
         const res = await getUser();
-        if (res.error) toast(res.error);
-        else setUser(res); // Set the entire 'res' object, which includes 'firstname' and 'role'
+        // Pas de toast ici : l'absence de connexion est un état normal
+        // pour un visiteur anonyme, pas une erreur à signaler.
+        if (!res.error) setUser(res);
       } catch (err) {
         toast(err);
       }

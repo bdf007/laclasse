@@ -5,10 +5,13 @@ import { getUser } from "../api/user";
 import { toast } from "react-toastify";
 import Class from "../component/class";
 import UserItem from "../component/UserItem";
+import ConfirmModal from "../component/confirmModal";
 import { extractErrorMessage } from "../utils/roleUtils";
 
 import FormatListBulletedOutlinedIcon from "@mui/icons-material/FormatListBulletedOutlined";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 const MOBILE_BREAKPOINT = 768; // en dessous : mode cards forcé, pas de choix
 const API = process.env.REACT_APP_API_URL;
@@ -24,10 +27,20 @@ const Admin = () => {
   const [selectedClass, setSelectedClass] = useState({});
   const [selectedRole, setSelectedRole] = useState({});
 
-  const [viewMode, setViewMode] = useState("cards");
+  const [viewMode, setViewMode] = useState("table");
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < MOBILE_BREAKPOINT,
   );
+
+  // Sections repliables, pour alléger la page (comme la page Education du
+  // portfolio) -- fermées par défaut.
+  const [showClasses, setShowClasses] = useState(false);
+  const [showUsers, setShowUsers] = useState(false);
+
+  // Popup de confirmation générique, réutilisée pour les suppressions
+  const [confirmAction, setConfirmAction] = useState(null);
+  const requestConfirm = (message, onConfirm) =>
+    setConfirmAction({ message, onConfirm });
 
   // --- Responsive : cards forcées sous le breakpoint, choix libre au-dessus ---
   useEffect(() => {
@@ -112,14 +125,27 @@ const Admin = () => {
       );
   }, [fetchAndSetClassNames, getAllBookers, setUser]);
 
+  // Appelé par <Class /> à chaque changement de sa propre liste (création,
+  // modification, suppression) -- garde la déroulante d'assignation ici
+  // synchronisée sans avoir à recharger la page.
+  const handleClassesChange = (classes) => {
+    setListOfClass(classes.filter((c) => c.name !== "public"));
+  };
+
   // --- Actions : mise à jour locale de l'état, plus de window.location.reload() ---
 
   const deleteUser = (id) => {
     const stud = listOfUser.find((u) => u._id === id);
     if (!stud) return;
 
-    if (stud.role === "admin" || stud.role === "superadmin") {
-      toast.error("Vous ne pouvez pas supprimer un admin ou un superadmin");
+    if (
+      stud.role === "admin" ||
+      stud.role === "superadmin" ||
+      stud.role === "AdminVin"
+    ) {
+      toast.error(
+        "Vous ne pouvez pas supprimer un admin, un superadmin ou un admin vinothèque",
+      );
       return;
     }
     if (stud.classes) {
@@ -136,15 +162,22 @@ const Admin = () => {
       return;
     }
 
-    axios
-      .delete(`${API}/api/user/${id}`, { withCredentials: true })
-      .then(() => {
-        toast.success("Utilisateur supprimé");
-        setListOfUser((prev) => prev.filter((u) => u._id !== id));
-      })
-      .catch((err) =>
-        toast.error(extractErrorMessage(err, "Erreur lors de la suppression")),
-      );
+    requestConfirm(
+      `Supprimer l'utilisateur ${stud.firstname} ${stud.lastname} ?`,
+      () => {
+        axios
+          .delete(`${API}/api/user/${id}`, { withCredentials: true })
+          .then(() => {
+            toast.success("Utilisateur supprimé");
+            setListOfUser((prev) => prev.filter((u) => u._id !== id));
+          })
+          .catch((err) =>
+            toast.error(
+              extractErrorMessage(err, "Erreur lors de la suppression"),
+            ),
+          );
+      },
+    );
   };
 
   const updateUserRole = (userId) => {
@@ -256,65 +289,49 @@ const Admin = () => {
           <span className="text-success">{user.firstname}'s</span> Admin
         </h1>
 
-        <Class />
-
-        <div className="mb-3 d-flex justify-content-between align-items-center">
-          <h2 className="mb-0">Liste des utilisateurs</h2>
-          {!isMobile && (
-            <button className="btn btn-primary" onClick={toggleViewMode}>
-              {viewMode === "cards" ? (
-                <DashboardOutlinedIcon />
-              ) : (
-                <FormatListBulletedOutlinedIcon />
-              )}
-            </button>
-          )}
+        <button
+          className="btn btn-outline-primary w-100 d-flex justify-content-between align-items-center mb-3"
+          onClick={() => setShowClasses((v) => !v)}
+        >
+          <span className="fw-bold">Classes</span>
+          {showClasses ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+        </button>
+        {/* <Class /> reste toujours monté (chargé une seule fois) -- on le
+            cache juste visuellement, plutôt que de le démonter/remonter à
+            chaque clic, ce qui redéclenchait tous ses appels API à chaque
+            ouverture. */}
+        <div style={{ display: showClasses ? "block" : "none" }}>
+          <Class onClassesChange={handleClassesChange} />
         </div>
 
-        {viewMode === "cards" ? (
-          <div className="d-flex flex-column align-items-stretch">
-            {listOfUser.map((stud) => (
-              <UserItem
-                key={stud._id}
-                stud={stud}
-                layout="card"
-                listOfClass={listOfClass}
-                selectedClassId={selectedClass[stud._id]}
-                onSelectClass={(id, val) =>
-                  setSelectedClass((prev) => ({ ...prev, [id]: val }))
-                }
-                onAssignClass={assignClassToUser}
-                onRemoveClass={removeClassFromUser}
-                selectedRole={selectedRole[stud._id]}
-                onSelectRole={(id, val) =>
-                  setSelectedRole((prev) => ({ ...prev, [id]: val }))
-                }
-                onUpdateRole={updateUserRole}
-                onDelete={deleteUser}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="table-responsive text-break">
-            <table className="table table-striped table-bordered table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">Prénom</th>
-                  <th scope="col">Nom</th>
-                  <th scope="col">Email</th>
-                  <th scope="col">Rôle</th>
-                  <th scope="col">Classe</th>
-                  <th scope="col">Changer de classe</th>
-                  <th scope="col">Modifier le rôle</th>
-                  <th scope="col">Supprimer</th>
-                </tr>
-              </thead>
-              <tbody>
+        <button
+          className="btn btn-outline-primary w-100 d-flex justify-content-between align-items-center mt-4 mb-3"
+          onClick={() => setShowUsers((v) => !v)}
+        >
+          <span className="fw-bold">Liste des utilisateurs</span>
+          {showUsers ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+        </button>
+        {showUsers && (
+          <>
+            <div className="mb-3 d-flex justify-content-end align-items-center">
+              {!isMobile && (
+                <button className="btn btn-primary" onClick={toggleViewMode}>
+                  {viewMode === "cards" ? (
+                    <FormatListBulletedOutlinedIcon />
+                  ) : (
+                    <DashboardOutlinedIcon />
+                  )}
+                </button>
+              )}
+            </div>
+
+            {viewMode === "cards" ? (
+              <div className="d-flex flex-column align-items-stretch">
                 {listOfUser.map((stud) => (
                   <UserItem
                     key={stud._id}
                     stud={stud}
-                    layout="row"
+                    layout="card"
                     listOfClass={listOfClass}
                     selectedClassId={selectedClass[stud._id]}
                     onSelectClass={(id, val) =>
@@ -330,11 +347,61 @@ const Admin = () => {
                     onDelete={deleteUser}
                   />
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </div>
+            ) : (
+              <div className="table-responsive text-break">
+                <table className="table table-striped table-bordered table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col">Prénom</th>
+                      <th scope="col">Nom</th>
+                      <th scope="col">Email</th>
+                      <th scope="col">Rôle</th>
+                      <th scope="col">Classe</th>
+                      <th scope="col">Changer de classe</th>
+                      <th scope="col">Modifier le rôle</th>
+                      <th scope="col">Supprimer</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {listOfUser.map((stud) => (
+                      <UserItem
+                        key={stud._id}
+                        stud={stud}
+                        layout="row"
+                        listOfClass={listOfClass}
+                        selectedClassId={selectedClass[stud._id]}
+                        onSelectClass={(id, val) =>
+                          setSelectedClass((prev) => ({ ...prev, [id]: val }))
+                        }
+                        onAssignClass={assignClassToUser}
+                        onRemoveClass={removeClassFromUser}
+                        selectedRole={selectedRole[stud._id]}
+                        onSelectRole={(id, val) =>
+                          setSelectedRole((prev) => ({ ...prev, [id]: val }))
+                        }
+                        onUpdateRole={updateUserRole}
+                        onDelete={deleteUser}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
         )}
       </div>
+
+      {confirmAction && (
+        <ConfirmModal
+          message={confirmAction.message}
+          onConfirm={() => {
+            confirmAction.onConfirm();
+            setConfirmAction(null);
+          }}
+          onCancel={() => setConfirmAction(null)}
+        />
+      )}
     </div>
   );
 };

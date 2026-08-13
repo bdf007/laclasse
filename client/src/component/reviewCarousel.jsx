@@ -7,6 +7,20 @@ import StarBorderIcon from "@mui/icons-material/StarBorder";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
+const ReviewStars = ({ star }) => (
+  <div className="star-rating">
+    {[...Array(5)].map((_, index) => (
+      <React.Fragment key={index}>
+        {index < star ? (
+          <StarIcon sx={{ color: "yellow", fontSize: 24 }} />
+        ) : (
+          <StarBorderIcon sx={{ color: "inherit", fontSize: 24 }} />
+        )}
+      </React.Fragment>
+    ))}
+  </div>
+);
+
 const ReviewCarousel = () => {
   const [reviews, setReviews] = useState([]);
 
@@ -14,7 +28,7 @@ const ReviewCarousel = () => {
     const fetchReviews = async () => {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/review/visible`
+          `${process.env.REACT_APP_API_URL}/api/review/visible`,
         );
         setReviews(response.data);
       } catch (error) {
@@ -24,6 +38,10 @@ const ReviewCarousel = () => {
 
     fetchReviews();
   }, []);
+
+  if (reviews.length === 0) {
+    return null;
+  }
 
   if (reviews.length === 1) {
     const review = reviews[0];
@@ -35,18 +53,7 @@ const ReviewCarousel = () => {
             "{review.message}"
           </blockquote>
         </Typography>
-
-        <div className="star-rating">
-          {[...Array(5)].map((_, index) => (
-            <React.Fragment key={index}>
-              {index < review.star ? (
-                <StarIcon sx={{ color: "yellow", fontSize: 24 }} />
-              ) : (
-                <StarBorderIcon sx={{ color: "inherit", fontSize: 24 }} />
-              )}
-            </React.Fragment>
-          ))}
-        </div>
+        <ReviewStars star={review.star} />
       </div>
     );
   }
@@ -59,30 +66,13 @@ const ReviewCarousel = () => {
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 2000,
+    // La hauteur du carrousel suit le slide affiché, pas le plus haut de
+    // tous -- évite le gros bloc vide quand une review est bien plus
+    // courte qu'une autre.
+    adaptiveHeight: true,
   };
 
-  return reviews.length === 1 ? (
-    <div className="carousel">
-      <Typography variant="h6">{reviews[0].firstname}</Typography>
-      <Typography variant="h5">
-        <blockquote style={{ fontStyle: "italic" }}>
-          "{reviews[0].message}"
-        </blockquote>
-      </Typography>
-
-      <div className="star-rating">
-        {[...Array(5)].map((_, index) => (
-          <React.Fragment key={index}>
-            {index < reviews[0].star ? (
-              <StarIcon sx={{ color: "yellow", fontSize: 24 }} />
-            ) : (
-              <StarBorderIcon sx={{ color: "inherit", fontSize: 24 }} />
-            )}
-          </React.Fragment>
-        ))}
-      </div>
-    </div>
-  ) : (
+  return (
     <div className="carousel">
       <Slider {...settings}>
         {reviews.map((review) => (
@@ -93,18 +83,7 @@ const ReviewCarousel = () => {
                 "{review.message}"
               </blockquote>
             </Typography>
-
-            <div className="star-rating">
-              {[...Array(5)].map((_, index) => (
-                <React.Fragment key={index}>
-                  {index < review.star ? (
-                    <StarIcon sx={{ color: "yellow", fontSize: 24 }} />
-                  ) : (
-                    <StarBorderIcon sx={{ color: "inherit", fontSize: 24 }} />
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
+            <ReviewStars star={review.star} />
           </div>
         ))}
       </Slider>

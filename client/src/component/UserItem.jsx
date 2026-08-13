@@ -19,7 +19,10 @@ const UserItem = ({
   onUpdateRole,
   onDelete,
 }) => {
-  const canDelete = stud.role !== "admin" && stud.role !== "superadmin";
+  const canDelete =
+    stud.role !== "admin" &&
+    stud.role !== "superadmin" &&
+    stud.role !== "AdminVin";
   const canHaveClass = roleCanHaveClass(stud.role);
 
   const classSection = canHaveClass ? (
