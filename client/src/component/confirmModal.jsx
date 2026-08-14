@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 /**
  * Popup de confirmation générique -- réutilisable partout où une action
@@ -25,6 +25,22 @@ import React from "react";
  *       onCancel={() => setConfirmAction(null)}
  *     />
  *   )}
+ *
+ * Pour demander un texte libre en plus (ex: motif de suppression), passer
+ * promptLabel -- onConfirm reçoit alors la valeur saisie en argument :
+ *
+ *   requestConfirm("Supprimer ?", (reason) => deleteX(id, reason), {
+ *     promptLabel: "Motif (visible par l'auteur)",
+ *   });
+ *
+ *   <ConfirmModal
+ *     ...
+ *     promptLabel={confirmAction.promptLabel}
+ *     onConfirm={(reason) => {
+ *       confirmAction.onConfirm(reason);
+ *       setConfirmAction(null);
+ *     }}
+ *   />
  */
 const ConfirmModal = ({
   message,
@@ -32,7 +48,11 @@ const ConfirmModal = ({
   onCancel,
   confirmLabel = "Confirmer",
   cancelLabel = "Annuler",
+  promptLabel,
+  promptPlaceholder,
 }) => {
+  const [inputValue, setInputValue] = useState("");
+
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
       onCancel();
@@ -42,9 +62,26 @@ const ConfirmModal = ({
   return (
     <div className="popup-overlay" onClick={handleOverlayClick}>
       <div className="popup-content text-center" style={{ maxWidth: "26rem" }}>
-        <p className="fs-5 mb-4">{message}</p>
+        <p className="fs-5 mb-3">{message}</p>
+
+        {promptLabel && (
+          <div className="text-start mb-3">
+            <label className="form-label">{promptLabel}</label>
+            <textarea
+              className="form-control"
+              rows="3"
+              placeholder={promptPlaceholder}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+            />
+          </div>
+        )}
+
         <div className="d-flex justify-content-center flex-wrap gap-2">
-          <button className="btn btn-danger" onClick={onConfirm}>
+          <button
+            className="btn btn-danger"
+            onClick={() => onConfirm(inputValue)}
+          >
             {confirmLabel}
           </button>
           <button className="btn btn-secondary" onClick={onCancel}>

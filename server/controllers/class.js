@@ -1,4 +1,5 @@
 const Class = require("../models/class");
+const Comment = require("../models/comments");
 const mongoose = require("mongoose");
 
 exports.createClass = async (req, res) => {
@@ -23,6 +24,9 @@ exports.getClasses = async (req, res) => {
   }
 };
 
+// Nettoie aussi les messages de chat liés à cette classe (avertissement
+// affiché côté interface avant confirmation, mais la suppression n'est
+// jamais bloquée -- juste nettoyée en même temps que la classe).
 exports.deleteClassById = async (req, res) => {
   try {
     const id = req.params.id;
@@ -32,7 +36,10 @@ exports.deleteClassById = async (req, res) => {
         error: "ID does not exist",
       });
     }
-    const deletedClass = await Class.findByIdAndRemove(id);
+
+    await Comment.deleteMany({ classes: classToDelete.name });
+    await Class.findByIdAndRemove(id);
+
     res.json({ message: "Class deleted successfully" });
   } catch (error) {
     console.error(error);
@@ -86,55 +93,3 @@ exports.classById = async (req, res) => {
     });
   }
 };
-
-// exports.addCourseFile = async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     const classToUpdate = await Class.findById(id);
-//     if (!classToUpdate) {
-//       return res.status(404).json({
-//         error: "ID does not exist",
-//       });
-//     }
-//     // if the class exists, update it
-//     const updateClass = await Class.findByIdAndUpdate(
-//       id,
-//       { $push: { courseFiles: req.body.courseFiles } },
-//       { new: true }
-//     );
-//     res.json({
-//       message: "Class updated successfully",
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({
-//       error: "Internal server error",
-//     });
-//   }
-// };
-
-// exports.removeCourseFile = async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     const classToUpdate = await Class.findById(id);
-//     if (!classToUpdate) {
-//       return res.status(404).json({
-//         error: "ID does not exist",
-//       });
-//     }
-//     // if the class exists, update it
-//     const updateClass = await Class.findByIdAndUpdate(
-//       id,
-//       { $pull: { courseFiles: req.body.courseFiles } },
-//       { new: true }
-//     );
-//     res.json({
-//       message: "Class updated successfully",
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({
-//       error: "Internal server error",
-//     });
-//   }
-// };

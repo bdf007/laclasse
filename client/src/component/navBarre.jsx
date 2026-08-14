@@ -145,6 +145,15 @@ const NavBarre = () => {
                     <li className="nav-item">
                       <Link
                         className="nav-link"
+                        to="/AboutPublic"
+                        onClick={closeMenu}
+                      >
+                        A propos
+                      </Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link
+                        className="nav-link"
                         to="/bibliotheque"
                         onClick={closeMenu}
                       >

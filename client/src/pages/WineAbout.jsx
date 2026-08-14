@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
 import spin from "../assets/Spin.gif";
+import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
+import ConfirmModal from "../component/confirmModal";
 
 const WineAbout = () => {
   const [wine, setWine] = useState(null);
@@ -18,6 +19,7 @@ const WineAbout = () => {
   const [updatedQuantity, setUpdatedQuantity] = useState("");
   const [updatedLiterage, setUpdatedLiterage] = useState("");
   const [updatedComments, setUpdatedComments] = useState("");
+  const [confirmAction, setConfirmAction] = useState(null);
 
   // Get wineId from URL
   const wineId = window.location.pathname.split("/")[2];
@@ -60,21 +62,29 @@ const WineAbout = () => {
     }
   };
 
-  const deleteWine = async () => {
-    try {
-      // check if quantity is 0
-      if (wine.quantity > 0) {
-        toast.error("Vous possédez encore des bouteilles de ce vin");
-        return;
-      }
+  // Réécrit : la quantité restante n'empêche plus la suppression, elle
+  // renforce simplement le message de confirmation.
+  const deleteWine = () => {
+    const message =
+      wine.quantity > 0
+        ? `Attention, vous possédez encore ${wine.quantity} bouteille(s) de "${wine.nomDuChateau}". Voulez-vous vraiment le supprimer ?`
+        : `Supprimer "${wine.nomDuChateau}" ?`;
 
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/wine/${wineId}`);
-      setEditing(false);
-      // go the wine list
-      window.location.href = "/Vinotheque";
-    } catch (error) {
-      console.log(error);
-    }
+    setConfirmAction({
+      message,
+      onConfirm: async () => {
+        try {
+          await axios.delete(
+            `${process.env.REACT_APP_API_URL}/api/wine/${wineId}`,
+          );
+          setEditing(false);
+          // go the wine list
+          window.location.href = "/Vinotheque";
+        } catch (error) {
+          console.log(error);
+        }
+      },
+    });
   };
 
   const startEditingWine = (
@@ -294,7 +304,7 @@ const WineAbout = () => {
             </button>
 
             <button className="btn btn-danger" onClick={deleteWine}>
-              Supprimer
+              <DeleteForeverRoundedIcon />
             </button>
           </div>
         )}
@@ -303,6 +313,17 @@ const WineAbout = () => {
           <Link to="/Vinotheque">Back to Wine List</Link>
         </div>
       </div>
+
+      {confirmAction && (
+        <ConfirmModal
+          message={confirmAction.message}
+          onConfirm={() => {
+            confirmAction.onConfirm();
+            setConfirmAction(null);
+          }}
+          onCancel={() => setConfirmAction(null)}
+        />
+      )}
     </div>
   );
 };
