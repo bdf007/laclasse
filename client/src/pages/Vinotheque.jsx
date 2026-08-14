@@ -4,11 +4,13 @@ import axios from "axios";
 import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
 import ImagePickerWithCrop from "../component/ImagePickerWithCrop";
+import ConfirmModal from "../component/confirmModal";
 
 //design
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
+import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
 import spin from "../assets/Spin.gif";
 
 const getWineImageUrl = (id) =>
@@ -87,6 +89,11 @@ const Vinotheque = () => {
   const [width, setWidth] = useState(window.innerWidth);
   // eslint-disable-next-line
   const [show, setShow] = useState(true);
+
+  // Popup de confirmation générique, réutilisée pour les suppressions
+  const [confirmAction, setConfirmAction] = useState(null);
+  const requestConfirm = (message, onConfirm) =>
+    setConfirmAction({ message, onConfirm });
 
   const getListOfWines = async () => {
     setIsLoading(true);
@@ -289,22 +296,27 @@ const Vinotheque = () => {
     );
   });
 
-  const deleteWineById = async (id) => {
-    try {
-      // check if quantity is 0
-      const wine = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/wine/${id}`,
-      );
-      if (wine.data.quantity > 0) {
-        toast.error("Vous possédez encore des bouteilles de ce vin");
-        return;
+  // Réécrit : la quantité restante n'empêche plus la suppression, elle
+  // renforce simplement le message de confirmation (contrairement aux
+  // livres empruntés, qui eux restent bloqués).
+  const deleteWineById = (id) => {
+    const wine = listOfWines.find((w) => w._id === id);
+    if (!wine) return;
+
+    const message =
+      wine.quantity > 0
+        ? `Attention, vous possédez encore ${wine.quantity} bouteille(s) de "${wine.nomDuChateau}". Voulez-vous vraiment le supprimer ?`
+        : `Supprimer "${wine.nomDuChateau}" ?`;
+
+    requestConfirm(message, async () => {
+      try {
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/wine/${id}`);
+        toast.success("Vin supprimé avec succès");
+        setListOfWines((prev) => prev.filter((w) => w._id !== id));
+      } catch (error) {
+        toast.error("Erreur lors de la suppression du vin");
       }
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/wine/${id}`);
-      toast.success("Vin supprimé avec succès");
-      setListOfWines(listOfWines.filter((wine) => wine._id !== id));
-    } catch (error) {
-      toast.error("Erreur lors de la suppression du vin");
-    }
+    });
   };
 
   const cancelEditing = () => {
@@ -891,7 +903,7 @@ const Vinotheque = () => {
                       className="btn btn-danger"
                       onClick={() => deleteWineById(wine._id)}
                     >
-                      Supprimer
+                      <DeleteForeverRoundedIcon />
                     </button>
                   </td>
                 </tr>
@@ -900,6 +912,17 @@ const Vinotheque = () => {
           </table>
         </div>
       </div>
+
+      {confirmAction && (
+        <ConfirmModal
+          message={confirmAction.message}
+          onConfirm={() => {
+            confirmAction.onConfirm();
+            setConfirmAction(null);
+          }}
+          onCancel={() => setConfirmAction(null)}
+        />
+      )}
     </div>
   );
 };

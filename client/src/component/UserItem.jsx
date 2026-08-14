@@ -5,6 +5,7 @@ import {
   roleCanHaveClass,
   classPlaceholderMessage,
 } from "../utils/roleUtils";
+import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
 
 const UserItem = ({
   stud,
@@ -97,7 +98,7 @@ const UserItem = ({
               className="btn btn-danger"
               onClick={() => onDelete(stud._id)}
             >
-              Supprimer
+              <DeleteForeverRoundedIcon />
             </button>
           )}
         </td>
@@ -129,7 +130,7 @@ const UserItem = ({
             className="btn btn-danger w-100"
             onClick={() => onDelete(stud._id)}
           >
-            Supprimer l'utilisateur
+            <DeleteForeverRoundedIcon />
           </button>
         )}
       </div>

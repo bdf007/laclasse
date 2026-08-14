@@ -108,6 +108,11 @@ const Footer = () => {
                       </Link>
                     </li>
                     <li className="list-inline-item">
+                      <Link className="nav-link" to="/AboutPublic">
+                        A propos
+                      </Link>
+                    </li>
+                    <li className="list-inline-item">
                       <Link className="nav-link" to="/contact">
                         Gestion des Contact
                       </Link>

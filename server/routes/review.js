@@ -11,11 +11,12 @@ const {
   updateReviewById,
   validateReviewById,
   modifyVisbilityById,
-
+  moderateReviewById,
   deleteReviewById,
 } = require("../controllers/review");
 
 // import middlewares
+const { adminAuthMiddleware } = require("../middlewares/auth");
 
 // api routes
 // get review page
@@ -42,7 +43,12 @@ router.put("/review/validation/:id", validateReviewById);
 // modify visibility of specific review by id
 router.put("/review/visibility/:id", modifyVisbilityById);
 
-// delete specific review by id
+// modération admin (au lieu d'une suppression réelle) -- garde une trace
+// visible pour l'auteur, avec un motif.
+router.put("/review/:id/moderate", adminAuthMiddleware, moderateReviewById);
+
+// delete specific review by id (auto-suppression, pas d'auth requise --
+// utilisée aussi par des visiteurs non connectés)
 router.delete("/review/:id", deleteReviewById);
 
 module.exports = router;

@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 //design
 import FormatListBulletedOutlinedIcon from "@mui/icons-material/FormatListBulletedOutlined";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
+
 import ConfirmModal from "./confirmModal";
 
 function Class({ onClassesChange }) {
@@ -179,19 +181,42 @@ function Class({ onClassesChange }) {
       return;
     }
 
+    // Vérifie s'il y a des messages de chat liés à cette classe -- ça ne
+    // bloque pas la suppression, juste un avertissement dans le message
+    // de confirmation (le serveur les nettoiera en même temps que la
+    // classe).
+    let messageCount = 0;
+    try {
+      const commentCountResponse = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/comment/count/${encodeURIComponent(classe.name)}`,
+        { withCredentials: true },
+      );
+      messageCount = commentCountResponse.data.count;
+    } catch (error) {
+      console.error(error);
+    }
+
+    const messageWarning =
+      messageCount > 0
+        ? ` Attention, ${messageCount} message(s) de chat sont liés à cette classe et seront supprimés avec elle.`
+        : "";
+
     // Toutes les vérifications sont passées : on ne demande la
     // confirmation qu'à ce stade, pas avant (sinon le modal s'ouvre même
     // pour une suppression qui va de toute façon être refusée).
-    requestConfirm(`Supprimer la classe "${classe.name}" ?`, () => {
-      axios
-        .delete(`${process.env.REACT_APP_API_URL}/api/class/${classId}`)
-        .then(() => {
-          fetchClasses(); // Refresh the class list
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    });
+    requestConfirm(
+      `Supprimer la classe "${classe.name}" ?${messageWarning}`,
+      () => {
+        axios
+          .delete(`${process.env.REACT_APP_API_URL}/api/class/${classId}`)
+          .then(() => {
+            fetchClasses(); // Refresh the class list
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      },
+    );
   };
 
   const handleCourseTitle = (e, classId) => {
@@ -463,7 +488,7 @@ function Class({ onClassesChange }) {
                                 onClick={() => deleteClass(classe)}
                                 className="btn btn-danger"
                               >
-                                Supprimer la classe
+                                <DeleteForeverRoundedIcon />
                               </button>
                             )}
                           </div>
@@ -501,7 +526,7 @@ function Class({ onClassesChange }) {
                                     }
                                     className="btn btn-danger"
                                   >
-                                    Supprimer le fichier
+                                    <DeleteForeverRoundedIcon />
                                   </button>
                                 </div>
                               </li>
@@ -686,7 +711,7 @@ function Class({ onClassesChange }) {
                             onClick={() => deleteClass(classe)}
                             className="btn btn-danger"
                           >
-                            Supprimer la classe
+                            <DeleteForeverRoundedIcon />
                           </button>
                         )}
                       </div>
@@ -722,7 +747,7 @@ function Class({ onClassesChange }) {
                                 }
                                 className="btn btn-danger"
                               >
-                                Supprimer le fichier
+                                <DeleteForeverRoundedIcon />
                               </button>
                             </div>
                           </li>

@@ -41,6 +41,18 @@ const reviewSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  // Modération par un admin : l'avis reste en base (pour que son auteur
+  // sache pourquoi il a disparu) mais n'apparaît plus nulle part
+  // publiquement.
+  deletedByAdmin: {
+    type: Boolean,
+    default: false,
+  },
+  deletionReason: {
+    type: String,
+    trim: true,
+    default: "",
+  },
 });
 
 module.exports = mongoose.model("Review", reviewSchema);

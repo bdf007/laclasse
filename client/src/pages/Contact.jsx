@@ -3,6 +3,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { UserContext } from "../context/UserContext";
 import spin from "../assets/Spin.gif";
+import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
+import ConfirmModal from "../component/confirmModal";
 
 const Contact = () => {
   const [firstname, setFirstname] = useState("");
@@ -14,12 +16,13 @@ const Contact = () => {
   const { user } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(false);
   const [subject, setSubject] = useState("Nouveau message de contact");
+  const [confirmAction, setConfirmAction] = useState(null);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const getContact = async () => {
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/contact`
+        `${process.env.REACT_APP_API_URL}/api/contact`,
       );
       setListOfContact(res.data);
     } catch (error) {
@@ -54,7 +57,7 @@ const Contact = () => {
       setEmail(user.email);
       setClasses(user.classes);
       setSubject(
-        `Nouveau message de contact de ${user.firstname} ${user.lastname}`
+        `Nouveau message de contact de ${user.firstname} ${user.lastname}`,
       );
     }
     axios
@@ -95,17 +98,34 @@ const Contact = () => {
       });
   };
 
+  // Réécrit : demande de confirmation avant suppression. Si le message
+  // vient d'un élève actuellement assigné à une classe, le message
+  // d'avertissement est renforcé (comme pour les vins avec des bouteilles
+  // restantes), sans pour autant bloquer la suppression.
   const handleDelete = (id) => {
-    axios
-      .delete(`${process.env.REACT_APP_API_URL}/api/contact/${id}`)
-      .then(() => {
-        toast.success("Message supprimé");
-        setListOfContact(
-          listOfContact.filter((value) => {
-            return value._id !== id;
+    const contact = listOfContact.find((c) => c._id === id);
+    const confirmMessage = !contact
+      ? "Supprimer ce message ?"
+      : contact.classes
+        ? `Attention, ce message vient de ${contact.firstname} ${contact.lastname}, qui était dans la classe "${contact.classes}" au moment de l'envoi. Voulez-vous vraiment le supprimer ?`
+        : `Supprimer le message de ${contact.firstname} ${contact.lastname} ?`;
+
+    setConfirmAction({
+      message: confirmMessage,
+      onConfirm: () => {
+        axios
+          .delete(`${process.env.REACT_APP_API_URL}/api/contact/${id}`)
+          .then(() => {
+            toast.success("Message supprimé");
+            setListOfContact((prev) =>
+              prev.filter((value) => value._id !== id),
+            );
           })
-        );
-      });
+          .catch(() => {
+            toast.error("Erreur lors de la suppression");
+          });
+      },
+    });
   };
   useEffect(() => {
     // Populate form fields with user data if the user is logged in and has the role "user" or "student"
@@ -261,7 +281,7 @@ const Contact = () => {
                         handleDelete(value._id);
                       }}
                     >
-                      Supprimer le message
+                      <DeleteForeverRoundedIcon />
                     </button>
                   </div>
                 );
@@ -367,6 +387,17 @@ const Contact = () => {
           )}
         </div>
       </div>
+
+      {confirmAction && (
+        <ConfirmModal
+          message={confirmAction.message}
+          onConfirm={() => {
+            confirmAction.onConfirm();
+            setConfirmAction(null);
+          }}
+          onCancel={() => setConfirmAction(null)}
+        />
+      )}
     </div>
   );
 };

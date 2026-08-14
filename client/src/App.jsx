@@ -67,6 +67,7 @@ function App() {
             ) : // check if user is admin
             user.role === "admin" || user.role === "superadmin" ? (
               <>
+                <Route exact path="/aboutpublic" element={<AboutPublic />} />
                 <Route exact path="/Admin" element={<Admin />} />
                 <Route exact path="/AdminInfo" element={<AdminInfo />} />
                 <Route exact path="/chatadmin" element={<ChatAdmin />} />

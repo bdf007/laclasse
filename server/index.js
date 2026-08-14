@@ -25,6 +25,8 @@ const wineRoutes = require("./routes/wine");
 const reviewRoutes = require("./routes/review");
 // get the home photo routes for connection
 const homePhotoRoutes = require("./routes/homePhoto");
+// get the about page routes for connection
+const aboutPageRoutes = require("./routes/aboutPage");
 
 // middleware
 app.use(json({ limit: "10mb" }));
@@ -74,6 +76,8 @@ app.use("/api/", wineRoutes);
 app.use("/api/", reviewRoutes);
 // use the home photo routes for connection
 app.use("/api/", homePhotoRoutes);
+// use the about page routes for connection
+app.use("/api/", aboutPageRoutes);
 
 // Serve the React app
 app.get("/*", (req, res) => {

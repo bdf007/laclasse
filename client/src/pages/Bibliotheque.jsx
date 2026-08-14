@@ -4,12 +4,14 @@ import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
 import PopupBook from "../component/popupBook";
 import ImagePickerWithCrop from "../component/ImagePickerWithCrop";
+import ConfirmModal from "../component/confirmModal";
 
 //design
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
 import spin from "../assets/Spin.gif";
 
 const getBookImageUrl = (id) =>
@@ -58,6 +60,11 @@ const Bibliotheque = () => {
 
   const [show, setShow] = useState(false);
   const [width, setWidth] = useState(window.innerWidth);
+
+  // Popup de confirmation générique, réutilisée pour les suppressions
+  const [confirmAction, setConfirmAction] = useState(null);
+  const requestConfirm = (message, onConfirm) =>
+    setConfirmAction({ message, onConfirm });
 
   // get the list of the users
   const getListOfUsers = async () => {
@@ -302,20 +309,27 @@ const Bibliotheque = () => {
     return matchesSearchTitle && matchesSearchAuthor && matchesSearchGenre;
   });
 
-  const deleteBookById = async (id) => {
-    try {
-      // check if the book is emprunté
-      const book = listOfBooks.find((book) => book._id === id);
-      if (book.statut === "emprunté") {
-        toast.error("Ce livre est emprunté, vous ne pouvez pas le supprimer");
-        return;
-      }
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/book/${id}`);
-      toast.success("Livre supprimé avec succès");
-      setListOfBooks(listOfBooks.filter((book) => book._id !== id));
-    } catch (error) {
-      toast.error("Erreur lors de la suppression du livre");
+  // Corrigé : la vérification "livre emprunté" s'exécute avant la demande
+  // de confirmation, pas après -- sinon le modal s'ouvrirait même pour une
+  // suppression qui sera de toute façon refusée.
+  const deleteBookById = (id) => {
+    const book = listOfBooks.find((book) => book._id === id);
+    if (!book) return;
+
+    if (book.statut === "emprunté") {
+      toast.error("Ce livre est emprunté, vous ne pouvez pas le supprimer");
+      return;
     }
+
+    requestConfirm(`Supprimer le livre "${book.title}" ?`, async () => {
+      try {
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/book/${id}`);
+        toast.success("Livre supprimé avec succès");
+        setListOfBooks((prev) => prev.filter((b) => b._id !== id));
+      } catch (error) {
+        toast.error("Erreur lors de la suppression du livre");
+      }
+    });
   };
 
   const cancelEditing = () => {
@@ -1025,7 +1039,7 @@ const Bibliotheque = () => {
                               className="btn btn-danger"
                               onClick={() => deleteBookById(book._id)}
                             >
-                              Supprimer
+                              <DeleteForeverRoundedIcon />
                             </button>
                           </td>
                           <td>{book.statut}</td>
@@ -1079,6 +1093,17 @@ const Bibliotheque = () => {
           onClose={closeBookPopup}
           user={user}
           onUpdate={handleBookUpdate}
+        />
+      )}
+
+      {confirmAction && (
+        <ConfirmModal
+          message={confirmAction.message}
+          onConfirm={() => {
+            confirmAction.onConfirm();
+            setConfirmAction(null);
+          }}
+          onCancel={() => setConfirmAction(null)}
         />
       )}
     </div>
